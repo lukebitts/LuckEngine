@@ -7,7 +7,7 @@ using namespace core;
 using namespace event;
 using namespace scene;
 
-Component(TestComponent)
+Component(Test)
 {
     void init()
     {
@@ -26,12 +26,17 @@ Component(TestComponent)
     }
     void handleEnterFrame(EnterFrameEvent* e)
     {
-        _var += 10.f * e->deltaTime; //this means that _var will increase by 10 each second, but _var
+        /*_var += 10.f * e->deltaTime; //this means that _var will increase by 10 each second, but _var
                                      // has to be a float for it to work, you will have to cast it to
                                      // int later if you don't want a float value.
-        //std::cout<<(u32)_var<<"\n";
+        //std::cout<<(u32)_var<<"\n";*/
+
+        Keyboard* k = owner->get<Keyboard>("Keyboard");
+        if(k->isDown(GLFW_KEY_DOWN))
+            std::cout<<"a";
+
     }
-    ~TestComponent(){ }
+    ~Test(){ }
     private:
         f32 _var;
 };
@@ -46,19 +51,18 @@ int main(int argc, char* argv[])
     SceneManager* smgr = SceneManager::getInstance();
 
     Entity* e = smgr->createEntity("PLAYER")
-        ->add("TestComponent")
-        ->get<TestComponent>("TestComponent")
+        ->add("Test Keyboard")
+        ->get<Test>("Test")
         ->var(0);
 
     int     width, height;
     int     frame = 0;
-    bool    running = true;
 
-    while(running)
+    while(lkw->isRunning())
     {
         smgr->updateScene();
 
-        frame++;
+        /*frame++;
 
         glfwGetWindowSize( &width, &height );
         height = height > 0 ? height : 1;
@@ -97,10 +101,7 @@ int main(int argc, char* argv[])
           glColor3f(1.0f, 0.0f, 0.0f );
           glVertex3f(-3.0f, -2.0f, 2.0f);
         glEnd();
-        glfwSwapBuffers();
-
-        // exit if ESC was pressed or window was closed
-        running = !glfwGetKey(GLFW_KEY_ESC) && glfwGetWindowParam(GLFW_OPENED);
+        glfwSwapBuffers();*/
     }
 
     glfwTerminate();

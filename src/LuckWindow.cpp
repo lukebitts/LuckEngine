@@ -1,5 +1,7 @@
 #include "LuckWindow.h"
+#include "KeyEvent.h"
 #include <GL/glfw.h>
+//#include <iostream>
 using namespace luck;
 
 LuckWindow* LuckWindow::_instance = nullptr;
@@ -8,6 +10,18 @@ LuckWindow::LuckWindow()
 {
     glfwInit();
     _running = true;
+}
+
+void LuckWindow::keyCallback(s32 key, s32 action)
+{
+    _instance->dispatchEvent(action ? "KeyDown" : "KeyUp", new event::KeyEvent(key, action));
+}
+
+bool LuckWindow::isRunning()
+{
+    glfwPollEvents();
+    _running = !glfwGetKey(GLFW_KEY_ESC) && glfwGetWindowParam(GLFW_OPENED);
+    return _running;
 }
 
 void LuckWindow::setWindowCaption(string caption)
@@ -23,6 +37,7 @@ LuckWindow* createLuckWindow(u16 width, u16 height, u16 redbits, u16 greenbits, 
     {
         lkw->width = width;
         lkw->height = height;
+        glfwSetKeyCallback(LuckWindow::keyCallback);
         return lkw;
     }
     return nullptr;

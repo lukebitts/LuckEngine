@@ -1,3 +1,4 @@
+#include <GL/glfw.h>
 #include "luck.h"
 #include "core.h"
 #include "detail.h"
@@ -10,3 +11,4 @@
 #include "SceneManager.h"
 #include "EnterFrameEvent.h"
 #include "LuckWindow.h"
+#include "KeyboardComponent.h"
