@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="LuckEngine" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Option virtualFolders="luck\;luck\core\;luck\scene\;luck\event\;" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin\Debug\TestGLFW" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="C:\Users\Lucas\Desktop\c++\glfw-2.7.4.bin.WIN32\lib-mingw\bin" />
+				<Option object_output="obj\Debug\" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-std=c++0x" />
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin\Release\TestGLFW" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="C:\Users\Lucas\Desktop\c++\glfw-2.7.4.bin.WIN32\lib-mingw\bin" />
+				<Option object_output="obj\Release\" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-std=c++0x" />
+			<Add option="-Wall" />
+			<Add directory="C:\Users\Lucas\Desktop\c++\glfw-2.7.4.bin.WIN32\lib-mingw\include" />
+			<Add directory="include" />
+		</Compiler>
+		<Linker>
+			<Add library="glfw" />
+			<Add library="opengl32" />
+			<Add library="glu32" />
+			<Add library="gdi32" />
+			<Add directory="C:\Users\Lucas\Desktop\c++\glfw-2.7.4.bin.WIN32\lib-mingw\lib" />
+		</Linker>
+		<Unit filename="include\Entity.h">
+			<Option virtualFolder="luck\core\" />
+		</Unit>
+		<Unit filename="include\EventDispatcher.h">
+			<Option virtualFolder="luck\event\" />
+		</Unit>
+		<Unit filename="include\IComponent.h">
+			<Option virtualFolder="luck\core\" />
+		</Unit>
+		<Unit filename="include\IEventReceiver.h">
+			<Option virtualFolder="luck\event\" />
+		</Unit>
+		<Unit filename="include\LuckWindow.h">
+			<Option virtualFolder="luck\" />
+		</Unit>
+		<Unit filename="include\SceneManager.h">
+			<Option virtualFolder="luck\scene\" />
+		</Unit>
+		<Unit filename="include\core.h">
+			<Option virtualFolder="luck\core\" />
+		</Unit>
+		<Unit filename="include\event.h">
+			<Option virtualFolder="luck\event\" />
+		</Unit>
+		<Unit filename="include\luck.h">
+			<Option virtualFolder="luck\" />
+		</Unit>
+		<Unit filename="include\placeholder.h" />
+		<Unit filename="main.cpp" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
