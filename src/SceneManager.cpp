@@ -78,7 +78,7 @@ void SceneManager::updateScene()
     if(clock() - _lastTime >= CLOCKS_PER_SEC/(f64)_FPS )
     {
         f64 deltaTime = (clock() - _lastTime) / CLOCKS_PER_SEC;
-        _currentFrame += deltaTime;
+        _currentFrame += 1;// + 1 * deltaTime;
         for(auto it = _entities.begin(); it != _entities.end(); it++)
         {
             EnterFrameEvent* evt = new EnterFrameEvent();
@@ -93,12 +93,15 @@ void SceneManager::updateScene()
 void SceneManager::drawScene(core::Color4<u8> clearColor)
 {
     LuckWindow* lkw = LuckWindow::getInstance();
-
     glViewport( 0, 0, lkw->width, lkw->height );
+
     glClearColor((f32)clearColor.r/255, (f32)clearColor.g/255, (f32)clearColor.b/255, (f32)clearColor.a/255);
     glClear( GL_COLOR_BUFFER_BIT );
 
     Entity* ent = _cameras[_activeCamera];
+
+    if(!ent) return;
+
     Position* pos = ent->get<Position>("Position");
     Camera* cam = ent->get<Camera>("Camera");
 
@@ -108,7 +111,7 @@ void SceneManager::drawScene(core::Color4<u8> clearColor)
 
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
-    gluLookAt(pos->position.x, pos->position.y, pos->position.z,
+    gluLookAt(pos->_position.x, pos->_position.y, pos->_position.z,
               0.0f, 0.0f, 0.f,
               cam->_up.x, cam->_up.y, cam->_up.z );
 }

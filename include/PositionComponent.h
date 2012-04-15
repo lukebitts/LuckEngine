@@ -9,14 +9,12 @@ namespace luck { namespace core
     //TODO: Add a parent to the component, so it will be in relative position this parent
     Component(Position)
     {
-        Vector3<f32> position;
-        Vector3<f32> rotation;
+        Vector3<f32> _position;
+        Vector3<f32> _rotation;
         void init(){}
         void handleEvent(string name, event::Event* e){}
-        Vector3<f32> pos(){ return position; }
-        Position* pos(Vector3<f32> position){ this->position = position; return this; }
-        Vector3<f32> rot(){ return rotation; }
-        Position* rot(Vector3<f32> rotation){ this->rotation = rotation; return this; }
+        Position* position(Vector3<f32> position){ _position = position; return this; }
+        Position* rotation(Vector3<f32> rotation){ _rotation = rotation; return this; }
         Position* lookAt(Vector3<f32> target)
         {
             //TODO

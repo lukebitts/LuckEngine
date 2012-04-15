@@ -23,7 +23,7 @@ namespace luck { namespace core
         }
         Vector3<f32> calculateLookAtFromRotation()
         {
-            Vector3<f32> rot = owner->get<Position>("Position")->rotation;
+            Vector3<f32> rot = owner->get<Position>("Position")->_rotation;
             return rot;
         }
         Camera* fov(f32 fov)
