@@ -104,11 +104,11 @@ void SceneManager::drawScene(core::Color4<u8> clearColor)
 
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
-    gluPerspective( cam->fov, cam->aspect, cam->near, cam->far );
+    gluPerspective( cam->_fov, cam->_aspect, cam->_near, cam->_far );
 
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
     gluLookAt(pos->position.x, pos->position.y, pos->position.z,
               0.0f, 0.0f, 0.f,
-              cam->up.x, cam->up.y, cam->up.z );
+              cam->_up.x, cam->_up.y, cam->_up.z );
 }

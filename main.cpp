@@ -1,4 +1,5 @@
 #include <iostream>
+#include <math.h>
 #include "LuckEngine.h"
 
 using namespace luck;
@@ -49,7 +50,7 @@ int main(int argc, char* argv[])
         ->pos(Vector3<f32>(0.f,-10.f,0.f))
         ->owner
         ->get<Camera>("Camera")
-        ->setUp(Vector3<f32>(0.f,0.f,1.f))
+        ->up(Vector3<f32>(0.f,0.f,1.f))
         ->owner;
 
     Entity* camera2 = smgr->createEntity("Camera")
@@ -57,7 +58,8 @@ int main(int argc, char* argv[])
         ->pos(Vector3<f32>(0.f,10.f,0.f))
         ->owner
         ->get<Camera>("Camera")
-        ->setUp(Vector3<f32>(0.f,0.f,1.f))
+        ->fov(65.f)->near(1.f)->far(500.f)
+        ->up(Vector3<f32>(0.f,0.f,1.f))
         ->owner;
 
     smgr->addCamera("cam1", camera1);
@@ -76,6 +78,8 @@ int main(int argc, char* argv[])
 
         smgr->updateScene();
         smgr->drawScene(Color4<u8>(100,101,140,255));
+
+        camera2->get<Position>("Position")->position.x += sinf((f32)frame*50);
 
         glRotatef(frame, 0.25f, 1.0f, 0.75f);
         glBegin( GL_TRIANGLES );
@@ -115,6 +119,8 @@ BoundingBox (3D apenas)*
 Keyboard
 Mouse (em 3D vai ser fodinha fazer, mas é necessário)
 - Para funcionar em 3D precisa de uma bounding box além da VertexList
+Luzes
+Billboard
 
 *Não tão básicos
 

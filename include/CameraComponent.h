@@ -3,15 +3,16 @@
 #include "luck.h"
 #include "IComponent.h"
 #include "Vector3.h"
+#include "PositionComponent.h"
 namespace luck { namespace core
 {
     Component(Camera)
     {
-        Vector3<f32> up;
-        f32 fov;
-        f32 aspect;
-        f32 near;
-        f32 far;
+        Vector3<f32> _up;
+        f32 _fov;
+        f32 _aspect;
+        f32 _near;
+        f32 _far;
         void init()
         {
             owner->requires("Position");
@@ -22,29 +23,42 @@ namespace luck { namespace core
         }
         Vector3<f32> calculateLookAtFromRotation()
         {
-
+            Vector3<f32> rot = owner->get<Position>("Position")->rotation;
+            return rot;
         }
-        Camera* set(f32 fov, f32 aspect, f32 near, f32 far)
+        Camera* fov(f32 fov)
         {
-            this->fov = fov;
-            this->aspect = aspect;
-            this->near = near;
-            this->far = far;
+            _fov = fov;
             return this;
         }
-        Camera* setUp(Vector3<f32> up)
+        Camera* aspect(f32 aspect)
         {
-            this->up = up;
+            _aspect = aspect;
+            return this;
+        }
+        Camera* near(f32 near)
+        {
+            _near = near;
+            return this;
+        }
+        Camera* far(f32 far)
+        {
+            _far = far;
+            return this;
+        }
+        Camera* up(Vector3<f32> up)
+        {
+            _up = up;
             return this;
         }
         Camera()
         {
             LuckWindow* lkw = LuckWindow::getInstance();
-            up = Vector3<f32>();
-            fov = 65.f;
-            aspect = lkw->width/lkw->height;
-            near = 1.f;
-            far = 100.f;
+            _up = Vector3<f32>();
+            _fov = 65.f;
+            _aspect = lkw->width/lkw->height;
+            _near = 1.f;
+            _far = 100.f;
         }
     };
 }}
