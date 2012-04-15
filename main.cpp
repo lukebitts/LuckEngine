@@ -10,6 +10,7 @@ Component(Test)
 {
     void init()
     {
+        owner->requires("Keyboard");
         owner->addEventListener("EnterFrame",this);
     }
     void handleEvent(string type, Event* e)
@@ -17,16 +18,8 @@ Component(Test)
         if(type == "EnterFrame")
             this->handleEnterFrame((EnterFrameEvent*)e);
     }
-    f32 var(){ return _var; }
-    Test* var(f32 var)
-    {
-        _var = var;
-        return this;
-    }
     void handleEnterFrame(EnterFrameEvent* e)
     {
-        _var += 1.f * e->deltaTime; //this means that _var will increase by 1 each second
-
         Keyboard* k = owner->get<Keyboard>("Keyboard");
         if(k->isDown('A'))
         {
@@ -34,8 +27,6 @@ Component(Test)
         }
     }
     ~Test(){ }
-    private:
-        f32 _var;
 };
 
 int main(int argc, char* argv[])
@@ -47,41 +38,66 @@ int main(int argc, char* argv[])
 
     SceneManager* smgr = SceneManager::getInstance();
 
-    Entity* e = smgr->createEntity("PLAYER");
-    e->add("Test Keyboard Position");
-    e->get<Test>("Test")->var(0);
-    e->get<Position>("Position")->pos(Vector3<f32>(0.f,0.f,0.f));
+    smgr->createEntity("PLAYER")
+        ->add("Test Position")
+        ->get<Position>("Position")
+        ->pos(Vector3<f32>(0.f,1.f,0.f))
+        ->lookAt(Vector3<f32>(0.f,-1.f,0.f));
 
-    int     width, height;
-    int     frame = 0;
+    Entity* camera1 = smgr->createEntity("Camera")
+        ->get<Position>("Position")
+        ->pos(Vector3<f32>(0.f,-10.f,0.f))
+        ->owner
+        ->get<Camera>("Camera")
+        ->setUp(Vector3<f32>(0.f,0.f,1.f))
+        ->owner;
+
+    Entity* camera2 = smgr->createEntity("Camera")
+        ->get<Position>("Position")
+        ->pos(Vector3<f32>(0.f,10.f,0.f))
+        ->owner
+        ->get<Camera>("Camera")
+        ->setUp(Vector3<f32>(0.f,0.f,1.f))
+        ->owner;
+
+    smgr->addCamera("cam1", camera1);
+    smgr->addCamera("cam2", camera2);
+
+    bool curcam = false;
+    u64 frame = 0;
 
     while(lkw->isRunning())
     {
-        smgr->updateScene();
-
         frame++;
+        if(frame % 100 == 0) curcam = !curcam;
 
-        glfwGetWindowSize( &width, &height );
-        height = height > 0 ? height : 1;
+        if(curcam) smgr->setActiveCamera("cam1");
+        else       smgr->setActiveCamera("cam2");
 
-        glViewport( 0, 0, width, height );
+        smgr->updateScene();
+        smgr->drawScene(Color4<f32>(100.f/255.f,101.f/255.f,140.f/255.f,1.f));
 
-        glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
-        glClear( GL_COLOR_BUFFER_BIT );
+        //glfwGetWindowSize( &width, &height );
+        //height = height > 0 ? height : 1;
 
-        glMatrixMode( GL_PROJECTION );
-        glLoadIdentity();
-        gluPerspective( 65.0f, (GLfloat)width/(GLfloat)height, 1.0f, 100.0f );
+        //glViewport( 0, 0, 1024, 768 );
+
+        //glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
+        //glClear( GL_COLOR_BUFFER_BIT );
+
+        //glMatrixMode( GL_PROJECTION );
+        //glLoadIdentity();
+        //gluPerspective( 65.0f, (GLfloat)1024/(GLfloat)768, 1.0f, 100.0f );
 
         // Draw some rotating garbage
-        glMatrixMode( GL_MODELVIEW );
-        glLoadIdentity();
-        gluLookAt(0.0f, -10.0f, 0.0f,
-                  0.0f, 0.0f, (f32)frame/25,
-                  0.0f, 0.0f, 1.0f );
+        //glMatrixMode( GL_MODELVIEW );
+        //glLoadIdentity();
+        //gluLookAt(0.0f, -10.0f, 0.0f,
+        //          0.0f, 0.0f, 0.f,
+        //          0.0f, 0.0f, 1.0f );
 
         //glTranslatef( 1.0f, 1.0f, 0.0f );
-        glRotatef(frame, 0.25f, 1.0f, 0.75f);
+        glRotatef(0, 0.25f, 1.0f, 0.75f);
         glBegin( GL_TRIANGLES );
           glColor3f(0.0f, 0.0f, 0.0f );
           glVertex3f(1.0f, 3.0f, -4.0f);

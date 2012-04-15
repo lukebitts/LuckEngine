@@ -42,15 +42,19 @@
 1334429671 source:d:\projetos\programacao\luckengine\src\ieventreceiver.cpp
 	"IEventReceiver.h"
 
-1334469243 source:d:\projetos\programacao\luckengine\src\scenemanager.cpp
+1334516851 source:d:\projetos\programacao\luckengine\src\scenemanager.cpp
 	"SceneManager.h"
 	"EnterFrameEvent.h"
 	<time.h>
+	"CameraComponent.h"
+	"PositionComponent.h"
 
-1334498147 d:\projetos\programacao\luckengine\include\scenemanager.h
+1334516241 d:\projetos\programacao\luckengine\include\scenemanager.h
+	<GL/glfw.h>
 	"luck.h"
 	"Entity.h"
 	"LuckWindow.h"
+	"Color4.h"
 
 1334496611 d:\projetos\programacao\luckengine\include\luckwindow.h
 	"luck.h"
@@ -67,7 +71,7 @@
 	"KeyEvent.h"
 	<GL/glfw.h>
 
-1334510446 source:d:\projetos\programacao\luckengine\main.cpp
+1334516341 source:d:\projetos\programacao\luckengine\main.cpp
 	<iostream>
 	"LuckEngine.h"
 
@@ -79,7 +83,7 @@
 	<GL/gl.h>
 	<GL/glu.h>
 
-1334509862 d:\projetos\programacao\luckengine\include\luckengine.h
+1334511542 d:\projetos\programacao\luckengine\include\luckengine.h
 	<GL/glfw.h>
 	"luck.h"
 	"core.h"
@@ -97,6 +101,7 @@
 	"Vector3.h"
 	"Color4.h"
 	"PositionComponent.h"
+	"CameraComponent.h"
 
 1334499371 d:\projetos\programacao\luckengine\include\keyboardcomponent.h
 	"IComponent.h"
@@ -108,9 +113,15 @@
 
 1334508149 d:\projetos\programacao\luckengine\include\vector3.h
 
-1334503672 d:\projetos\programacao\luckengine\include\color4.h
+1334515094 d:\projetos\programacao\luckengine\include\color4.h
 
-1334510440 d:\projetos\programacao\luckengine\include\positioncomponent.h
+1334511429 d:\projetos\programacao\luckengine\include\positioncomponent.h
+	"luck.h"
+	"IComponent.h"
+	"Entity.h"
+	"Vector3.h"
+
+1334517177 d:\projetos\programacao\luckengine\include\cameracomponent.h
 	"luck.h"
 	"IComponent.h"
 	"Vector3.h"

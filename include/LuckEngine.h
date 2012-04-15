@@ -15,3 +15,4 @@
 #include "Vector3.h"
 #include "Color4.h"
 #include "PositionComponent.h"
+#include "CameraComponent.h"

@@ -9,6 +9,17 @@ namespace luck { namespace core
         T r;
         T g;
         T b;
+        Color4()
+        {
+            a = r = g = b = (T)0;
+        }
+        Color4(T r, T g, T b, T a)
+        {
+            this->a = a;
+            this->r = r;
+            this->g = g;
+            this->b = b;
+        }
     };
 }}
 #endif

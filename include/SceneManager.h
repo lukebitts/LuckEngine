@@ -1,8 +1,10 @@
 #ifndef SCENEMANAGER_H
 #define SCENEMANAGER_H
+#include <GL/glfw.h>
 #include "luck.h"
 #include "Entity.h"
 #include "LuckWindow.h"
+#include "Color4.h"
 namespace luck { namespace scene
 {
     class SceneManager : public event::EventDispatcher, public event::IEventReceiver
@@ -14,11 +16,14 @@ namespace luck { namespace scene
             u16 _FPS;
             f64 _lastTime;
             map<u64, core::Entity*> _entities;
+            map<string, core::Entity*> _cameras;
+            std::string _activeCamera;
             static SceneManager* _instance;
             SceneManager()
             {
                 _currentId = 0;
                 _currentFrame = 0;
+                _activeCamera = "";
                 _FPS = 60;
 
                 LuckWindow* lkw = LuckWindow::getInstance();
@@ -39,8 +44,10 @@ namespace luck { namespace scene
             void destroyEntity(u64 id);
             core::Entity* find(u64 id);
             vector<core::Entity*> find(string components);
+            void addCamera(string name, core::Entity* cam);
+            void setActiveCamera(string name);
             void updateScene();
-            void drawScene();
+            void drawScene(core::Color4<f32> clearColor);
     };
 }}
 #endif
