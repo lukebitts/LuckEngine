@@ -12,3 +12,6 @@
 #include "EnterFrameEvent.h"
 #include "LuckWindow.h"
 #include "KeyboardComponent.h"
+#include "Vector3.h"
+#include "Color4.h"
+#include "PositionComponent.h"

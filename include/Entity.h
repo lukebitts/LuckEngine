@@ -16,6 +16,7 @@ namespace luck { namespace core
             void handleEvent(string s, event::Event* e = nullptr);
             Entity* add(string components);
             Entity* remove(string name);
+            Entity* requires(string components);
             template <class T>
             T* get(string name){ return (T*)(_components[name]); }
             bool has(string name)
