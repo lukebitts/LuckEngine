@@ -5,16 +5,16 @@
 		<Cursor position="546" topLine="0" />
 	</File>
 	<File name="include\EventDispatcher.h" open="1" top="0" tabpos="6">
-		<Cursor position="1420" topLine="0" />
+		<Cursor position="574" topLine="0" />
 	</File>
 	<File name="include\IComponent.h" open="1" top="0" tabpos="4">
 		<Cursor position="196" topLine="0" />
 	</File>
-	<File name="include\IEventReceiver.h" open="1" top="1" tabpos="8">
-		<Cursor position="447" topLine="0" />
+	<File name="include\IEventReceiver.h" open="1" top="0" tabpos="8">
+		<Cursor position="201" topLine="0" />
 	</File>
-	<File name="include\LuckWindow.h" open="0" top="0" tabpos="0">
-		<Cursor position="100" topLine="0" />
+	<File name="include\LuckWindow.h" open="1" top="0" tabpos="9">
+		<Cursor position="695" topLine="0" />
 	</File>
 	<File name="include\SceneManager.h" open="0" top="0" tabpos="0">
 		<Cursor position="84" topLine="0" />
@@ -29,6 +29,9 @@
 		<Cursor position="98" topLine="0" />
 	</File>
 	<File name="main.cpp" open="1" top="0" tabpos="1">
-		<Cursor position="986" topLine="30" />
+		<Cursor position="20" topLine="0" />
+	</File>
+	<File name="src\LuckWindow.cpp" open="1" top="1" tabpos="10">
+		<Cursor position="25" topLine="0" />
 	</File>
 </CodeBlocks_layout_file>

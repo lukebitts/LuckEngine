@@ -18,6 +18,6 @@ namespace luck
     };
 }
 
-luck::LuckWindow* createLuckWindow(luck::u16 width, luck::u16 height, luck::u16 redbits, luck::u16 greenbits, luck::u16 bluebits,
-               luck::u16 alphabits, luck::u16 depthbits, luck::u16 stencilbits);
+/*luck::s32 createLuckWindow(luck::u16 width, luck::u16 height, luck::u16 redbits = 0, luck::u16 greenbits = 0, luck::u16 bluebits = 0,
+               luck::u16 alphabits = 0, luck::u16 depthbits = 0, luck::u16 stencilbits = 0);*/
 #endif

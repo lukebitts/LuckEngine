@@ -8,8 +8,8 @@
 		<Option virtualFolders="luck\;luck\core\;luck\scene\;luck\event\;" />
 		<Build>
 			<Target title="Debug">
-				<Option output="bin\Debug\TestGLFW" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="C:\Users\Lucas\Desktop\c++\glfw-2.7.4.bin.WIN32\lib-mingw\bin" />
+				<Option output="bin\Debug\LuckEngine" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="..\glfw-2.7.4.bin.WIN32\lib-mingw\" />
 				<Option object_output="obj\Debug\" />
 				<Option type="1" />
 				<Option compiler="gcc" />
@@ -19,10 +19,9 @@
 				</Compiler>
 			</Target>
 			<Target title="Release">
-				<Option output="bin\Release\TestGLFW" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="C:\Users\Lucas\Desktop\c++\glfw-2.7.4.bin.WIN32\lib-mingw\bin" />
+				<Option output="bin\Release\LuckEngine" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj\Release\" />
-				<Option type="0" />
+				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
