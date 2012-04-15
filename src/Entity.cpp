@@ -46,6 +46,17 @@ Entity* Entity::remove(string name)
     return this;
 }
 
+Entity* Entity::requires(string components)
+{
+    vector<string> x = split(components, ' ');
+    for(u16 i = 0; i < x.size(); i++)
+    {
+        if(!has(x[i]))
+            _add(x[i]);
+    }
+    return this;
+}
+
 Entity::Entity(u64 id, string components)
 {
     this->id = id;

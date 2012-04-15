@@ -1,8 +1,8 @@
 # depslib dependency file v1.0
-1334452409 source:d:\projetos\programacao\luckengine\src\entity.cpp
+1334510640 source:d:\projetos\programacao\luckengine\src\entity.cpp
 	"Entity.h"
 
-1334451890 d:\projetos\programacao\luckengine\include\entity.h
+1334510570 d:\projetos\programacao\luckengine\include\entity.h
 	"luck.h"
 	"EventDispatcher.h"
 	"IComponent.h"
@@ -62,14 +62,13 @@
 1334431990 source:d:\projetos\programacao\luckengine\src\split.cpp
 	"Split.h"
 
-1334497886 source:d:\projetos\programacao\luckengine\src\luckwindow.cpp
+1334499576 source:d:\projetos\programacao\luckengine\src\luckwindow.cpp
 	"LuckWindow.h"
 	"KeyEvent.h"
 	<GL/glfw.h>
 
-1334496135 source:d:\projetos\programacao\luckengine\main.cpp
+1334510446 source:d:\projetos\programacao\luckengine\main.cpp
 	<iostream>
-	<GL/glfw.h>
 	"LuckEngine.h"
 
 1334372197 d:\projetos\programacao\glfw-2.7.4.bin.win32\include\gl\glfw.h
@@ -80,7 +79,8 @@
 	<GL/gl.h>
 	<GL/glu.h>
 
-1334496885 d:\projetos\programacao\luckengine\include\luckengine.h
+1334509862 d:\projetos\programacao\luckengine\include\luckengine.h
+	<GL/glfw.h>
 	"luck.h"
 	"core.h"
 	"detail.h"
@@ -94,12 +94,24 @@
 	"EnterFrameEvent.h"
 	"LuckWindow.h"
 	"KeyboardComponent.h"
+	"Vector3.h"
+	"Color4.h"
+	"PositionComponent.h"
 
-1334498215 d:\projetos\programacao\luckengine\include\keyboardcomponent.h
+1334499371 d:\projetos\programacao\luckengine\include\keyboardcomponent.h
 	"IComponent.h"
 	"KeyEvent.h"
 	"SceneManager.h"
 
 1334497623 d:\projetos\programacao\luckengine\include\keyevent.h
 	"event.h"
+
+1334508149 d:\projetos\programacao\luckengine\include\vector3.h
+
+1334503672 d:\projetos\programacao\luckengine\include\color4.h
+
+1334510440 d:\projetos\programacao\luckengine\include\positioncomponent.h
+	"luck.h"
+	"IComponent.h"
+	"Vector3.h"
 

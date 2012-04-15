@@ -1,5 +1,4 @@
 #include <iostream>
-#include <GL/glfw.h>
 #include "LuckEngine.h"
 
 using namespace luck;
@@ -13,28 +12,26 @@ Component(Test)
     {
         owner->addEventListener("EnterFrame",this);
     }
-    void handleEvent(string type, Event* e = nullptr)
+    void handleEvent(string type, Event* e)
     {
         if(type == "EnterFrame")
             this->handleEnterFrame((EnterFrameEvent*)e);
     }
     f32 var(){ return _var; }
-    Entity* var(f32 var)
+    Test* var(f32 var)
     {
         _var = var;
-        return owner;
+        return this;
     }
     void handleEnterFrame(EnterFrameEvent* e)
     {
-        /*_var += 10.f * e->deltaTime; //this means that _var will increase by 10 each second, but _var
-                                     // has to be a float for it to work, you will have to cast it to
-                                     // int later if you don't want a float value.
-        //std::cout<<(u32)_var<<"\n";*/
+        _var += 1.f * e->deltaTime; //this means that _var will increase by 1 each second
 
         Keyboard* k = owner->get<Keyboard>("Keyboard");
-        if(k->isDown(GLFW_KEY_DOWN))
+        if(k->isDown('A'))
+        {
             std::cout<<"a";
-
+        }
     }
     ~Test(){ }
     private:
@@ -50,10 +47,10 @@ int main(int argc, char* argv[])
 
     SceneManager* smgr = SceneManager::getInstance();
 
-    Entity* e = smgr->createEntity("PLAYER")
-        ->add("Test Keyboard")
-        ->get<Test>("Test")
-        ->var(0);
+    Entity* e = smgr->createEntity("PLAYER");
+    e->add("Test Keyboard Position");
+    e->get<Test>("Test")->var(0);
+    e->get<Position>("Position")->pos(Vector3<f32>(0.f,0.f,0.f));
 
     int     width, height;
     int     frame = 0;
@@ -62,7 +59,7 @@ int main(int argc, char* argv[])
     {
         smgr->updateScene();
 
-        /*frame++;
+        frame++;
 
         glfwGetWindowSize( &width, &height );
         height = height > 0 ? height : 1;
@@ -80,7 +77,7 @@ int main(int argc, char* argv[])
         glMatrixMode( GL_MODELVIEW );
         glLoadIdentity();
         gluLookAt(0.0f, -10.0f, 0.0f,
-                  0.0f, 0.0f, 0.0f,
+                  0.0f, 0.0f, (f32)frame/25,
                   0.0f, 0.0f, 1.0f );
 
         //glTranslatef( 1.0f, 1.0f, 0.0f );
@@ -101,7 +98,7 @@ int main(int argc, char* argv[])
           glColor3f(1.0f, 0.0f, 0.0f );
           glVertex3f(-3.0f, -2.0f, 2.0f);
         glEnd();
-        glfwSwapBuffers();*/
+        glfwSwapBuffers();
     }
 
     glfwTerminate();
