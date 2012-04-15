@@ -8,7 +8,7 @@
 	"IComponent.h"
 	"Split.h"
 
-1334432090 d:\projetos\programacao\luckengine\include\luck.h
+1334468591 d:\projetos\programacao\luckengine\include\luck.h
 	<string>
 	<map>
 	<vector>
@@ -42,17 +42,17 @@
 1334429671 source:d:\projetos\programacao\luckengine\src\ieventreceiver.cpp
 	"IEventReceiver.h"
 
-1334456397 source:d:\projetos\programacao\luckengine\src\scenemanager.cpp
+1334469243 source:d:\projetos\programacao\luckengine\src\scenemanager.cpp
 	"SceneManager.h"
 	"EnterFrameEvent.h"
 	<time.h>
 
-1334456869 d:\projetos\programacao\luckengine\include\scenemanager.h
+1334469207 d:\projetos\programacao\luckengine\include\scenemanager.h
 	"luck.h"
 	"Entity.h"
 	"LuckWindow.h"
 
-1334460457 d:\projetos\programacao\luckengine\include\luckwindow.h
+1334494966 d:\projetos\programacao\luckengine\include\luckwindow.h
 	"luck.h"
 	"EventDispatcher.h"
 
@@ -62,12 +62,24 @@
 1334431990 source:d:\projetos\programacao\luckengine\src\split.cpp
 	"Split.h"
 
-1334460469 source:d:\projetos\programacao\luckengine\src\luckwindow.cpp
+1334494629 source:d:\projetos\programacao\luckengine\src\luckwindow.cpp
 	"LuckWindow.h"
-
-1334460495 source:d:\projetos\programacao\luckengine\main.cpp
 	<GL/glfw.h>
+
+1334494882 source:d:\projetos\programacao\luckengine\main.cpp
 	<iostream>
+	<GL/glfw.h>
+	"LuckEngine.h"
+
+1334372197 d:\projetos\programacao\glfw-2.7.4.bin.win32\include\gl\glfw.h
+	<OpenGL/gl3.h>
+	<OpenGL/gl.h>
+	<OpenGL/glu.h>
+	<GL3/gl3.h>
+	<GL/gl.h>
+	<GL/glu.h>
+
+1334468981 d:\projetos\programacao\luckengine\include\luckengine.h
 	"luck.h"
 	"core.h"
 	"detail.h"
@@ -80,12 +92,4 @@
 	"SceneManager.h"
 	"EnterFrameEvent.h"
 	"LuckWindow.h"
-
-1334372197 d:\projetos\programacao\glfw-2.7.4.bin.win32\include\gl\glfw.h
-	<OpenGL/gl3.h>
-	<OpenGL/gl.h>
-	<OpenGL/glu.h>
-	<GL3/gl3.h>
-	<GL/gl.h>
-	<GL/glu.h>
 

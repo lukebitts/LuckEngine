@@ -22,8 +22,10 @@ namespace luck
     typedef unsigned char u8;
 
     typedef std::string string;
-    #define map std::map
-    #define vector std::vector
+    using std::map;
+    using std::vector;
+    //#define map std::map
+    //#define vector std::vector
 }
 
 #endif

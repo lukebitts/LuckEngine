@@ -1,18 +1,6 @@
-#include <GL/glfw.h>
 #include <iostream>
-
-#include "luck.h"
-#include "core.h"
-#include "detail.h"
-#include "event.h"
-#include "IEventReceiver.h"
-#include "IComponent.h"
-#include "Split.h"
-#include "EventDispatcher.h"
-#include "Entity.h"
-#include "SceneManager.h"
-#include "EnterFrameEvent.h"
-#include "LuckWindow.h"
+#include <GL/glfw.h>
+#include "LuckEngine.h"
 
 using namespace luck;
 using namespace core;
@@ -38,7 +26,7 @@ Component(TestComponent)
     }
     void handleEnterFrame(EnterFrameEvent* e)
     {
-        _var += 1.f * e->deltaTime; //this means that _var will increase by 10 each second, but _var
+        _var += 10.f * e->deltaTime; //this means that _var will increase by 10 each second, but _var
                                      // has to be a float for it to work, you will have to cast it to
                                      // int later if you don't want a float value.
         //std::cout<<(u32)_var<<"\n";
@@ -50,7 +38,11 @@ Component(TestComponent)
 
 int main(int argc, char* argv[])
 {
-    LuckWindow* lkw = LuckWindow::getInstance();
+
+    LuckWindow* lkw = createLuckWindow(1024,768);
+    if(!lkw) return -1;
+    lkw->setWindowCaption("LuckEngine");
+
     SceneManager* smgr = SceneManager::getInstance();
 
     Entity* e = smgr->createEntity("PLAYER")
@@ -58,19 +50,9 @@ int main(int argc, char* argv[])
         ->get<TestComponent>("TestComponent")
         ->var(0);
 
-    /*int     width, height;
+    int     width, height;
     int     frame = 0;
     bool    running = true;
-
-    glfwInit();
-
-    if( !glfwOpenWindow( 1024, 768, 0, 0, 0, 0, 0, 0, GLFW_WINDOW ) )
-    {
-        glfwTerminate();
-        return 0;
-    }
-
-    glfwSetWindowTitle("GLFW Application");
 
     while(running)
     {
@@ -98,7 +80,7 @@ int main(int argc, char* argv[])
                   0.0f, 0.0f, 1.0f );
 
         //glTranslatef( 1.0f, 1.0f, 0.0f );
-        //glRotatef(frame, 0.25f, 1.0f, 0.75f);
+        glRotatef(frame, 0.25f, 1.0f, 0.75f);
         glBegin( GL_TRIANGLES );
           glColor3f(0.0f, 0.0f, 0.0f );
           glVertex3f(1.0f, 3.0f, -4.0f);
@@ -121,7 +103,7 @@ int main(int argc, char* argv[])
         running = !glfwGetKey(GLFW_KEY_ESC) && glfwGetWindowParam(GLFW_OPENED);
     }
 
-    glfwTerminate();*/
+    glfwTerminate();
 
     return 0;
 }

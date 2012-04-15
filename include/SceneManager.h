@@ -20,8 +20,8 @@ namespace luck { namespace scene
                 _currentId = 0;
                 _currentFrame = 0;
                 _FPS = 60;
-                LuckWindow* lkw = LuckWindow::getInstance();
 
+                LuckWindow* lkw = LuckWindow::getInstance();
                 lkw->addEventListener("KeyDown",this);
                 lkw->addEventListener("KeyUp",this);
                 //lkw->addEventListener("MouseMove",this);
