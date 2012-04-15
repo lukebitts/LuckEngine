@@ -42,14 +42,14 @@
 1334429671 source:d:\projetos\programacao\luckengine\src\ieventreceiver.cpp
 	"IEventReceiver.h"
 
-1334516851 source:d:\projetos\programacao\luckengine\src\scenemanager.cpp
+1334518322 source:d:\projetos\programacao\luckengine\src\scenemanager.cpp
 	"SceneManager.h"
 	"EnterFrameEvent.h"
 	<time.h>
 	"CameraComponent.h"
 	"PositionComponent.h"
 
-1334516241 d:\projetos\programacao\luckengine\include\scenemanager.h
+1334518292 d:\projetos\programacao\luckengine\include\scenemanager.h
 	<GL/glfw.h>
 	"luck.h"
 	"Entity.h"
@@ -71,7 +71,7 @@
 	"KeyEvent.h"
 	<GL/glfw.h>
 
-1334516341 source:d:\projetos\programacao\luckengine\main.cpp
+1334518266 source:d:\projetos\programacao\luckengine\main.cpp
 	<iostream>
 	"LuckEngine.h"
 
@@ -113,7 +113,7 @@
 
 1334508149 d:\projetos\programacao\luckengine\include\vector3.h
 
-1334515094 d:\projetos\programacao\luckengine\include\color4.h
+1334518440 d:\projetos\programacao\luckengine\include\color4.h
 
 1334511429 d:\projetos\programacao\luckengine\include\positioncomponent.h
 	"luck.h"

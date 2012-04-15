@@ -75,29 +75,9 @@ int main(int argc, char* argv[])
         else       smgr->setActiveCamera("cam2");
 
         smgr->updateScene();
-        smgr->drawScene(Color4<f32>(100.f/255.f,101.f/255.f,140.f/255.f,1.f));
+        smgr->drawScene(Color4<u8>(100,101,140,255));
 
-        //glfwGetWindowSize( &width, &height );
-        //height = height > 0 ? height : 1;
-
-        //glViewport( 0, 0, 1024, 768 );
-
-        //glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
-        //glClear( GL_COLOR_BUFFER_BIT );
-
-        //glMatrixMode( GL_PROJECTION );
-        //glLoadIdentity();
-        //gluPerspective( 65.0f, (GLfloat)1024/(GLfloat)768, 1.0f, 100.0f );
-
-        // Draw some rotating garbage
-        //glMatrixMode( GL_MODELVIEW );
-        //glLoadIdentity();
-        //gluLookAt(0.0f, -10.0f, 0.0f,
-        //          0.0f, 0.0f, 0.f,
-        //          0.0f, 0.0f, 1.0f );
-
-        //glTranslatef( 1.0f, 1.0f, 0.0f );
-        glRotatef(0, 0.25f, 1.0f, 0.75f);
+        glRotatef(frame, 0.25f, 1.0f, 0.75f);
         glBegin( GL_TRIANGLES );
           glColor3f(0.0f, 0.0f, 0.0f );
           glVertex3f(1.0f, 3.0f, -4.0f);
@@ -139,3 +119,24 @@ Mouse (em 3D vai ser fodinha fazer, mas é necessário)
 *Não tão básicos
 
 */
+
+//glfwGetWindowSize( &width, &height );
+//height = height > 0 ? height : 1;
+
+//glViewport( 0, 0, 1024, 768 );
+
+//glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
+//glClear( GL_COLOR_BUFFER_BIT );
+
+//glMatrixMode( GL_PROJECTION );
+//glLoadIdentity();
+//gluPerspective( 65.0f, (GLfloat)1024/(GLfloat)768, 1.0f, 100.0f );
+
+// Draw some rotating garbage
+//glMatrixMode( GL_MODELVIEW );
+//glLoadIdentity();
+//gluLookAt(0.0f, -10.0f, 0.0f,
+//          0.0f, 0.0f, 0.f,
+//          0.0f, 0.0f, 1.0f );
+
+//glTranslatef( 1.0f, 1.0f, 0.0f );

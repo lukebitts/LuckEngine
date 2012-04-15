@@ -90,12 +90,12 @@ void SceneManager::updateScene()
     }
 }
 
-void SceneManager::drawScene(core::Color4<f32> clearColor)
+void SceneManager::drawScene(core::Color4<u8> clearColor)
 {
     LuckWindow* lkw = LuckWindow::getInstance();
 
     glViewport( 0, 0, lkw->width, lkw->height );
-    glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
+    glClearColor((f32)clearColor.r/255, (f32)clearColor.g/255, (f32)clearColor.b/255, (f32)clearColor.a/255);
     glClear( GL_COLOR_BUFFER_BIT );
 
     Entity* ent = _cameras[_activeCamera];
