@@ -2,7 +2,7 @@
 #define COLOR4_H
 namespace luck { namespace core
 {
-    //TODO: Remove template from color, color only has 1 type (u8 casted to f32 and divided by 255 anytime you want to use it with opengl)
+    ///@todo Remove template from color, color only has 1 type (u8 casted to f32 and divided by 255 anytime you want to use it with opengl)
     template <typename T>
     struct Color4
     {

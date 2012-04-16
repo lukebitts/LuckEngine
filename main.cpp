@@ -32,6 +32,19 @@ Component(Test)
     ~Test(){ }
 };
 
+Component(MoveCamera)
+{
+    void init(){ owner->addEventListener("EnterFrame",this); }
+    void handleEvent(string type, Event* e)
+    {
+        EnterFrameEvent* ef = (EnterFrameEvent*)e;
+        Position* pos = owner->get<Position>("Position");
+
+        pos->_position.x += 5.f * ef->deltaTime;
+        //pos->_position.y = cosf(ef->currentFrame/10)*5;
+    }
+};
+
 int main(int argc, char* argv[])
 {
 
@@ -45,19 +58,19 @@ int main(int argc, char* argv[])
         ->add("Test Position")
         ->get<Position>("Position")->position(Vector3<f32>(0.f,1.f,0.f));
 
-    Entity* camera1 = smgr->createEntity("Camera")
+    /*Entity* camera1 = smgr->createEntity("Camera")
         ->get<Position>("Position")->position(Vector3<f32>(0.f,-10.f,0.f))
         ->owner
         ->get<Camera>("Camera")->up(Vector3<f32>(0.f,0.f,1.f))
-        ->owner;
+        ->owner;*/
 
-    Entity* camera2 = smgr->createEntity("Camera")
-        ->get<Position>("Position")->position(Vector3<f32>(0.f,10.f,0.f))
+    Entity* camera2 = smgr->createEntity("Camera MoveCamera")
+        ->get<Position>("Position")->position(Vector3<f32>(0.f,10.f,-1.f))->lookAt(Vector3<f32>(0.f,0.f,0.f))
         ->owner
-        ->get<Camera>("Camera")->fov(65.f)->near(1.f)->far(500.f)->up(Vector3<f32>(0.f,0.f,1.f))
+        ->get<Camera>("Camera")->fov(65.f)->near(1.f)->far(500.f)
         ->owner;
 
-    smgr->addCamera("cam1", camera1);
+    //smgr->addCamera("cam1", camera1);
     smgr->addCamera("cam2", camera2);
 
     bool curcam = false;
@@ -66,18 +79,29 @@ int main(int argc, char* argv[])
     while(lkw->isRunning())
     {
         frame++;
-        if(frame % 120 == 0) curcam = !curcam;
+        if(frame % 150 == 0) curcam = !curcam;
 
-        if(curcam) smgr->setActiveCamera("cam1");
+        if(curcam) smgr->setActiveCamera("cam2");
         else       smgr->setActiveCamera("cam2");
+
+        camera2->get<Position>("Position")->lookAt(Vector3<f32>());
 
         smgr->updateScene();
         smgr->drawScene(Color4<u8>(100,101,140,255));
 
-        camera2->get<Position>("Position")->_position.x += sinf((f32)frame*50);
+        //camera2->get<Position>("Position")->_position.x += sinf((f32)frame*50);
 
-        glRotatef(frame, 0.25f, 1.0f, 0.75f);
         glBegin( GL_TRIANGLES );
+          glColor3f(1.0f, 0.0f, 0.0f );
+          glVertex3f(0.0f, 0.0f, 0.0f);
+          glColor3f(0.0f, 1.0f, 0.0f );
+          glVertex3f(1.0f, 0.0f, 1.0f);
+          glColor3f(0.0f, 0.0f, 1.0f );
+          glVertex3f(2.0f, 0.0f, 0.0f);
+        glEnd();
+
+        //glRotatef(frame, 0.25f, 1.0f, 0.75f);
+        /*glBegin( GL_TRIANGLES );
           glColor3f(0.0f, 0.0f, 0.0f );
           glVertex3f(1.0f, 3.0f, -4.0f);
           glColor3f(0.0f, 1.0f, 0.0f );
@@ -92,7 +116,7 @@ int main(int argc, char* argv[])
           glVertex3f(3.0f, -2.0f, -2.0f);
           glColor3f(1.0f, 0.0f, 0.0f );
           glVertex3f(-3.0f, -2.0f, 2.0f);
-        glEnd();
+        glEnd();*/
         glfwSwapBuffers();
     }
 

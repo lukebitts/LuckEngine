@@ -4,9 +4,11 @@
 #include "IComponent.h"
 #include "Entity.h"
 #include "Vector3.h"
+#include <math.h>
 namespace luck { namespace core
 {
-    //TODO: Add a parent to the component, so it will be in relative position this parent
+    ///@todo Add a parent to the component, so it will be in relative position this parent
+    ///@todo Write the lookAt function
     Component(Position)
     {
         Vector3<f32> _position;
@@ -17,7 +19,9 @@ namespace luck { namespace core
         Position* rotation(Vector3<f32> rotation){ _rotation = rotation; return this; }
         Position* lookAt(Vector3<f32> target)
         {
-            //TODO
+            _rotation.x = target.x - _position.x;
+            _rotation.y = target.y - _position.y;
+            _rotation.z = target.z - _position.z;
             return this;
         }
     };

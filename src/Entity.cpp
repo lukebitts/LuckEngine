@@ -65,7 +65,7 @@ Entity::Entity(u64 id, string components)
 
 Entity::~Entity()
 {
-    //TODO: Send destroy event
+    ///@todo Send destroy event
     _listeners.clear();
     for(auto it = _components.begin(); it != _components.end(); it++)
         delete _components[it->first];

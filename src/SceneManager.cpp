@@ -112,6 +112,7 @@ void SceneManager::drawScene(core::Color4<u8> clearColor)
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
     gluLookAt(pos->_position.x, pos->_position.y, pos->_position.z,
-              0.0f, 0.0f, 0.f,
-              cam->_up.x, cam->_up.y, cam->_up.z );
+              pos->_position.x + pos->_rotation.x, pos->_position.y + pos->_rotation.y, pos->_position.z + pos->_rotation.z,
+              0.f, 1.f, 0.f );
+              //cam->_up.x, cam->_up.y, cam->_up.z );
 }
