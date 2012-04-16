@@ -9,7 +9,6 @@ namespace luck { namespace core
     ///@todo Find the up vector and lookat from the position and the rotation
     Component(Camera)
     {
-        Vector3<f32> _up;
         f32 _fov;
         f32 _aspect;
         f32 _near;
@@ -47,15 +46,9 @@ namespace luck { namespace core
             _far = far;
             return this;
         }
-        Camera* up(Vector3<f32> up)
-        {
-            _up = up;
-            return this;
-        }
         Camera()
         {
             LuckWindow* lkw = LuckWindow::getInstance();
-            _up = Vector3<f32>();
             _fov = 65.f;
             _aspect = lkw->width/lkw->height;
             _near = 1.f;

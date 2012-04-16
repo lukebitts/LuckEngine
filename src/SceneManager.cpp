@@ -107,12 +107,18 @@ void SceneManager::drawScene(core::Color4<u8> clearColor)
 
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
-    gluPerspective( cam->_fov, cam->_aspect, cam->_near, cam->_far );
+    ///@todo understand this code.
+    GLdouble pi = 3.1415926535897932384626433832795;
+    GLdouble fW, fH;
+    fH = tan( cam->_fov / 360 * pi ) * cam->_near;
+    fW = fH * cam->_aspect;
+    glFrustum( -fW, fW, -fH, fH, cam->_near, cam->_far );
+    //gluPerspective( cam->_fov, cam->_aspect, cam->_near, cam->_far );
 
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
+    ///@todo replace gluLookAt with my own code (and also understand it)
     gluLookAt(pos->_position.x, pos->_position.y, pos->_position.z,
               pos->_position.x + pos->_rotation.x, pos->_position.y + pos->_rotation.y, pos->_position.z + pos->_rotation.z,
               0.f, 1.f, 0.f );
-              //cam->_up.x, cam->_up.y, cam->_up.z );
 }

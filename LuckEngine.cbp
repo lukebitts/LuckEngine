@@ -5,7 +5,7 @@
 		<Option title="LuckEngine" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="luck\;luck\core\;luck\scene\;luck\event\;" />
+		<Option virtualFolders="luck\;luck\core\;luck\scene\;luck\event\;luck\core\extra\;luck\event\extra\;luck\core\types\;" />
 		<Build>
 			<Target title="Debug">
 				<Option output="bin\Debug\LuckEngine" prefix_auto="1" extension_auto="1" />
@@ -34,7 +34,7 @@
 		<Compiler>
 			<Add option="-std=c++0x" />
 			<Add option="-Wall" />
-			<Add directory="C:\Users\Lucas\Desktop\c++\glfw-2.7.4.bin.WIN32\lib-mingw\include" />
+			<Add directory="..\glfw-2.7.4.bin.WIN32\include" />
 			<Add directory="include" />
 		</Compiler>
 		<Linker>
@@ -42,8 +42,17 @@
 			<Add library="opengl32" />
 			<Add library="glu32" />
 			<Add library="gdi32" />
-			<Add directory="C:\Users\Lucas\Desktop\c++\glfw-2.7.4.bin.WIN32\lib-mingw\lib" />
+			<Add directory="..\glfw-2.7.4.bin.WIN32\lib-mingw\" />
 		</Linker>
+		<Unit filename="include\CameraComponent.h">
+			<Option virtualFolder="luck\core\extra\" />
+		</Unit>
+		<Unit filename="include\Color4.h">
+			<Option virtualFolder="luck\core\types\" />
+		</Unit>
+		<Unit filename="include\EnterFrameEvent.h">
+			<Option virtualFolder="luck\event\extra\" />
+		</Unit>
 		<Unit filename="include\Entity.h">
 			<Option virtualFolder="luck\core\" />
 		</Unit>
@@ -56,13 +65,34 @@
 		<Unit filename="include\IEventReceiver.h">
 			<Option virtualFolder="luck\event\" />
 		</Unit>
+		<Unit filename="include\KeyEvent.h">
+			<Option virtualFolder="luck\event\extra\" />
+		</Unit>
+		<Unit filename="include\KeyboardComponent.h">
+			<Option virtualFolder="luck\core\extra\" />
+		</Unit>
+		<Unit filename="include\LuckEngine.h">
+			<Option virtualFolder="luck\" />
+		</Unit>
 		<Unit filename="include\LuckWindow.h">
 			<Option virtualFolder="luck\" />
+		</Unit>
+		<Unit filename="include\PositionComponent.h">
+			<Option virtualFolder="luck\core\extra\" />
 		</Unit>
 		<Unit filename="include\SceneManager.h">
 			<Option virtualFolder="luck\scene\" />
 		</Unit>
+		<Unit filename="include\Split.h">
+			<Option virtualFolder="luck\core\" />
+		</Unit>
+		<Unit filename="include\Vector3.h">
+			<Option virtualFolder="luck\core\types\" />
+		</Unit>
 		<Unit filename="include\core.h">
+			<Option virtualFolder="luck\core\" />
+		</Unit>
+		<Unit filename="include\detail.h">
 			<Option virtualFolder="luck\core\" />
 		</Unit>
 		<Unit filename="include\event.h">
@@ -73,6 +103,12 @@
 		</Unit>
 		<Unit filename="include\placeholder.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="src\Entity.cpp" />
+		<Unit filename="src\EventDispatcher.cpp" />
+		<Unit filename="src\IEventReceiver.cpp" />
+		<Unit filename="src\LuckWindow.cpp" />
+		<Unit filename="src\SceneManager.cpp" />
+		<Unit filename="src\Split.cpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />

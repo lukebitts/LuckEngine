@@ -26,7 +26,7 @@ Component(Test)
         Keyboard* k = owner->get<Keyboard>("Keyboard");
         if(k->isDown('A'))
         {
-            std::cout<<"a";
+            //std::cout<<"a";
         }
     }
     ~Test(){ }
@@ -34,14 +34,46 @@ Component(Test)
 
 Component(MoveCamera)
 {
-    void init(){ owner->addEventListener("EnterFrame",this); }
+    void init()
+    {
+        owner->addEventListener("EnterFrame",this);
+        owner->addEventListener("KeyDown",this);
+    }
     void handleEvent(string type, Event* e)
     {
-        EnterFrameEvent* ef = (EnterFrameEvent*)e;
+        if(type == "EnterFrame")
+            handleEnterFrame((EnterFrameEvent*)e);
+        else if(type == "KeyDown")
+            handleKeyDown((KeyEvent*)e);
+    }
+    void handleKeyDown(KeyEvent* e)
+    {
+        if(e->keyCode == 'Q')
+        {
+            Position* pos = owner->get<Position>("Position");
+            pos->lookAt(Vector3<f32>());
+        }
+    }
+    void handleEnterFrame(EnterFrameEvent* ef)
+    {
         Position* pos = owner->get<Position>("Position");
-
-        pos->_position.x += 5.f * ef->deltaTime;
-        //pos->_position.y = cosf(ef->currentFrame/10)*5;
+        Keyboard* k = owner->get<Keyboard>("Keyboard");
+        if(k->isDown('A'))
+        {
+            pos->_position.x -= 10.f * ef->deltaTime;
+        }
+        if(k->isDown('D'))
+        {
+            pos->_position.x += 10.f * ef->deltaTime;
+        }
+        if(k->isDown('W'))
+        {
+            pos->_position.z -= 10.f * ef->deltaTime;
+        }
+        if(k->isDown('S'))
+        {
+            pos->_position.z += 10.f * ef->deltaTime;
+        }
     }
 };
 
@@ -58,46 +90,30 @@ int main(int argc, char* argv[])
         ->add("Test Position")
         ->get<Position>("Position")->position(Vector3<f32>(0.f,1.f,0.f));
 
-    /*Entity* camera1 = smgr->createEntity("Camera")
-        ->get<Position>("Position")->position(Vector3<f32>(0.f,-10.f,0.f))
+    Entity* camera = smgr->createEntity("Camera Keyboard MoveCamera")
+        ->get<Position>("Position")->position(Vector3<f32>(0.f,5.f,1.f))->lookAt(Vector3<f32>(0.f,0.f,0.f))
         ->owner
-        ->get<Camera>("Camera")->up(Vector3<f32>(0.f,0.f,1.f))
-        ->owner;*/
-
-    Entity* camera2 = smgr->createEntity("Camera MoveCamera")
-        ->get<Position>("Position")->position(Vector3<f32>(0.f,10.f,-1.f))->lookAt(Vector3<f32>(0.f,0.f,0.f))
-        ->owner
-        ->get<Camera>("Camera")->fov(65.f)->near(1.f)->far(500.f)
+        ->get<Camera>("Camera")->fov(85.f)->near(1.f)->far(500.f)
         ->owner;
 
-    //smgr->addCamera("cam1", camera1);
-    smgr->addCamera("cam2", camera2);
-
-    bool curcam = false;
-    u64 frame = 0;
+    smgr->addCamera("cam", camera);
 
     while(lkw->isRunning())
     {
-        frame++;
-        if(frame % 150 == 0) curcam = !curcam;
-
-        if(curcam) smgr->setActiveCamera("cam2");
-        else       smgr->setActiveCamera("cam2");
-
-        camera2->get<Position>("Position")->lookAt(Vector3<f32>());
-
         smgr->updateScene();
         smgr->drawScene(Color4<u8>(100,101,140,255));
 
         //camera2->get<Position>("Position")->_position.x += sinf((f32)frame*50);
 
-        glBegin( GL_TRIANGLES );
+        glBegin( GL_QUADS );
           glColor3f(1.0f, 0.0f, 0.0f );
-          glVertex3f(0.0f, 0.0f, 0.0f);
+          glVertex3f(0.0f, 0.0f, 0.0f); //********
           glColor3f(0.0f, 1.0f, 0.0f );
-          glVertex3f(1.0f, 0.0f, 1.0f);
+          glVertex3f(0.0f, 0.0f, -2.0f); //********
           glColor3f(0.0f, 0.0f, 1.0f );
-          glVertex3f(2.0f, 0.0f, 0.0f);
+          glVertex3f(2.0f, 0.0f, -2.0f); //********
+          glColor3f(0.0f, 1.0f, 1.0f );
+          glVertex3f(2.0f, 0.0f, 0.0f); //********
         glEnd();
 
         //glRotatef(frame, 0.25f, 1.0f, 0.75f);
