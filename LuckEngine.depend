@@ -42,7 +42,7 @@
 1334591648 source:d:\projetos\programacao\luckengine\src\ieventreceiver.cpp
 	"IEventReceiver.h"
 
-1334593850 source:d:\projetos\programacao\luckengine\src\scenemanager.cpp
+1334670770 source:d:\projetos\programacao\luckengine\src\scenemanager.cpp
 	"SceneManager.h"
 	"EnterFrameEvent.h"
 	<time.h>
@@ -71,7 +71,7 @@
 	"KeyEvent.h"
 	<GL/glfw.h>
 
-1334600404 source:d:\projetos\programacao\luckengine\main.cpp
+1334662932 source:d:\projetos\programacao\luckengine\main.cpp
 	"LuckEngine.h"
 	<time.h>
 	<math.h>

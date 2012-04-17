@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
         glPopMatrix();
 
         glPushMatrix();
-        glRotatef(frame2--,0.f,1.f,0.f);
+        glRotatef(frame2-=3,0.f,1.f,0.f);
         glBegin( GL_QUADS );
           glColor3f(1.0f, 0.0f, 0.0f );
           glVertex3f(-1.f, 0.0f, 1.0f);
