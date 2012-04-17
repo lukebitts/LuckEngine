@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1334545507 source:d:\projetos\programacao\luckengine\src\entity.cpp
+1334591625 source:d:\projetos\programacao\luckengine\src\entity.cpp
 	"Entity.h"
 
 1334510570 d:\projetos\programacao\luckengine\include\entity.h
@@ -13,10 +13,10 @@
 	<map>
 	<vector>
 
-1334446303 d:\projetos\programacao\luckengine\include\eventdispatcher.h
+1334590434 d:\projetos\programacao\luckengine\include\eventdispatcher.h
 	"IEventReceiver.h"
 
-1334429676 d:\projetos\programacao\luckengine\include\ieventreceiver.h
+1334591597 d:\projetos\programacao\luckengine\include\ieventreceiver.h
 	"luck.h"
 	"event.h"
 
@@ -39,24 +39,24 @@
 1334429945 source:d:\projetos\programacao\luckengine\src\eventdispatcher.cpp
 	"EventDispatcher.h"
 
-1334429671 source:d:\projetos\programacao\luckengine\src\ieventreceiver.cpp
+1334591648 source:d:\projetos\programacao\luckengine\src\ieventreceiver.cpp
 	"IEventReceiver.h"
 
-1334586975 source:d:\projetos\programacao\luckengine\src\scenemanager.cpp
+1334593850 source:d:\projetos\programacao\luckengine\src\scenemanager.cpp
 	"SceneManager.h"
 	"EnterFrameEvent.h"
 	<time.h>
 	"CameraComponent.h"
 	"PositionComponent.h"
 
-1334522362 d:\projetos\programacao\luckengine\include\scenemanager.h
+1334589816 d:\projetos\programacao\luckengine\include\scenemanager.h
 	<GL/glfw.h>
 	"luck.h"
 	"Entity.h"
 	"LuckWindow.h"
 	"Color4.h"
 
-1334496611 d:\projetos\programacao\luckengine\include\luckwindow.h
+1334593950 d:\projetos\programacao\luckengine\include\luckwindow.h
 	"luck.h"
 	"EventDispatcher.h"
 
@@ -66,12 +66,12 @@
 1334431990 source:d:\projetos\programacao\luckengine\src\split.cpp
 	"Split.h"
 
-1334499576 source:d:\projetos\programacao\luckengine\src\luckwindow.cpp
+1334594028 source:d:\projetos\programacao\luckengine\src\luckwindow.cpp
 	"LuckWindow.h"
 	"KeyEvent.h"
 	<GL/glfw.h>
 
-1334584477 source:d:\projetos\programacao\luckengine\main.cpp
+1334600404 source:d:\projetos\programacao\luckengine\main.cpp
 	"LuckEngine.h"
 	<time.h>
 	<math.h>
@@ -113,18 +113,19 @@
 1334497623 d:\projetos\programacao\luckengine\include\keyevent.h
 	"event.h"
 
-1334508149 d:\projetos\programacao\luckengine\include\vector3.h
+1334603295 d:\projetos\programacao\luckengine\include\vector3.h
+	<math.h>
 
-1334545409 d:\projetos\programacao\luckengine\include\color4.h
+1334589810 d:\projetos\programacao\luckengine\include\color4.h
 
-1334582801 d:\projetos\programacao\luckengine\include\positioncomponent.h
+1334595393 d:\projetos\programacao\luckengine\include\positioncomponent.h
 	"luck.h"
 	"IComponent.h"
 	"Entity.h"
 	"Vector3.h"
 	<math.h>
 
-1334586992 d:\projetos\programacao\luckengine\include\cameracomponent.h
+1334590287 d:\projetos\programacao\luckengine\include\cameracomponent.h
 	"luck.h"
 	"IComponent.h"
 	"Vector3.h"

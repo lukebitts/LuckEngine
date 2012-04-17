@@ -58,6 +58,7 @@ Component(MoveCamera)
     {
         Position* pos = owner->get<Position>("Position");
         Keyboard* k = owner->get<Keyboard>("Keyboard");
+        ///@todo move the camera based on its rotation
         if(k->isDown('A'))
         {
             pos->_position.x -= 10.f * ef->deltaTime;
@@ -79,7 +80,6 @@ Component(MoveCamera)
 
 int main(int argc, char* argv[])
 {
-
     LuckWindow* lkw = createLuckWindow(1024,768);
     if(!lkw) return -1;
     lkw->setWindowCaption("LuckEngine");
@@ -93,46 +93,45 @@ int main(int argc, char* argv[])
     Entity* camera = smgr->createEntity("Camera Keyboard MoveCamera")
         ->get<Position>("Position")->position(Vector3<f32>(0.f,5.f,1.f))->lookAt(Vector3<f32>(0.f,0.f,0.f))
         ->owner
-        ->get<Camera>("Camera")->fov(85.f)->near(1.f)->far(500.f)
+        ->get<Camera>("Camera")->fov(85.f)->near(1.f)->far(100.f)
         ->owner;
 
     smgr->addCamera("cam", camera);
 
+    int frame1 = 0;
+    int frame2 = 0;
     while(lkw->isRunning())
     {
         smgr->updateScene();
-        smgr->drawScene(Color4<u8>(100,101,140,255));
+        smgr->drawScene(Color4(100,101,140,255));
 
-        //camera2->get<Position>("Position")->_position.x += sinf((f32)frame*50);
-
+        glPushMatrix();
+        glRotatef(frame1++, 0.0f, 1.0f, 0.0f);
         glBegin( GL_QUADS );
           glColor3f(1.0f, 0.0f, 0.0f );
-          glVertex3f(0.0f, 0.0f, 0.0f); //********
+          glVertex3f(-2.f, -0.5f, 2.0f);
           glColor3f(0.0f, 1.0f, 0.0f );
-          glVertex3f(0.0f, 0.0f, -2.0f); //********
+          glVertex3f(-2.0f, -0.5f, -2.0f);
           glColor3f(0.0f, 0.0f, 1.0f );
-          glVertex3f(2.0f, 0.0f, -2.0f); //********
-          glColor3f(0.0f, 1.0f, 1.0f );
-          glVertex3f(2.0f, 0.0f, 0.0f); //********
+          glVertex3f(2.0f, -0.5f, -2.0f);
+          glColor3f(1.0f, 1.0f, 0.0f );
+          glVertex3f(2.0f, -0.5f, 2.0f);
         glEnd();
+        glPopMatrix();
 
-        //glRotatef(frame, 0.25f, 1.0f, 0.75f);
-        /*glBegin( GL_TRIANGLES );
-          glColor3f(0.0f, 0.0f, 0.0f );
-          glVertex3f(1.0f, 3.0f, -4.0f);
-          glColor3f(0.0f, 1.0f, 0.0f );
-          glVertex3f(3.0f, -2.0f, -4.0f);
-          glColor3f(0.0f, 0.0f, 1.0f );
-          glVertex3f(-3.0f, -2.0f, -4.0f);
-        glEnd();
-        glBegin( GL_TRIANGLES );
-          glColor3f(0.0f, 0.1f, 0.0f );
-          glVertex3f(0.0f, 3.0f, -3.0f);
-          glColor3f(0.0f, 0.0f, 1.0f );
-          glVertex3f(3.0f, -2.0f, -2.0f);
+        glPushMatrix();
+        glRotatef(frame2--,0.f,1.f,0.f);
+        glBegin( GL_QUADS );
           glColor3f(1.0f, 0.0f, 0.0f );
-          glVertex3f(-3.0f, -2.0f, 2.0f);
-        glEnd();*/
+          glVertex3f(-1.f, 0.0f, 1.0f);
+          glColor3f(0.0f, 1.0f, 0.0f );
+          glVertex3f(-1.0f, 0.0f, -1.0f);
+          glColor3f(0.0f, 0.0f, 1.0f );
+          glVertex3f(1.0f, 0.0f, -1.0f);
+          glColor3f(1.0f, 1.0f, 0.0f );
+          glVertex3f(1.0f, 0.0f, 1.0f);
+        glEnd();
+        glPopMatrix();
         glfwSwapBuffers();
     }
 

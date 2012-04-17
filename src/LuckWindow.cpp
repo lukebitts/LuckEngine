@@ -29,6 +29,11 @@ void LuckWindow::setWindowCaption(string caption)
     glfwSetWindowTitle(caption.c_str());
 }
 
+void LuckWindow::updateWindowSize()
+{
+    glfwGetWindowSize( &width, &height );
+}
+
 LuckWindow* createLuckWindow(u16 width, u16 height, u16 redbits, u16 greenbits, u16 bluebits,
                u16 alphabits, u16 depthbits, u16 stencilbits)
 {
@@ -38,6 +43,7 @@ LuckWindow* createLuckWindow(u16 width, u16 height, u16 redbits, u16 greenbits, 
         lkw->width = width;
         lkw->height = height;
         glfwSetKeyCallback(LuckWindow::keyCallback);
+        glEnable(GL_DEPTH_TEST);
         return lkw;
     }
     return nullptr;

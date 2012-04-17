@@ -90,13 +90,14 @@ void SceneManager::updateScene()
     }
 }
 
-void SceneManager::drawScene(core::Color4<u8> clearColor)
+void SceneManager::drawScene(core::Color4 clearColor)
 {
     LuckWindow* lkw = LuckWindow::getInstance();
+    lkw->updateWindowSize();
     glViewport( 0, 0, lkw->width, lkw->height );
 
     glClearColor((f32)clearColor.r/255, (f32)clearColor.g/255, (f32)clearColor.b/255, (f32)clearColor.a/255);
-    glClear( GL_COLOR_BUFFER_BIT );
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
     Entity* ent = _cameras[_activeCamera];
 
@@ -108,8 +109,8 @@ void SceneManager::drawScene(core::Color4<u8> clearColor)
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
     ///@todo understand this code.
-    GLdouble pi = 3.1415926535897932384626433832795;
-    GLdouble fW, fH;
+    f64 pi = 3.1415926535897932384626433832795;
+    f64 fW, fH;
     fH = tan( cam->_fov / 360 * pi ) * cam->_near;
     fW = fH * cam->_aspect;
     glFrustum( -fW, fW, -fH, fH, cam->_near, cam->_far );

@@ -47,7 +47,7 @@ namespace luck { namespace scene
             void addCamera(string name, core::Entity* cam);
             void setActiveCamera(string name);
             void updateScene();
-            void drawScene(core::Color4<u8> clearColor);
+            void drawScene(core::Color4 clearColor);
     };
 }}
 #endif

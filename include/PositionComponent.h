@@ -8,7 +8,7 @@
 namespace luck { namespace core
 {
     ///@todo Add a parent to the component, so it will be in relative position this parent
-    ///@todo Write the lookAt function
+    ///@todo Fix the rotation (right now it's just storing the lookAt target position)
     Component(Position)
     {
         Vector3<f32> _position;

@@ -11,7 +11,7 @@ namespace luck { namespace event
         public:
             virtual void handleEvent(string type, Event* event = nullptr) = 0;
             void subscribeTo(EventDispatcher* ed);
-            virtual ~IEventReceiver(){}
+            virtual ~IEventReceiver();
     };
 }}
 #endif

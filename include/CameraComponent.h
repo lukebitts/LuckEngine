@@ -6,7 +6,6 @@
 #include "PositionComponent.h"
 namespace luck { namespace core
 {
-    ///@todo Find the up vector and lookat from the position and the rotation
     Component(Camera)
     {
         f32 _fov;

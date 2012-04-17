@@ -12,7 +12,10 @@ namespace luck { namespace event
             void addEventListener(string type, IEventReceiver* callback);
             //void removeEventListener(string type);
             void removeEventListener(IEventReceiver* callback);
-            virtual ~EventDispatcher(){}
+            virtual ~EventDispatcher()
+            {
+                _listeners.clear();
+            }
     };
 }}
 #endif

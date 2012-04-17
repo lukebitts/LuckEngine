@@ -11,8 +11,9 @@ namespace luck
             bool _running;
             LuckWindow();
         public:
-            u16 width;
-            u16 height;
+            s32 width;
+            s32 height;
+            void updateWindowSize();
             void setWindowCaption(string caption);
             bool isRunning();
             static void keyCallback(s32 key, s32 action);
