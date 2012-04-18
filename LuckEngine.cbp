@@ -80,6 +80,9 @@
 		<Unit filename="include\PositionComponent.h">
 			<Option virtualFolder="luck\core\extra\" />
 		</Unit>
+		<Unit filename="include\Quaternion.h">
+			<Option virtualFolder="luck\core\types\" />
+		</Unit>
 		<Unit filename="include\SceneManager.h">
 			<Option virtualFolder="luck\scene\" />
 		</Unit>

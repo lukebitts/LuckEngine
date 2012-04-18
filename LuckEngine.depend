@@ -71,7 +71,7 @@
 	"KeyEvent.h"
 	<GL/glfw.h>
 
-1334662932 source:d:\projetos\programacao\luckengine\main.cpp
+1334770174 source:d:\projetos\programacao\luckengine\main.cpp
 	"LuckEngine.h"
 	<time.h>
 	<math.h>
@@ -113,7 +113,7 @@
 1334497623 d:\projetos\programacao\luckengine\include\keyevent.h
 	"event.h"
 
-1334603295 d:\projetos\programacao\luckengine\include\vector3.h
+1334764387 d:\projetos\programacao\luckengine\include\vector3.h
 	<math.h>
 
 1334589810 d:\projetos\programacao\luckengine\include\color4.h

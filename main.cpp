@@ -54,26 +54,26 @@ Component(MoveCamera)
             pos->lookAt(Vector3<f32>());
         }
     }
-    void handleEnterFrame(EnterFrameEvent* ef)
+    void handleEnterFrame(EnterFrameEvent* e)
     {
         Position* pos = owner->get<Position>("Position");
         Keyboard* k = owner->get<Keyboard>("Keyboard");
         ///@todo move the camera based on its rotation
         if(k->isDown('A'))
         {
-            pos->_position.x -= 10.f * ef->deltaTime;
+            pos->_position.x -= 10.f * e->deltaTime;
         }
         if(k->isDown('D'))
         {
-            pos->_position.x += 10.f * ef->deltaTime;
+            pos->_position.x += 10.f * e->deltaTime;
         }
         if(k->isDown('W'))
         {
-            pos->_position.z -= 10.f * ef->deltaTime;
+            pos->_position.z -= 10.f * e->deltaTime;
         }
         if(k->isDown('S'))
         {
-            pos->_position.z += 10.f * ef->deltaTime;
+            pos->_position.z += 10.f * e->deltaTime;
         }
     }
 };
@@ -97,7 +97,7 @@ int main(int argc, char* argv[])
         ->owner;
 
     smgr->addCamera("cam", camera);
-
+    glEnable(GL_POLYGON_SMOOTH);
     int frame1 = 0;
     int frame2 = 0;
     while(lkw->isRunning())
@@ -106,7 +106,7 @@ int main(int argc, char* argv[])
         smgr->drawScene(Color4(100,101,140,255));
 
         glPushMatrix();
-        glRotatef(frame1++, 0.0f, 1.0f, 0.0f);
+        glRotatef(frame1, 0.0f, 1.0f, 0.0f);
         glBegin( GL_QUADS );
           glColor3f(1.0f, 0.0f, 0.0f );
           glVertex3f(-2.f, -0.5f, 2.0f);
@@ -120,15 +120,15 @@ int main(int argc, char* argv[])
         glPopMatrix();
 
         glPushMatrix();
-        glRotatef(frame2-=3,0.f,1.f,0.f);
+        glRotatef(frame2--,0.f,1.f,0.f);
         glBegin( GL_QUADS );
-          glColor3f(1.0f, 0.0f, 0.0f );
-          glVertex3f(-1.f, 0.0f, 1.0f);
-          glColor3f(0.0f, 1.0f, 0.0f );
-          glVertex3f(-1.0f, 0.0f, -1.0f);
           glColor3f(0.0f, 0.0f, 1.0f );
+          glVertex3f(-1.f, 0.0f, 1.0f);
+          glColor3f(1.0f, 0.0f, 0.0f );
+          glVertex3f(-1.0f, 0.0f, -1.0f);
+          glColor3f(0.0f, 1.0f, 0.0f );
           glVertex3f(1.0f, 0.0f, -1.0f);
-          glColor3f(1.0f, 1.0f, 0.0f );
+          glColor3f(0.0f, 1.0f, 1.0f );
           glVertex3f(1.0f, 0.0f, 1.0f);
         glEnd();
         glPopMatrix();
@@ -149,7 +149,7 @@ Image (2D apenas) *
 VertexList
 - Ele é capaz de se desenhar também
 Texture *
-BoundingBox (3D apenas)*
+BoundingBox (3D e 2D(será que vale a pena fazer 2D também, o foco da engine não é 2D [por enquanto anyway] ) )*
 Keyboard
 Mouse (em 3D vai ser fodinha fazer, mas é necessário)
 - Para funcionar em 3D precisa de uma bounding box além da VertexList
