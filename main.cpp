@@ -38,6 +38,7 @@ Component(MoveCamera)
     {
         owner->addEventListener("EnterFrame",this);
         owner->addEventListener("KeyDown",this);
+        count = 0;
     }
     void handleEvent(string type, Event* e)
     {
@@ -59,6 +60,9 @@ Component(MoveCamera)
         Position* pos = owner->get<Position>("Position");
         Keyboard* k = owner->get<Keyboard>("Keyboard");
         ///@todo move the camera based on its rotation
+
+        pos->_rotation = Vector3<f32>(0,0,0); //count += 10 * e->deltaTime
+
         if(k->isDown('A'))
         {
             pos->_position.x -= 10.f * e->deltaTime;
@@ -76,6 +80,7 @@ Component(MoveCamera)
             pos->_position.z += 10.f * e->deltaTime;
         }
     }
+    f32 count;
 };
 
 int main(int argc, char* argv[])

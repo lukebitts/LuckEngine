@@ -16,3 +16,4 @@
 #include "Color4.h"
 #include "PositionComponent.h"
 #include "CameraComponent.h"
+#include "Quaternion.h"

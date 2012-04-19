@@ -43,6 +43,7 @@ LuckWindow* createLuckWindow(u16 width, u16 height, u16 redbits, u16 greenbits, 
         lkw->width = width;
         lkw->height = height;
         glfwSetKeyCallback(LuckWindow::keyCallback);
+        ///@todo make a mouse callback (André)
         glEnable(GL_DEPTH_TEST);
         return lkw;
     }
