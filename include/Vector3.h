@@ -19,6 +19,13 @@ namespace luck { namespace core
             /// http://calculator.tutorvista.com/math/8/cross-product-calculator.html
             return Vector3<T>(v1.y*v2.z - v1.z*v2.y, v1.z*v2.x - v1.x*v2.z, v1.x*v2.y - v1.y*v2.x);
         }
+        static Vector3<T> normalize(Vector3<T> v1)
+        {
+            Vector3<T> ret;
+            ret.x = v1.x; ret.y = v1.y; ret.z = v1.z;
+            ret.normalize();
+            return ret;
+        }
         Vector3<T> operator-(const Vector3<T> &v)
         {
             return Vector3::sub(*this,v);

@@ -119,8 +119,8 @@ void SceneManager::drawScene(core::Color4 clearColor)
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
     ///@todo replace gluLookAt with my own code (and also understand it)
-
+    ///@todo convert the angles on the _rotation vector to gluLookAt angles
     gluLookAt(pos->_position.x, pos->_position.y, pos->_position.z,
-            pos->_rotation.x, pos->_rotation.y, pos->_rotation.z,
+              pos->_rotation.x, pos->_rotation.y, pos->_rotation.z,
               0.f, 1.f, 0.f );
 }

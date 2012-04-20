@@ -61,8 +61,6 @@ Component(MoveCamera)
         Keyboard* k = owner->get<Keyboard>("Keyboard");
         ///@todo move the camera based on its rotation
 
-        pos->_rotation = Vector3<f32>(0,0,0); //count += 10 * e->deltaTime
-
         if(k->isDown('A'))
         {
             pos->_position.x -= 10.f * e->deltaTime;
@@ -78,6 +76,14 @@ Component(MoveCamera)
         if(k->isDown('S'))
         {
             pos->_position.z += 10.f * e->deltaTime;
+        }
+        if(k->isDown('R'))
+        {
+            pos->_position.y += 10.f * e->deltaTime;
+        }
+        if(k->isDown('F'))
+        {
+            pos->_position.y -= 10.f * e->deltaTime;
         }
     }
     f32 count;

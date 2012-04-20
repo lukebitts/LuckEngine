@@ -6,10 +6,10 @@
 #include "Vector3.h"
 #include "Quaternion.h"
 #include <math.h>
+#include <iostream>
 namespace luck { namespace core
 {
     ///@todo Add a parent to the component, so it will be in relative position this parent
-    ///@todo Fix the rotation (right now it's just storing the lookAt target position)
     Component(Position)
     {
         Vector3<f32> _position;
@@ -20,9 +20,14 @@ namespace luck { namespace core
         Position* rotation(Vector3<f32> rotation){ _rotation = rotation; return this; }
         Position* lookAt(Vector3<f32> target)
         {
-            _rotation.x = target.x - _position.x;
-            _rotation.y = target.y - _position.y;
-            _rotation.z = target.z - _position.z;
+            /// http://img.anongallery.org/img/4/1/i-have-no-idea-what-im-doing-dog.jpg
+            _rotation.x = atan(tanf((target.z - _position.z)/(target.y - _position.y))) * 180/3.14;
+            _rotation.y = atan(tanf((target.x - _position.x)/(target.z - _position.z))) * 180/3.14;
+            _rotation.z = 0;// atan(tanf((target.y - _position.y)/(target.x - _position.x))) * 180/3.14;
+
+            Vector3<f32> res = Vector3<f32>::cross(Vector3<f32>::normalize(_rotation),Vector3<f32>::normalize(target));
+
+            std::cout<<res.x<<" "<<res.y<<" "<<res.z<<"\n";
             return this;
         }
     };
