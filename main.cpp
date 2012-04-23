@@ -52,7 +52,7 @@ Component(MoveCamera)
         if(e->keyCode == 'Q')
         {
             Position* pos = owner->get<Position>("Position");
-            pos->lookAt(Vector3<f32>());
+            pos->lookAt(Vector3<f32>(1,1,1));
         }
     }
     void handleEnterFrame(EnterFrameEvent* e)
@@ -63,11 +63,13 @@ Component(MoveCamera)
 
         if(k->isDown('A'))
         {
-            pos->_position.x -= 10.f * e->deltaTime;
+            pos->_rotation.y += 20.f * e->deltaTime;
+            //pos->_position.x -= 10.f * e->deltaTime;
         }
         if(k->isDown('D'))
         {
-            pos->_position.x += 10.f * e->deltaTime;
+            pos->_rotation.x -= 20.f * e->deltaTime;
+            //pos->_position.x += 10.f * e->deltaTime;
         }
         if(k->isDown('W'))
         {
@@ -75,15 +77,15 @@ Component(MoveCamera)
         }
         if(k->isDown('S'))
         {
-            pos->_position.z += 10.f * e->deltaTime;
+            //pos->_position.z += 10.f * e->deltaTime;
         }
         if(k->isDown('R'))
         {
-            pos->_position.y += 10.f * e->deltaTime;
+            //pos->_position.y += 10.f * e->deltaTime;
         }
         if(k->isDown('F'))
         {
-            pos->_position.y -= 10.f * e->deltaTime;
+            //pos->_position.y -= 10.f * e->deltaTime;
         }
     }
     f32 count;
@@ -108,6 +110,7 @@ int main(int argc, char* argv[])
         ->owner;
 
     smgr->addCamera("cam", camera);
+
     glEnable(GL_POLYGON_SMOOTH);
     int frame1 = 0;
     int frame2 = 0;
@@ -116,33 +119,35 @@ int main(int argc, char* argv[])
         smgr->updateScene();
         smgr->drawScene(Color4(100,101,140,255));
 
+        for(u16 i = 0;i < 20;i++){
         glPushMatrix();
         glRotatef(frame1, 0.0f, 1.0f, 0.0f);
         glBegin( GL_QUADS );
           glColor3f(1.0f, 0.0f, 0.0f );
-          glVertex3f(-2.f, -0.5f, 2.0f);
+          glVertex3f(-2.f, -0.5f*i, 2.0f*i);
           glColor3f(0.0f, 1.0f, 0.0f );
-          glVertex3f(-2.0f, -0.5f, -2.0f);
+          glVertex3f(-2.0f, -0.5f*i, -2.0f*i);
           glColor3f(0.0f, 0.0f, 1.0f );
-          glVertex3f(2.0f, -0.5f, -2.0f);
+          glVertex3f(2.0f, -0.5f*i, -2.0f*i);
           glColor3f(1.0f, 1.0f, 0.0f );
-          glVertex3f(2.0f, -0.5f, 2.0f);
+          glVertex3f(2.0f, -0.5f*i, 2.0f*i);
         glEnd();
         glPopMatrix();
 
         glPushMatrix();
-        glRotatef(frame2--,0.f,1.f,0.f);
+        glRotatef(frame2,0.f,1.f,0.f);
         glBegin( GL_QUADS );
           glColor3f(0.0f, 0.0f, 1.0f );
-          glVertex3f(-1.f, 0.0f, 1.0f);
+          glVertex3f(-1.f, 1.0f*i, 1.0f*i);
           glColor3f(1.0f, 0.0f, 0.0f );
-          glVertex3f(-1.0f, 0.0f, -1.0f);
+          glVertex3f(-1.0f, 1.0f*i, -1.0f*i);
           glColor3f(0.0f, 1.0f, 0.0f );
-          glVertex3f(1.0f, 0.0f, -1.0f);
+          glVertex3f(1.0f, 1.0f*i, -1.0f*i);
           glColor3f(0.0f, 1.0f, 1.0f );
-          glVertex3f(1.0f, 0.0f, 1.0f);
+          glVertex3f(1.0f, 1.0f*i, 1.0f*i);
         glEnd();
         glPopMatrix();
+        }
         glfwSwapBuffers();
     }
 

@@ -9,6 +9,8 @@ using namespace scene;
 using namespace event;
 using namespace core;
 
+///@todo removeCamera method (or have the destroyEntity method also remove it from camera role)
+
 SceneManager* SceneManager::_instance = nullptr;
 
 void SceneManager::handleEvent(string name, Event* e)
@@ -120,7 +122,27 @@ void SceneManager::drawScene(core::Color4 clearColor)
     glLoadIdentity();
     ///@todo replace gluLookAt with my own code (and also understand it)
     ///@todo convert the angles on the _rotation vector to gluLookAt angles
+
+    Vector3<f32> target(pos->_position);
+    target.x += sinf(pos->_rotation.y*3.14/180);
+    target.y += sinf(pos->_rotation.x*3.14/180);
+    target.z += cosf(pos->_rotation.y*3.14/180) + cosf(pos->_rotation.x*3.14/180);
+
     gluLookAt(pos->_position.x, pos->_position.y, pos->_position.z,
-              pos->_rotation.x, pos->_rotation.y, pos->_rotation.z,
-              0.f, 1.f, 0.f );
+              target.x, target.y, target.z,
+              0.f, 1.f, 0.f);
 }
+
+/*
+    float p1[] = { 2.f,7.f,5.f };
+    float p2[] = { 4.f,1.f,9.f };
+
+    float tangente = (p2[0]-p1[0])/(p2[2]-p1[2]);
+    float angulo = atan(tangente);
+    float hip = sqrt( (p2[0]-p1[0])*(p2[0]-p1[0])+(p2[2]-p1[2])*(p2[2]-p1[2]) );
+
+    float catOp = sinf(angulo);// * hip;
+    float catAd = cosf(angulo);// * hip;
+
+    std::cout<<angulo<<" "<<hip<<" :: "<<catOp<<" "<<catAd;
+*/

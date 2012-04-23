@@ -5,6 +5,8 @@
 #include <map>
 #include <vector>
 
+///@todo create namespace math
+
 namespace luck
 {
     typedef unsigned short int u16;

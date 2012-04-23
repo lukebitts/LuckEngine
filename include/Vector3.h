@@ -1,6 +1,7 @@
 #ifndef VECTOR3_H
 #define VECTOR3_H
 #include <math.h>
+#include <iostream>
 namespace luck { namespace core
 {
     template <typename T>
@@ -19,12 +20,19 @@ namespace luck { namespace core
             /// http://calculator.tutorvista.com/math/8/cross-product-calculator.html
             return Vector3<T>(v1.y*v2.z - v1.z*v2.y, v1.z*v2.x - v1.x*v2.z, v1.x*v2.y - v1.y*v2.x);
         }
+        static T dot(Vector3<T> v1, Vector3<T> v2)
+        {
+            return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+        }
         static Vector3<T> normalize(Vector3<T> v1)
         {
-            Vector3<T> ret;
-            ret.x = v1.x; ret.y = v1.y; ret.z = v1.z;
-            ret.normalize();
-            return ret;
+            Vector3<T> r(v1);
+            r.normalize();
+            return r;
+        }
+        void toString()
+        {
+            std::cout<<x<<" "<<y<<" "<<z<<"\n";
         }
         Vector3<T> operator-(const Vector3<T> &v)
         {
@@ -65,6 +73,7 @@ namespace luck { namespace core
         void normalize()
         {
             /// http://www.fundza.com/vectors/normalize/index.html
+            if(x == 0 && y == 0 && z == 0) return;
             T len = sqrtf((x*x)+(y*y)+(z*z));
             x = x/len;
             y = y/len;
