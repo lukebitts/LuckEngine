@@ -18,7 +18,11 @@ namespace luck { namespace core
             Entity* remove(string name);
             Entity* requires(string components);
             template <class T>
-            T* get(string name){ return (T*)(_components[name]); }
+            T* get(string name)
+            {
+                /// @todo cast based on the name of the component
+                return (T*)(_components[name]);
+            }
             bool has(string name)
             {
                 return _components[name];
