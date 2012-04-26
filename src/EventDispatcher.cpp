@@ -5,20 +5,19 @@ using namespace event;
 
 void EventDispatcher::dispatchEvent(string type, Event* e)
 {
-    vector<IEventReceiver*> v = _listeners[type];
-    for(auto it = v.begin(); it != v.end(); it++)
+    for(int i = 0; i < _listeners[type].size(); i++)
     {
-        (*it)->handleEvent(type,e);
+        (*_listeners[type][i])(e);
     }
+    delete e;
 }
 
-void EventDispatcher::addEventListener(string type, IEventReceiver* callback)
+void EventDispatcher::addEventListener(string type, IFunctor* callback)
 {
     _listeners[type].push_back(callback);
-    callback->subscribeTo(this);
 }
 
-void EventDispatcher::removeEventListener(IEventReceiver* callback)
+void EventDispatcher::removeEventListener(IFunctor* callback)
 {
     //recursively remove the callback from the _listeners list
     for(auto mIt = _listeners.begin(); mIt != _listeners.end(); mIt++)

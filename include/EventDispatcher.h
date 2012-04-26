@@ -1,17 +1,17 @@
 #ifndef EVENTDISPATCHER_H
 #define EVENTDISPATCHER_H
-#include "IEventReceiver.h"
+#include "IFunctor.h"
 namespace luck { namespace event
 {
     class EventDispatcher
     {
         protected:
-            map<string,vector<IEventReceiver*>> _listeners;
+            map<string,vector<IFunctor*>> _listeners;
         public:
             void dispatchEvent(string type, Event* e = nullptr);
-            void addEventListener(string type, IEventReceiver* callback);
+            void addEventListener(string type, IFunctor* callback);
             //void removeEventListener(string type);
-            void removeEventListener(IEventReceiver* callback);
+            void removeEventListener(IFunctor* callback);
             virtual ~EventDispatcher()
             {
                 _listeners.clear();

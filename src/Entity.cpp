@@ -39,7 +39,7 @@ Entity* Entity::remove(string name)
 {
     map<string, IComponent*>::iterator it = _components.find(name);
     if(it == _components.end()) return this;
-    removeEventListener(it->second);
+    //removeEventListener(it->second);
     delete _components[it->first];
     _components.erase(it);
 
@@ -73,6 +73,4 @@ Entity::~Entity()
     for(auto it = _components.begin(); it != _components.end(); it++)
         delete _components[it->first];
     _components.clear();
-    for(auto it = _subscribedTo.begin(); it != _subscribedTo.end(); it++)
-        (*it)->removeEventListener(this);
 }

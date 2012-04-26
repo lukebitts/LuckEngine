@@ -7,7 +7,7 @@
 #include "Color4.h"
 namespace luck { namespace scene
 {
-    class SceneManager : public event::EventDispatcher, public event::IEventReceiver
+    class SceneManager : public event::EventDispatcher
     {
         private:
             //singleton
@@ -27,8 +27,8 @@ namespace luck { namespace scene
                 _FPS = 60;
 
                 LuckWindow* lkw = LuckWindow::getInstance();
-                lkw->addEventListener("KeyDown",this);
-                lkw->addEventListener("KeyUp",this);
+                lkw->addEventListener("KeyDown",event::eventCallback(this,&SceneManager::handleKeyDown));
+                lkw->addEventListener("KeyUp",event::eventCallback(this,&SceneManager::handleKeyUp));
                 //lkw->addEventListener("MouseMove",this);
             }
         public:
@@ -37,7 +37,8 @@ namespace luck { namespace scene
                 if(!_instance) _instance = new SceneManager();
                 return _instance;
             }
-            void handleEvent(string name, event::Event* e);
+            void handleKeyDown(event::Event* e);
+            void handleKeyUp(event::Event* e);
             void setFPS(u16 FPS){ _FPS = FPS; }
             core::Entity* createEntity(string components);
             void destroyEntity(core::Entity* e);

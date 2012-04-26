@@ -13,9 +13,14 @@ using namespace core;
 
 SceneManager* SceneManager::_instance = nullptr;
 
-void SceneManager::handleEvent(string name, Event* e)
+void SceneManager::handleKeyDown(Event* e)
 {
-    dispatchEvent(name,e);
+    dispatchEvent("KeyDown",e);
+}
+
+void SceneManager::handleKeyUp(Event* e)
+{
+    dispatchEvent("KeyUp",e);
 }
 
 Entity* SceneManager::createEntity(string components)
@@ -33,6 +38,7 @@ void SceneManager::destroyEntity(core::Entity* e)
 
 void SceneManager::destroyEntity(u64 id)
 {
+    /// @todo erase the callback objects too
     map<u64,core::Entity*>::iterator it = _entities.find(id);
     core::Entity* e;
     if(!(it == _entities.end()))
@@ -102,7 +108,6 @@ void SceneManager::drawScene(core::Color4 clearColor)
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
     Entity* ent = _cameras[_activeCamera];
-
     if(!ent) return;
 
     Position* pos = ent->get<Position>("Position");
@@ -129,8 +134,12 @@ void SceneManager::drawScene(core::Color4 clearColor)
     target.z += cosf(pos->_rotation.y*3.14/180) + cosf(pos->_rotation.x*3.14/180);
 
     gluLookAt(pos->_position.x, pos->_position.y, pos->_position.z,
-              target.x, target.y, target.z,
+              0.f, 0.f, -1.f,
               0.f, 1.f, 0.f);
+
+    /*gluLookAt(pos->_position.x, pos->_position.y, pos->_position.z,
+              target.x, target.y, target.z,
+              0.f, 1.f, 0.f);*/
 }
 
 /*

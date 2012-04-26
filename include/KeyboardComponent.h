@@ -11,31 +11,37 @@ namespace luck { namespace core
         {
             scene::SceneManager* smgr = scene::SceneManager::getInstance();
 
-            smgr->addEventListener("KeyDown", owner);
-            smgr->addEventListener("KeyUp", owner);
+            _keyDownListener = event::eventCallback(this,&Keyboard::handleKeyDown);
+            _keyUpListener = event::eventCallback(this,&Keyboard::handleKeyUp);
 
-            owner->addEventListener("KeyDown", this);
-            owner->addEventListener("KeyUp", this);
+            smgr->addEventListener("KeyDown", _keyDownListener);
+            smgr->addEventListener("KeyUp", _keyUpListener);
         }
         bool isDown(s32 key)
         {
             return _pressedKeys[key];
         }
-        void handleEvent(string name, event::Event* e)
+        ~Keyboard()
         {
-            if(name == "KeyDown")
-                handleKeyDown((event::KeyEvent*)e);
-            else
-                handleKeyUp((event::KeyEvent*)e);
+            scene::SceneManager* smgr = scene::SceneManager::getInstance();
+
+            smgr->removeEventListener(_keyDownListener);
+            smgr->removeEventListener(_keyUpListener);
+            delete _keyDownListener;
+            delete _keyUpListener;
         }
         private:
-            void handleKeyDown(event::KeyEvent* e)
+            event::IFunctor* _keyDownListener;
+            event::IFunctor* _keyUpListener;
+            void handleKeyDown(event::Event* e)
             {
-                _pressedKeys[e->keyCode] = true;
+                event::KeyEvent* ek = (event::KeyEvent*)e;
+                _pressedKeys[ek->keyCode] = true;
             }
-            void handleKeyUp(event::KeyEvent* e)
+            void handleKeyUp(event::Event* e)
             {
-                _pressedKeys[e->keyCode] = false;
+                event::KeyEvent* ek = (event::KeyEvent*)e;
+                _pressedKeys[ek->keyCode] = false;
             }
             map<s32, bool> _pressedKeys;
     };

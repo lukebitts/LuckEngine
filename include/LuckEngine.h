@@ -3,7 +3,7 @@
 #include "core.h"
 #include "detail.h"
 #include "event.h"
-#include "IEventReceiver.h"
+#include "IFunctor.h"
 #include "IComponent.h"
 #include "Split.h"
 #include "EventDispatcher.h"

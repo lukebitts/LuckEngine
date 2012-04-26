@@ -6,7 +6,7 @@
 #include "Split.h"
 namespace luck { namespace core
 {
-    class Entity : public event::EventDispatcher, public event::IEventReceiver
+    class Entity : public event::EventDispatcher
     {
         private:
             map<string, IComponent*> _components;

@@ -1,11 +1,11 @@
 #ifndef ICOMPONENT_H
 #define ICOMPONENT_H
-#include "IEventReceiver.h"
+#include "IFunctor.h"
 #include "detail.h"
 namespace luck { namespace core
 {
     class Entity;
-    struct IComponent : public event::IEventReceiver
+    struct IComponent
     {
         Entity* owner;
         virtual void init() = 0;

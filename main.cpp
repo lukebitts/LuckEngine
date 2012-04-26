@@ -14,79 +14,32 @@ Component(Test)
     void init()
     {
         owner->requires("Keyboard");
-        owner->addEventListener("EnterFrame",this);
+        owner->addEventListener("EnterFrame",eventCallback(this,&Test::handleEnterFrame));
     }
-    void handleEvent(string type, Event* e)
+    void handleEnterFrame(Event* e)
     {
-        if(type == "EnterFrame")
-            this->handleEnterFrame((EnterFrameEvent*)e);
-    }
-    void handleEnterFrame(EnterFrameEvent* e)
-    {
+        EnterFrameEvent* ef = (EnterFrameEvent*)e;
         Keyboard* k = owner->get<Keyboard>("Keyboard");
         if(k->isDown('A'))
         {
-            //std::cout<<"a";
+            std::cout<<"a";
         }
     }
     ~Test(){ }
 };
 
-Component(MoveCamera)
+Component(FPSControl)
 {
     void init()
     {
-        owner->addEventListener("EnterFrame",this);
-        owner->addEventListener("KeyDown",this);
+        owner->requires("Keyboard");
+        owner->addEventListener("EnterFrame",eventCallback(this,&FPSControl::handleEnterFrame));
         count = 0;
     }
-    void handleEvent(string type, Event* e)
+    void handleEnterFrame(Event* e)
     {
-        if(type == "EnterFrame")
-            handleEnterFrame((EnterFrameEvent*)e);
-        else if(type == "KeyDown")
-            handleKeyDown((KeyEvent*)e);
-    }
-    void handleKeyDown(KeyEvent* e)
-    {
-        if(e->keyCode == 'Q')
-        {
-            Position* pos = owner->get<Position>("Position");
-            pos->lookAt(Vector3<f32>(1,1,1));
-        }
-    }
-    void handleEnterFrame(EnterFrameEvent* e)
-    {
-        Position* pos = owner->get<Position>("Position");
-        Keyboard* k = owner->get<Keyboard>("Keyboard");
-        ///@todo move the camera based on its rotation
-
-        if(k->isDown('A'))
-        {
-            pos->_rotation.y += 20.f * e->deltaTime;
-            //pos->_position.x -= 10.f * e->deltaTime;
-        }
-        if(k->isDown('D'))
-        {
-            pos->_rotation.x -= 20.f * e->deltaTime;
-            //pos->_position.x += 10.f * e->deltaTime;
-        }
-        if(k->isDown('W'))
-        {
-            pos->_position.z -= 10.f * e->deltaTime;
-        }
-        if(k->isDown('S'))
-        {
-            //pos->_position.z += 10.f * e->deltaTime;
-        }
-        if(k->isDown('R'))
-        {
-            //pos->_position.y += 10.f * e->deltaTime;
-        }
-        if(k->isDown('F'))
-        {
-            //pos->_position.y -= 10.f * e->deltaTime;
-        }
+        //Position* pos = owner->get<Position>("Position");
+        //Keyboard* k = owner->get<Keyboard>("Keyboard");
     }
     f32 count;
 };
@@ -99,21 +52,18 @@ int main(int argc, char* argv[])
 
     SceneManager* smgr = SceneManager::getInstance();
 
-    smgr->createEntity("PLAYER")
+    Entity* player = smgr->createEntity("PLAYER")
         ->add("Test Position")
-        ->get<Position>("Position")->position(Vector3<f32>(0.f,1.f,0.f));
+        ->get<Position>("Position")->position(Vector3<f32>(0.f,1.f,0.f))->owner;
 
-    Entity* camera = smgr->createEntity("Camera Keyboard MoveCamera")
-        ->get<Position>("Position")->position(Vector3<f32>(0.f,5.f,1.f))->lookAt(Vector3<f32>(0.f,0.f,0.f))
+    Entity* camera = smgr->createEntity("Camera FPSControl")
+        ->get<Position>("Position")->position(Vector3<f32>(0.f,0.f,0.f))->lookAt(Vector3<f32>(0.f,0.f,-1.f))
         ->owner
         ->get<Camera>("Camera")->fov(85.f)->near(1.f)->far(100.f)
         ->owner;
 
     smgr->addCamera("cam", camera);
 
-    glEnable(GL_POLYGON_SMOOTH);
-    int frame1 = 0;
-    int frame2 = 0;
     while(lkw->isRunning())
     {
         smgr->updateScene();
@@ -121,7 +71,7 @@ int main(int argc, char* argv[])
 
         for(u16 i = 0;i < 20;i++){
         glPushMatrix();
-        glRotatef(frame1, 0.0f, 1.0f, 0.0f);
+        glRotatef(0, 0.0f, 1.0f, 0.0f);
         glBegin( GL_QUADS );
           glColor3f(1.0f, 0.0f, 0.0f );
           glVertex3f(-2.f, -0.5f*i, 2.0f*i);
@@ -135,7 +85,7 @@ int main(int argc, char* argv[])
         glPopMatrix();
 
         glPushMatrix();
-        glRotatef(frame2,0.f,1.f,0.f);
+        glRotatef(0,0.f,1.f,0.f);
         glBegin( GL_QUADS );
           glColor3f(0.0f, 0.0f, 1.0f );
           glVertex3f(-1.f, 1.0f*i, 1.0f*i);
@@ -175,24 +125,3 @@ Billboard
 *Não tão básicos
 
 */
-
-//glfwGetWindowSize( &width, &height );
-//height = height > 0 ? height : 1;
-
-//glViewport( 0, 0, 1024, 768 );
-
-//glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
-//glClear( GL_COLOR_BUFFER_BIT );
-
-//glMatrixMode( GL_PROJECTION );
-//glLoadIdentity();
-//gluPerspective( 65.0f, (GLfloat)1024/(GLfloat)768, 1.0f, 100.0f );
-
-// Draw some rotating garbage
-//glMatrixMode( GL_MODELVIEW );
-//glLoadIdentity();
-//gluLookAt(0.0f, -10.0f, 0.0f,
-//          0.0f, 0.0f, 0.f,
-//          0.0f, 0.0f, 1.0f );
-
-//glTranslatef( 1.0f, 1.0f, 0.0f );
