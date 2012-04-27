@@ -81,9 +81,10 @@ Component(FPSControl)
 
         s16 xDiff = em->position.x - 1024/2;
         s16 yDiff = em->position.y - 768/2;
+
         pos->_rotation.y += xDiff/4;
         pos->_rotation.x = std::max(std::min(pos->_rotation.x + yDiff/4,60.f),-60.f);
-        std::cout<<pos->_rotation.x<<"\n";
+
         /// @todo think a better way to wrap the glfwSetMousePos (SceneManager or MouseComponent?)
         glfwSetMousePos(1024/2,768/2);
     }
