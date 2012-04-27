@@ -23,6 +23,26 @@ void SceneManager::handleKeyUp(Event* e)
     dispatchEvent("KeyUp",e);
 }
 
+void SceneManager::handleMouseMove(Event* e)
+{
+    dispatchEvent("MouseMove",e);
+}
+
+void SceneManager::handleMouseDown(Event* e)
+{
+    dispatchEvent("MouseDown",e);
+}
+
+void SceneManager::handleMouseUp(Event* e)
+{
+    dispatchEvent("MouseUp",e);
+}
+
+void SceneManager::handleMouseWheel(Event* e)
+{
+    dispatchEvent("MouseWheel",e);
+}
+
 Entity* SceneManager::createEntity(string components)
 {
     core::Entity* e = new core::Entity(_currentId,components);
@@ -38,7 +58,6 @@ void SceneManager::destroyEntity(core::Entity* e)
 
 void SceneManager::destroyEntity(u64 id)
 {
-    /// @todo erase the callback objects too
     map<u64,core::Entity*>::iterator it = _entities.find(id);
     core::Entity* e;
     if(!(it == _entities.end()))
@@ -126,32 +145,12 @@ void SceneManager::drawScene(core::Color4 clearColor)
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
     ///@todo replace gluLookAt with my own code (and also understand it)
-    ///@todo convert the angles on the _rotation vector to gluLookAt angles
-
-    Vector3<f32> target(pos->_position);
-    target.x += sinf(pos->_rotation.y*3.14/180);
-    target.y += sinf(pos->_rotation.x*3.14/180);
-    target.z += cosf(pos->_rotation.y*3.14/180) + cosf(pos->_rotation.x*3.14/180);
-
-    gluLookAt(pos->_position.x, pos->_position.y, pos->_position.z,
-              0.f, 0.f, -1.f,
-              0.f, 1.f, 0.f);
-
+    glRotatef(pos->_rotation.x,1.f,0.f,0.f);
+    glRotatef(pos->_rotation.y,0.f,1.f,0.f);
+    glRotatef(pos->_rotation.z,0.f,0.f,1.f);
+    glTranslatef(-pos->_position.x, -pos->_position.y, -pos->_position.z);
     /*gluLookAt(pos->_position.x, pos->_position.y, pos->_position.z,
-              target.x, target.y, target.z,
+              0.f, 0.f, -1.f,
               0.f, 1.f, 0.f);*/
+
 }
-
-/*
-    float p1[] = { 2.f,7.f,5.f };
-    float p2[] = { 4.f,1.f,9.f };
-
-    float tangente = (p2[0]-p1[0])/(p2[2]-p1[2]);
-    float angulo = atan(tangente);
-    float hip = sqrt( (p2[0]-p1[0])*(p2[0]-p1[0])+(p2[2]-p1[2])*(p2[2]-p1[2]) );
-
-    float catOp = sinf(angulo);// * hip;
-    float catAd = cosf(angulo);// * hip;
-
-    std::cout<<angulo<<" "<<hip<<" :: "<<catOp<<" "<<catAd;
-*/

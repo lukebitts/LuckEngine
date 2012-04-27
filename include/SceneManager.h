@@ -29,7 +29,11 @@ namespace luck { namespace scene
                 LuckWindow* lkw = LuckWindow::getInstance();
                 lkw->addEventListener("KeyDown",event::eventCallback(this,&SceneManager::handleKeyDown));
                 lkw->addEventListener("KeyUp",event::eventCallback(this,&SceneManager::handleKeyUp));
-                //lkw->addEventListener("MouseMove",this);
+
+                lkw->addEventListener("MouseMove",event::eventCallback(this,&SceneManager::handleMouseMove));
+                lkw->addEventListener("MouseDown",event::eventCallback(this,&SceneManager::handleMouseDown));
+                lkw->addEventListener("MouseUp",event::eventCallback(this,&SceneManager::handleMouseUp));
+                lkw->addEventListener("MouseWheel",event::eventCallback(this,&SceneManager::handleMouseWheel));
             }
         public:
             static SceneManager* getInstance()
@@ -39,6 +43,10 @@ namespace luck { namespace scene
             }
             void handleKeyDown(event::Event* e);
             void handleKeyUp(event::Event* e);
+            void handleMouseMove(event::Event* e);
+            void handleMouseDown(event::Event* e);
+            void handleMouseUp(event::Event* e);
+            void handleMouseWheel(event::Event* e);
             void setFPS(u16 FPS){ _FPS = FPS; }
             core::Entity* createEntity(string components);
             void destroyEntity(core::Entity* e);

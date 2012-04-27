@@ -22,7 +22,7 @@ Component(Test)
         Keyboard* k = owner->get<Keyboard>("Keyboard");
         if(k->isDown('A'))
         {
-            std::cout<<"a";
+
         }
     }
     ~Test(){ }
@@ -32,17 +32,63 @@ Component(FPSControl)
 {
     void init()
     {
-        owner->requires("Keyboard");
+        owner->requires("Keyboard Mouse");
         owner->addEventListener("EnterFrame",eventCallback(this,&FPSControl::handleEnterFrame));
-        count = 0;
+        owner->addEventListener("KeyDown",eventCallback(this,&FPSControl::handleKeyDown));
+        owner->addEventListener("MouseMove",eventCallback(this,&FPSControl::handleMouseMove));
     }
     void handleEnterFrame(Event* e)
     {
-        //Position* pos = owner->get<Position>("Position");
-        //Keyboard* k = owner->get<Keyboard>("Keyboard");
+        EnterFrameEvent* ef = (EnterFrameEvent*)e;
+        Position* pos = owner->get<Position>("Position");
+        Keyboard* k = owner->get<Keyboard>("Keyboard");
+
+        if(k->isDown('D'))
+        {
+            pos->_position.x += cosf(pos->_rotation.y*3.14/180) * 5.f * ef->deltaTime;
+            pos->_position.z += sinf(pos->_rotation.y*3.14/180) * 5.f * ef->deltaTime;
+        }
+        if(k->isDown('A'))
+        {
+            pos->_position.x -= cosf(pos->_rotation.y*3.14/180) * 5.f * ef->deltaTime;
+            pos->_position.z -= sinf(pos->_rotation.y*3.14/180) * 5.f * ef->deltaTime;
+        }
+        if(k->isDown('S'))
+        {
+            pos->_position.x -= sinf(pos->_rotation.y*3.14/180) * 5.f * ef->deltaTime;
+            pos->_position.z += cosf(pos->_rotation.y*3.14/180) * 5.f * ef->deltaTime;
+        }
+        if(k->isDown('W'))
+        {
+            pos->_position.x += sinf(pos->_rotation.y*3.14/180) * 5.f * ef->deltaTime;
+            pos->_position.z -= cosf(pos->_rotation.y*3.14/180) * 5.f * ef->deltaTime;
+        }
     }
-    f32 count;
+    void handleKeyDown(Event* e)
+    {
+        KeyEvent* ek = static_cast<KeyEvent*>(e);
+        if(ek->keyCode == 'R')
+        {
+            Position* pos = owner->get<Position>("Position");
+            pos->_position = Vector3<f32>();
+            pos->_rotation = Vector3<f32>();
+        }
+    }
+    void handleMouseMove(Event* e)
+    {
+        MouseEvent* em = (MouseEvent*)e;
+        Position* pos = owner->get<Position>("Position");
+
+        s16 xDiff = em->position.x - 1024/2;
+        s16 yDiff = em->position.y - 768/2;
+        pos->_rotation.y += xDiff/4;
+        pos->_rotation.x = std::max(std::min(pos->_rotation.x + yDiff/4,60.f),-60.f);
+        std::cout<<pos->_rotation.x<<"\n";
+        /// @todo think a better way to wrap the glfwSetMousePos (SceneManager or MouseComponent?)
+        glfwSetMousePos(1024/2,768/2);
+    }
 };
+
 
 int main(int argc, char* argv[])
 {
@@ -59,7 +105,7 @@ int main(int argc, char* argv[])
     Entity* camera = smgr->createEntity("Camera FPSControl")
         ->get<Position>("Position")->position(Vector3<f32>(0.f,0.f,0.f))->lookAt(Vector3<f32>(0.f,0.f,-1.f))
         ->owner
-        ->get<Camera>("Camera")->fov(85.f)->near(1.f)->far(100.f)
+        ->get<Camera>("Camera")->fov(85.f)->near(0.1f)->far(500.f)
         ->owner;
 
     smgr->addCamera("cam", camera);
@@ -69,35 +115,42 @@ int main(int argc, char* argv[])
         smgr->updateScene();
         smgr->drawScene(Color4(100,101,140,255));
 
-        for(u16 i = 0;i < 20;i++){
         glPushMatrix();
-        glRotatef(0, 0.0f, 1.0f, 0.0f);
-        glBegin( GL_QUADS );
-          glColor3f(1.0f, 0.0f, 0.0f );
-          glVertex3f(-2.f, -0.5f*i, 2.0f*i);
-          glColor3f(0.0f, 1.0f, 0.0f );
-          glVertex3f(-2.0f, -0.5f*i, -2.0f*i);
-          glColor3f(0.0f, 0.0f, 1.0f );
-          glVertex3f(2.0f, -0.5f*i, -2.0f*i);
-          glColor3f(1.0f, 1.0f, 0.0f );
-          glVertex3f(2.0f, -0.5f*i, 2.0f*i);
+        f32 line = 10.f;
+        glBegin( GL_LINES );
+            for(u16 i = 0; i <= line; i++)
+            {
+                glColor3f(1.f,0.f,0.f);
+                glVertex3f(-line, i-line/2, -line);
+                glVertex3f( line, i-line/2, -line);
+                glColor3f(1.f,1.f,1.f);
+                glVertex3f(i*2-line,-line/2, -line);
+                glVertex3f(i*2-line, line/2, -line);
+
+                glColor3f(0.f,1.f,0.f);
+                glVertex3f(line,i-line/2,-line);
+                glVertex3f(line,i-line/2, line);
+                glColor3f(1.f,1.f,1.f);
+                glVertex3f(line,-line/2,i*2-line);
+                glVertex3f(line, line/2,i*2-line);
+
+                glColor3f(0.f,0.f,1.f);
+                glVertex3f(-line, i-line/2,line);
+                glVertex3f( line, i-line/2,line);
+                glColor3f(1.f,1.f,1.f);
+                glVertex3d(i*2-line,-line/2,line);
+                glVertex3d(i*2-line, line/2,line);
+
+                glColor3f(1.f,1.f,0.f);
+                glVertex3d(-line,i-line/2,-line);
+                glVertex3d(-line,i-line/2, line);
+                glColor3f(1.f,1.f,1.f);
+                glVertex3f(-line,-line/2,i*2-line);
+                glVertex3f(-line, line/2,i*2-line);
+            }
         glEnd();
         glPopMatrix();
 
-        glPushMatrix();
-        glRotatef(0,0.f,1.f,0.f);
-        glBegin( GL_QUADS );
-          glColor3f(0.0f, 0.0f, 1.0f );
-          glVertex3f(-1.f, 1.0f*i, 1.0f*i);
-          glColor3f(1.0f, 0.0f, 0.0f );
-          glVertex3f(-1.0f, 1.0f*i, -1.0f*i);
-          glColor3f(0.0f, 1.0f, 0.0f );
-          glVertex3f(1.0f, 1.0f*i, -1.0f*i);
-          glColor3f(0.0f, 1.0f, 1.0f );
-          glVertex3f(1.0f, 1.0f*i, 1.0f*i);
-        glEnd();
-        glPopMatrix();
-        }
         glfwSwapBuffers();
     }
 
@@ -105,6 +158,16 @@ int main(int argc, char* argv[])
 
     return 0;
 }
+/*
+glColor3f(1.0f, 0.0f, 0.0f );
+          glVertex3f(-2.f, -0.5f*i, 2.0f*i);
+          glColor3f(0.0f, 1.0f, 0.0f );
+          glVertex3f(-2.0f, -0.5f*i, -2.0f*i);
+          glColor3f(0.0f, 0.0f, 1.0f );
+          glVertex3f(2.0f, -0.5f*i, -2.0f*i);
+          glColor3f(1.0f, 1.0f, 0.0f );
+          glVertex3f(2.0f, -0.5f*i, 2.0f*i);
+*/
 
 /*
 

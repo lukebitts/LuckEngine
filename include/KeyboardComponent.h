@@ -35,11 +35,13 @@ namespace luck { namespace core
             event::IFunctor* _keyUpListener;
             void handleKeyDown(event::Event* e)
             {
+                owner->dispatchEvent("KeyDown", e);
                 event::KeyEvent* ek = (event::KeyEvent*)e;
                 _pressedKeys[ek->keyCode] = true;
             }
             void handleKeyUp(event::Event* e)
             {
+                owner->dispatchEvent("KeyUp", e);
                 event::KeyEvent* ek = (event::KeyEvent*)e;
                 _pressedKeys[ek->keyCode] = false;
             }

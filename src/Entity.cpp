@@ -69,6 +69,7 @@ Entity::~Entity()
     /// Is sending a destroy event worth it? Because we are calling the
     /// deconstructor on each component, that should be enough to warn then
     /// that their life is over
+    ///@todo Delete every listener
     //_listeners.clear();
     for(auto it = _components.begin(); it != _components.end(); it++)
         delete _components[it->first];

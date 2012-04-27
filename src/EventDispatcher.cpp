@@ -5,11 +5,11 @@ using namespace event;
 
 void EventDispatcher::dispatchEvent(string type, Event* e)
 {
-    for(int i = 0; i < _listeners[type].size(); i++)
+    for(u16 i = 0; i < _listeners[type].size(); i++)
     {
         (*_listeners[type][i])(e);
     }
-    delete e;
+    /// @todo find a way to delete the events after they are used
 }
 
 void EventDispatcher::addEventListener(string type, IFunctor* callback)

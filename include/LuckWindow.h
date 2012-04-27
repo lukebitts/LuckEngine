@@ -17,6 +17,9 @@ namespace luck
             void setWindowCaption(string caption);
             bool isRunning();
             static void keyCallback(s32 key, s32 action);
+            static void mouseMoveCallback(s32 x, s32 y);
+            static void mouseClickCallback(s32 button, s32 action);
+            static void mouseWheelCallback(s32 position);
             static LuckWindow* getInstance()
             {
                 if(!_instance) _instance = new LuckWindow();

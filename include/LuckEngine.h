@@ -17,3 +17,7 @@
 #include "PositionComponent.h"
 #include "CameraComponent.h"
 #include "Quaternion.h"
+#include "Vector2.h"
+#include "MouseComponent.h"
+
+/// @todo create Math module
