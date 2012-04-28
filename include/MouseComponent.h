@@ -42,21 +42,21 @@ namespace luck { namespace core
             event::IFunctor* _mouseDownListener;
             event::IFunctor* _mouseUpListener;
             event::IFunctor* _mouseWheelListener;
-            void handleMouseMove(event::Event* e)
+            void handleMouseMove(event::Event const& e)
             {
-                event::MouseEvent* em = (event::MouseEvent*)e;
-                _mousePosition = em->position;
+                event::MouseEvent const& em = (event::MouseEvent const&)e;
+                _mousePosition = em.position;
                 owner->dispatchEvent("MouseMove", e);
             }
-            void handleMouseDown(event::Event* e)
+            void handleMouseDown(event::Event const& e)
             {
                 owner->dispatchEvent("MouseDown", e);
             }
-            void handleMouseUp(event::Event* e)
+            void handleMouseUp(event::Event const& e)
             {
                 owner->dispatchEvent("MouseUp", e);
             }
-            void handleMouseWheel(event::Event* e)
+            void handleMouseWheel(event::Event const& e)
             {
                 owner->dispatchEvent("MouseWheel", e);
             }

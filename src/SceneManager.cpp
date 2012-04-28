@@ -13,32 +13,32 @@ using namespace core;
 
 SceneManager* SceneManager::_instance = nullptr;
 
-void SceneManager::handleKeyDown(Event* e)
+void SceneManager::handleKeyDown(Event const& e)
 {
     dispatchEvent("KeyDown",e);
 }
 
-void SceneManager::handleKeyUp(Event* e)
+void SceneManager::handleKeyUp(Event const& e)
 {
     dispatchEvent("KeyUp",e);
 }
 
-void SceneManager::handleMouseMove(Event* e)
+void SceneManager::handleMouseMove(Event const& e)
 {
     dispatchEvent("MouseMove",e);
 }
 
-void SceneManager::handleMouseDown(Event* e)
+void SceneManager::handleMouseDown(Event const& e)
 {
     dispatchEvent("MouseDown",e);
 }
 
-void SceneManager::handleMouseUp(Event* e)
+void SceneManager::handleMouseUp(Event const& e)
 {
     dispatchEvent("MouseUp",e);
 }
 
-void SceneManager::handleMouseWheel(Event* e)
+void SceneManager::handleMouseWheel(Event const& e)
 {
     dispatchEvent("MouseWheel",e);
 }
@@ -108,10 +108,10 @@ void SceneManager::updateScene()
         _currentFrame += 1;// + 1 * deltaTime;
         for(auto it = _entities.begin(); it != _entities.end(); it++)
         {
-            EnterFrameEvent* evt = new EnterFrameEvent();
-            evt->currentFrame = _currentFrame;
-            evt->deltaTime = std::min(deltaTime,(f64)10);
-            it->second->dispatchEvent("EnterFrame", (Event*)evt);
+            EnterFrameEvent evt = EnterFrameEvent();
+            evt.currentFrame = _currentFrame;
+            evt.deltaTime = std::min(deltaTime,(f64)10);
+            it->second->dispatchEvent("EnterFrame", (Event const&)evt);
         }
         _lastTime = clock();
     }
@@ -134,23 +134,16 @@ void SceneManager::drawScene(core::Color4 clearColor)
 
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
-    ///@todo understand this code.
     f64 pi = 3.1415926535897932384626433832795;
     f64 fW, fH;
     fH = tan( cam->_fov / 360 * pi ) * cam->_near;
     fW = fH * cam->_aspect;
     glFrustum( -fW, fW, -fH, fH, cam->_near, cam->_far );
-    //gluPerspective( cam->_fov, cam->_aspect, cam->_near, cam->_far );
 
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
-    ///@todo replace gluLookAt with my own code (and also understand it)
     glRotatef(pos->_rotation.x,1.f,0.f,0.f);
     glRotatef(pos->_rotation.y,0.f,1.f,0.f);
     glRotatef(pos->_rotation.z,0.f,0.f,1.f);
     glTranslatef(-pos->_position.x, -pos->_position.y, -pos->_position.z);
-    /*gluLookAt(pos->_position.x, pos->_position.y, pos->_position.z,
-              0.f, 0.f, -1.f,
-              0.f, 1.f, 0.f);*/
-
 }

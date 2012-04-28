@@ -1,15 +1,13 @@
 #include "EventDispatcher.h"
-
 using namespace luck;
 using namespace event;
 
-void EventDispatcher::dispatchEvent(string type, Event* e)
+void EventDispatcher::dispatchEvent(string type, Event const& e)
 {
     for(u16 i = 0; i < _listeners[type].size(); i++)
     {
         (*_listeners[type][i])(e);
     }
-    /// @todo find a way to delete the events after they are used
 }
 
 void EventDispatcher::addEventListener(string type, IFunctor* callback)

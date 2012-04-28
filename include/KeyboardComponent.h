@@ -33,17 +33,17 @@ namespace luck { namespace core
         private:
             event::IFunctor* _keyDownListener;
             event::IFunctor* _keyUpListener;
-            void handleKeyDown(event::Event* e)
+            void handleKeyDown(event::Event const& e)
             {
                 owner->dispatchEvent("KeyDown", e);
-                event::KeyEvent* ek = (event::KeyEvent*)e;
-                _pressedKeys[ek->keyCode] = true;
+                event::KeyEvent const& ek = (event::KeyEvent const&)e;
+                _pressedKeys[ek.keyCode] = true;
             }
-            void handleKeyUp(event::Event* e)
+            void handleKeyUp(event::Event const& e)
             {
                 owner->dispatchEvent("KeyUp", e);
-                event::KeyEvent* ek = (event::KeyEvent*)e;
-                _pressedKeys[ek->keyCode] = false;
+                event::KeyEvent const& ek = (event::KeyEvent const&)e;
+                _pressedKeys[ek.keyCode] = false;
             }
             map<s32, bool> _pressedKeys;
     };

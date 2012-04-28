@@ -22,7 +22,7 @@ void Entity::_add(string name)
     _components[name] = c;
 }
 
-void Entity::handleEvent(string s, event::Event* e)
+void Entity::handleEvent(string s, event::Event const& e)
 {
     dispatchEvent(s, e);
 }

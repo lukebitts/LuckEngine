@@ -8,7 +8,7 @@ namespace luck { namespace event
         protected:
             map<string,vector<IFunctor*>> _listeners;
         public:
-            void dispatchEvent(string type, Event* e = nullptr);
+            void dispatchEvent(string type, Event const& e);
             void addEventListener(string type, IFunctor* callback);
             //void removeEventListener(string type);
             void removeEventListener(IFunctor* callback);

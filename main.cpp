@@ -16,9 +16,9 @@ Component(Test)
         owner->requires("Keyboard");
         owner->addEventListener("EnterFrame",eventCallback(this,&Test::handleEnterFrame));
     }
-    void handleEnterFrame(Event* e)
+    void handleEnterFrame(Event const& e)
     {
-        EnterFrameEvent* ef = (EnterFrameEvent*)e;
+        EnterFrameEvent const& ef = (EnterFrameEvent const&)e;
         Keyboard* k = owner->get<Keyboard>("Keyboard");
         if(k->isDown('A'))
         {
@@ -37,50 +37,50 @@ Component(FPSControl)
         owner->addEventListener("KeyDown",eventCallback(this,&FPSControl::handleKeyDown));
         owner->addEventListener("MouseMove",eventCallback(this,&FPSControl::handleMouseMove));
     }
-    void handleEnterFrame(Event* e)
+    void handleEnterFrame(Event const& e)
     {
-        EnterFrameEvent* ef = (EnterFrameEvent*)e;
+        EnterFrameEvent const& ef = (EnterFrameEvent const&)e;
         Position* pos = owner->get<Position>("Position");
         Keyboard* k = owner->get<Keyboard>("Keyboard");
 
         if(k->isDown('D'))
         {
-            pos->_position.x += cosf(pos->_rotation.y*3.14/180) * 5.f * ef->deltaTime;
-            pos->_position.z += sinf(pos->_rotation.y*3.14/180) * 5.f * ef->deltaTime;
+            pos->_position.x += cosf(pos->_rotation.y*3.14/180) * 5.f * ef.deltaTime;
+            pos->_position.z += sinf(pos->_rotation.y*3.14/180) * 5.f * ef.deltaTime;
         }
         if(k->isDown('A'))
         {
-            pos->_position.x -= cosf(pos->_rotation.y*3.14/180) * 5.f * ef->deltaTime;
-            pos->_position.z -= sinf(pos->_rotation.y*3.14/180) * 5.f * ef->deltaTime;
+            pos->_position.x -= cosf(pos->_rotation.y*3.14/180) * 5.f * ef.deltaTime;
+            pos->_position.z -= sinf(pos->_rotation.y*3.14/180) * 5.f * ef.deltaTime;
         }
         if(k->isDown('S'))
         {
-            pos->_position.x -= sinf(pos->_rotation.y*3.14/180) * 5.f * ef->deltaTime;
-            pos->_position.z += cosf(pos->_rotation.y*3.14/180) * 5.f * ef->deltaTime;
+            pos->_position.x -= sinf(pos->_rotation.y*3.14/180) * 5.f * ef.deltaTime;
+            pos->_position.z += cosf(pos->_rotation.y*3.14/180) * 5.f * ef.deltaTime;
         }
         if(k->isDown('W'))
         {
-            pos->_position.x += sinf(pos->_rotation.y*3.14/180) * 5.f * ef->deltaTime;
-            pos->_position.z -= cosf(pos->_rotation.y*3.14/180) * 5.f * ef->deltaTime;
+            pos->_position.x += sinf(pos->_rotation.y*3.14/180) * 5.f * ef.deltaTime;
+            pos->_position.z -= cosf(pos->_rotation.y*3.14/180) * 5.f * ef.deltaTime;
         }
     }
-    void handleKeyDown(Event* e)
+    void handleKeyDown(Event const& e)
     {
-        KeyEvent* ek = static_cast<KeyEvent*>(e);
-        if(ek->keyCode == 'R')
+        KeyEvent const& ek = (KeyEvent const&)e;
+        if(ek.keyCode == 'R')
         {
             Position* pos = owner->get<Position>("Position");
             pos->_position = Vector3<f32>();
             pos->_rotation = Vector3<f32>();
         }
     }
-    void handleMouseMove(Event* e)
+    void handleMouseMove(Event const& e)
     {
-        MouseEvent* em = (MouseEvent*)e;
+        MouseEvent const& em = (MouseEvent const&)e;
         Position* pos = owner->get<Position>("Position");
 
-        s16 xDiff = em->position.x - 1024/2;
-        s16 yDiff = em->position.y - 768/2;
+        s16 xDiff = em.position.x - 1024/2;
+        s16 yDiff = em.position.y - 768/2;
 
         pos->_rotation.y += xDiff/4;
         pos->_rotation.x = std::max(std::min(pos->_rotation.x + yDiff/4,60.f),-60.f);
@@ -89,7 +89,6 @@ Component(FPSControl)
         glfwSetMousePos(1024/2,768/2);
     }
 };
-
 
 int main(int argc, char* argv[])
 {

@@ -41,12 +41,12 @@ namespace luck { namespace scene
                 if(!_instance) _instance = new SceneManager();
                 return _instance;
             }
-            void handleKeyDown(event::Event* e);
-            void handleKeyUp(event::Event* e);
-            void handleMouseMove(event::Event* e);
-            void handleMouseDown(event::Event* e);
-            void handleMouseUp(event::Event* e);
-            void handleMouseWheel(event::Event* e);
+            void handleKeyDown(event::Event const& e);
+            void handleKeyUp(event::Event const& e);
+            void handleMouseMove(event::Event const& e);
+            void handleMouseDown(event::Event const& e);
+            void handleMouseUp(event::Event const& e);
+            void handleMouseWheel(event::Event const& e);
             void setFPS(u16 FPS){ _FPS = FPS; }
             core::Entity* createEntity(string components);
             void destroyEntity(core::Entity* e);
