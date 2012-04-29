@@ -10,7 +10,7 @@ namespace luck { namespace core
         u8 b;
         Color4()
         {
-            a = r = g = b = 0;
+            a = r = g = b = 255;
         }
         Color4(u8 r, u8 g, u8 b, u8 a)
         {

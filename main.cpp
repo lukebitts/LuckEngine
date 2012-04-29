@@ -3,6 +3,7 @@
 #include <time.h>
 #include <math.h>
 #include <iostream>
+#include <cstdlib>
 
 using namespace luck;
 using namespace core;
@@ -11,21 +12,74 @@ using namespace scene;
 
 Component(Test)
 {
+    Vertex vertexList[4];
+    s32 faceList[6];
     void init()
     {
-        owner->requires("Keyboard");
+        owner->requires("Keyboard VertexBuffer");
         owner->addEventListener("EnterFrame",eventCallback(this,&Test::handleEnterFrame));
+        owner->addEventListener("Draw",eventCallback(this,&Test::handleDraw));
+
+        vertexList[0] = Vertex(Vector3<f32>(-3.5f, 0.f, -3.5f),Color4(255,0,0,255));
+        vertexList[1] = Vertex(Vector3<f32>( 3.5f, 0.f, -3.5f),Color4(0,255,0,255));
+        vertexList[2] = Vertex(Vector3<f32>( 3.5f, 0.f,  3.5f),Color4(0,0,255,255));
+        vertexList[3] = Vertex(Vector3<f32>(-3.5f, 0.f,  3.5f),Color4(255,255,0,255));
+
+        faceList[0] = 0;
+        faceList[1] = 1;
+        faceList[2] = 2;
+        faceList[3] = 0;
+        faceList[4] = 2;
+        faceList[5] = 3;
     }
     void handleEnterFrame(Event const& e)
     {
         EnterFrameEvent const& ef = (EnterFrameEvent const&)e;
         Keyboard* k = owner->get<Keyboard>("Keyboard");
-        if(k->isDown('A'))
+        Position* p = owner->get<Position>("Position");
+        if(k->isDown(GLFW_KEY_DOWN))
         {
-
+            p->_position.x += 3.f * ef.deltaTime;
+            p->_rotation.y += 50.f * ef.deltaTime;
         }
     }
+    void handleDraw(Event const& e)
+    {
+        VertexBuffer* vb = owner->get<VertexBuffer>("VertexBuffer");
+        vb->setVertexBuffer(&vertexList[0],&faceList[0],2,GL_TRIANGLES);
+    }
     ~Test(){ }
+};
+
+Component(FixedBounds)
+{
+    Vertex vertexList[4][2];
+    s32 faceList[4][2];
+    void init()
+    {
+        owner->requires("VertexBuffer");
+        owner->addEventListener("Draw",eventCallback(this,&FixedBounds::handleDraw));
+
+        vertexList[0][0] = Vertex(Vector3<f32>(-10.f,0.f,-10.f),Color4(255,255,255,255));
+        vertexList[0][1] = Vertex(Vector3<f32>( 10.f,0.f,-10.f),Color4(255,255,255,255));
+
+        vertexList[1][0] = Vertex(Vector3<f32>(-10.f,0.f,10.f),Color4(255,255,255,255));
+        vertexList[1][1] = Vertex(Vector3<f32>( 10.f,0.f,10.f),Color4(255,255,255,255));
+
+        faceList[0][0] = 0;
+        faceList[0][1] = 1;
+
+        faceList[1][0] = 0;
+        faceList[1][1] = 1;
+    }
+    void handleDraw(Event const& e)
+    {
+        VertexBuffer* vb = owner->get<VertexBuffer>("VertexBuffer");
+        vb->setVertexBuffer(&vertexList[0][0],&faceList[0][0],1,GL_LINES);
+        vb->setVertexBuffer(&vertexList[1][0],&faceList[1][0],1,GL_LINES);
+        //vb->setVertexBuffer(&vertexList[2][0],&faceList[2][0],1,GL_LINES);
+        //vb->setVertexBuffer(&vertexList[3][0],&faceList[3][0],1,GL_LINES);
+    }
 };
 
 Component(FPSControl)
@@ -98,9 +152,12 @@ int main(int argc, char* argv[])
 
     SceneManager* smgr = SceneManager::getInstance();
 
+    smgr->createEntity("FixedBounds")
+        ->get<Position>("Position")->position(Vector3<f32>(0.f,-5.f,0.f));
+
     Entity* player = smgr->createEntity("PLAYER")
         ->add("Test Position")
-        ->get<Position>("Position")->position(Vector3<f32>(0.f,1.f,0.f))->owner;
+        ->get<Position>("Position")->position(Vector3<f32>(0.f,-5.f,0.f))->owner;
 
     Entity* camera = smgr->createEntity("Camera FPSControl")
         ->get<Position>("Position")->position(Vector3<f32>(0.f,0.f,0.f))->lookAt(Vector3<f32>(0.f,0.f,-1.f))
@@ -114,60 +171,48 @@ int main(int argc, char* argv[])
     {
         smgr->updateScene();
         smgr->drawScene(Color4(100,101,140,255));
-
-        glPushMatrix();
-        f32 line = 10.f;
-        glBegin( GL_LINES );
-            for(u16 i = 0; i <= line; i++)
-            {
-                glColor3f(1.f,0.f,0.f);
-                glVertex3f(-line, i-line/2, -line);
-                glVertex3f( line, i-line/2, -line);
-                glColor3f(1.f,1.f,1.f);
-                glVertex3f(i*2-line,-line/2, -line);
-                glVertex3f(i*2-line, line/2, -line);
-
-                glColor3f(0.f,1.f,0.f);
-                glVertex3f(line,i-line/2,-line);
-                glVertex3f(line,i-line/2, line);
-                glColor3f(1.f,1.f,1.f);
-                glVertex3f(line,-line/2,i*2-line);
-                glVertex3f(line, line/2,i*2-line);
-
-                glColor3f(0.f,0.f,1.f);
-                glVertex3f(-line, i-line/2,line);
-                glVertex3f( line, i-line/2,line);
-                glColor3f(1.f,1.f,1.f);
-                glVertex3d(i*2-line,-line/2,line);
-                glVertex3d(i*2-line, line/2,line);
-
-                glColor3f(1.f,1.f,0.f);
-                glVertex3d(-line,i-line/2,-line);
-                glVertex3d(-line,i-line/2, line);
-                glColor3f(1.f,1.f,1.f);
-                glVertex3f(-line,-line/2,i*2-line);
-                glVertex3f(-line, line/2,i*2-line);
-            }
-        glEnd();
-        glPopMatrix();
-
-        glfwSwapBuffers();
     }
 
     glfwTerminate();
 
     return 0;
 }
-/*
-glColor3f(1.0f, 0.0f, 0.0f );
-          glVertex3f(-2.f, -0.5f*i, 2.0f*i);
-          glColor3f(0.0f, 1.0f, 0.0f );
-          glVertex3f(-2.0f, -0.5f*i, -2.0f*i);
-          glColor3f(0.0f, 0.0f, 1.0f );
-          glVertex3f(2.0f, -0.5f*i, -2.0f*i);
-          glColor3f(1.0f, 1.0f, 0.0f );
-          glVertex3f(2.0f, -0.5f*i, 2.0f*i);
-*/
+
+/*glPushMatrix();
+f32 line = 10.f;
+glBegin( GL_LINES );
+    for(u16 i = 0; i <= line; i++)
+    {
+        glColor3f(1.f,0.f,0.f);
+        glVertex3f(-line, i-line/2, -line);
+        glVertex3f( line, i-line/2, -line);
+        glColor3f(1.f,1.f,1.f);
+        glVertex3f(i*2-line,-line/2, -line);
+        glVertex3f(i*2-line, line/2, -line);
+
+        glColor3f(0.f,1.f,0.f);
+        glVertex3f(line,i-line/2,-line);
+        glVertex3f(line,i-line/2, line);
+        glColor3f(1.f,1.f,1.f);
+        glVertex3f(line,-line/2,i*2-line);
+        glVertex3f(line, line/2,i*2-line);
+
+        glColor3f(0.f,0.f,1.f);
+        glVertex3f(-line, i-line/2,line);
+        glVertex3f( line, i-line/2,line);
+        glColor3f(1.f,1.f,1.f);
+        glVertex3d(i*2-line,-line/2,line);
+        glVertex3d(i*2-line, line/2,line);
+
+        glColor3f(1.f,1.f,0.f);
+        glVertex3d(-line,i-line/2,-line);
+        glVertex3d(-line,i-line/2, line);
+        glColor3f(1.f,1.f,1.f);
+        glVertex3f(-line,-line/2,i*2-line);
+        glVertex3f(-line, line/2,i*2-line);
+    }
+glEnd();
+glPopMatrix();*/
 
 /*
 
@@ -184,7 +229,5 @@ Mouse (em 3D vai ser fodinha fazer, mas é necessário)
 - Para funcionar em 3D precisa de uma bounding box além da VertexList
 Luzes
 Billboard
-
-*Não tão básicos
 
 */

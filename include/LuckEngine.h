@@ -19,5 +19,7 @@
 #include "Quaternion.h"
 #include "Vector2.h"
 #include "MouseComponent.h"
+#include "Vertex.h"
+#include "VertexBufferComponent.h"
+//#include "math.h"
 
-/// @todo create Math module

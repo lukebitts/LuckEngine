@@ -3,6 +3,7 @@
 #include <time.h>
 #include "CameraComponent.h"
 #include "PositionComponent.h"
+#include "VertexBufferComponent.h"
 
 using namespace luck;
 using namespace scene;
@@ -141,9 +142,57 @@ void SceneManager::drawScene(core::Color4 clearColor)
     glFrustum( -fW, fW, -fH, fH, cam->_near, cam->_far );
 
     glMatrixMode( GL_MODELVIEW );
+
+    vector<Entity*> drawables = find("VertexBuffer");
+    for(u16 i = 0; i < drawables.size(); i++)
+    {
+        drawables[i]->dispatchEvent("Draw",Event());
+        vector<VertexBuffer::BufferInfo> bufferList = drawables[i]->get<VertexBuffer>("VertexBuffer")->bufferList;
+        Position* drawablePos = drawables[i]->get<Position>("Position");
+        for(u16 j = 0; j < bufferList.size(); j++)
+        {
+            glPushMatrix();
+            glTranslatef(drawablePos->_position.x,drawablePos->_position.y,drawablePos->_position.z);
+            glRotatef(drawablePos->_rotation.x,1,0,0);
+            glRotatef(drawablePos->_rotation.y,0,1,0);
+            glRotatef(drawablePos->_rotation.z,0,0,1);
+            glBegin(bufferList[j].type);
+            s32 amm;
+            if(bufferList[j].type == GL_TRIANGLES)   amm = 3;
+            else if (bufferList[j].type == GL_QUADS) amm = 4;
+            else if (bufferList[j].type == GL_LINES) amm = 2;
+            for(u16 v = 0; v < bufferList[j].faceAmm*amm; v+=amm)
+            {
+                for(u16 vi = v; vi < v+amm; vi++)
+                {
+                    s32 v1 = bufferList[j].faceList[vi];
+                    glColor4f((f32)bufferList[j].vertexList[v1].color.r/255.f,
+                              (f32)bufferList[j].vertexList[v1].color.g/255.f,
+                              (f32)bufferList[j].vertexList[v1].color.b/255.f,
+                              (f32)bufferList[j].vertexList[v1].color.a/255.f);
+                    glVertex3f(
+                        bufferList[j].vertexList[v1].position.x,
+                        bufferList[j].vertexList[v1].position.y,
+                        bufferList[j].vertexList[v1].position.z);
+                }
+            }
+            glEnd();
+            glPopMatrix();
+        }
+        drawables[i]->get<VertexBuffer>("VertexBuffer")->bufferList.clear();
+    }
+
     glLoadIdentity();
     glRotatef(pos->_rotation.x,1.f,0.f,0.f);
     glRotatef(pos->_rotation.y,0.f,1.f,0.f);
     glRotatef(pos->_rotation.z,0.f,0.f,1.f);
     glTranslatef(-pos->_position.x, -pos->_position.y, -pos->_position.z);
+
+    glfwSwapBuffers();
+
+    /*glLoadIdentity();
+    glRotatef(pos->_rotation.x,1.f,0.f,0.f);
+    glRotatef(pos->_rotation.y,0.f,1.f,0.f);
+    glRotatef(pos->_rotation.z,0.f,0.f,1.f);
+    glTranslatef(-pos->_position.x, -pos->_position.y, -pos->_position.z);*/
 }

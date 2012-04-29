@@ -10,7 +10,7 @@
 
 namespace luck { namespace core
 {
-    ///@todo Add a parent to the component, so it will be in relative position this parent
+    ///@todo Add a parent to the component, so it will be in relative position/rotation to this parent
     Component(Position)
     {
         Vector3<f32> _position;

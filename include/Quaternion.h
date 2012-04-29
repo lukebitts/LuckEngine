@@ -59,7 +59,7 @@ namespace luck { namespace core {
             Vector3<T> vn(v);
             vn.normalize();
 
-            sinAngle = sin(angle);
+            sinAngle = sinf(angle);
 
             x = (vn.x * sinAngle);
             y = (vn.y * sinAngle);
