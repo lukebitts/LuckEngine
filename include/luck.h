@@ -26,8 +26,6 @@ namespace luck
     typedef std::string string;
     using std::map;
     using std::vector;
-    //#define map std::map
-    //#define vector std::vector
 }
 
 #endif
