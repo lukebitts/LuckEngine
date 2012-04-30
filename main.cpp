@@ -3,6 +3,8 @@
 #include <time.h>
 #include <math.h>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <cstdlib>
 
 using namespace luck;
@@ -12,25 +14,10 @@ using namespace scene;
 
 Component(Test)
 {
-    Vertex vertexList[4];
-    s32 faceList[6];
     void init()
     {
-        owner->requires("Keyboard VertexBuffer");
+        owner->requires("Keyboard");
         owner->addEventListener("EnterFrame",eventCallback(this,&Test::handleEnterFrame));
-        owner->addEventListener("Draw",eventCallback(this,&Test::handleDraw));
-
-        vertexList[0] = Vertex(Vector3<f32>(-3.5f, 0.f, -3.5f),Color4(255,0,0,255));
-        vertexList[1] = Vertex(Vector3<f32>( 3.5f, 0.f, -3.5f),Color4(0,255,0,255));
-        vertexList[2] = Vertex(Vector3<f32>( 3.5f, 0.f,  3.5f),Color4(0,0,255,255));
-        vertexList[3] = Vertex(Vector3<f32>(-3.5f, 0.f,  3.5f),Color4(255,255,0,255));
-
-        faceList[0] = 0;
-        faceList[1] = 1;
-        faceList[2] = 2;
-        faceList[3] = 0;
-        faceList[4] = 2;
-        faceList[5] = 3;
     }
     void handleEnterFrame(Event const& e)
     {
@@ -39,47 +26,10 @@ Component(Test)
         Position* p = owner->get<Position>("Position");
         if(k->isDown(GLFW_KEY_DOWN))
         {
-            p->_position.x += 3.f * ef.deltaTime;
-            p->_rotation.y += 50.f * ef.deltaTime;
+            p->_rotation.y += 200.f * ef.deltaTime;
         }
     }
-    void handleDraw(Event const& e)
-    {
-        VertexBuffer* vb = owner->get<VertexBuffer>("VertexBuffer");
-        vb->setVertexBuffer(&vertexList[0],&faceList[0],2,GL_TRIANGLES);
-    }
     ~Test(){ }
-};
-
-Component(FixedBounds)
-{
-    Vertex vertexList[4][2];
-    s32 faceList[4][2];
-    void init()
-    {
-        owner->requires("VertexBuffer");
-        owner->addEventListener("Draw",eventCallback(this,&FixedBounds::handleDraw));
-
-        vertexList[0][0] = Vertex(Vector3<f32>(-10.f,0.f,-10.f),Color4(255,255,255,255));
-        vertexList[0][1] = Vertex(Vector3<f32>( 10.f,0.f,-10.f),Color4(255,255,255,255));
-
-        vertexList[1][0] = Vertex(Vector3<f32>(-10.f,0.f,10.f),Color4(255,255,255,255));
-        vertexList[1][1] = Vertex(Vector3<f32>( 10.f,0.f,10.f),Color4(255,255,255,255));
-
-        faceList[0][0] = 0;
-        faceList[0][1] = 1;
-
-        faceList[1][0] = 0;
-        faceList[1][1] = 1;
-    }
-    void handleDraw(Event const& e)
-    {
-        VertexBuffer* vb = owner->get<VertexBuffer>("VertexBuffer");
-        vb->setVertexBuffer(&vertexList[0][0],&faceList[0][0],1,GL_LINES);
-        vb->setVertexBuffer(&vertexList[1][0],&faceList[1][0],1,GL_LINES);
-        //vb->setVertexBuffer(&vertexList[2][0],&faceList[2][0],1,GL_LINES);
-        //vb->setVertexBuffer(&vertexList[3][0],&faceList[3][0],1,GL_LINES);
-    }
 };
 
 Component(FPSControl)
@@ -144,6 +94,64 @@ Component(FPSControl)
     }
 };
 
+Component(Model)
+{
+    /// @todo Make a file loader to manage stuff in the memory (like the .obj model)
+    vector<Vertex> vertexList;
+    vector<s32> faceList;
+    void init()
+    {
+        owner->addEventListener("Draw",eventCallback(this,&Model::handleDraw));
+        owner->requires("VertexBuffer");
+    }
+    Model* loadModel(string path)
+    {
+        std::ifstream objFile;
+        objFile.open(path);
+
+        string line;
+        if (!objFile.is_open()) return this;
+        while (!objFile.eof())
+        {
+            std::getline(objFile,line);
+            switch(line[0])
+            {
+                case 'v':
+                {
+                    vector<string> vertex = split(line,' ');
+                    f64 v[3] = {
+                        atof(vertex[1].c_str()),
+                        atof(vertex[2].c_str()),
+                        atof(vertex[3].c_str())
+                    };
+                    vertexList.push_back(Vertex(Vector3<f32>(v[0],v[1],v[2]), Color4(rand()%256,rand()%256,rand()%256,255)  ));
+                    break;
+                }
+                case 'f':
+                {
+                    vector<string> face = split(line,' ');
+                    faceList.push_back(atoi(face[1].c_str())-1);
+                    faceList.push_back(atoi(face[2].c_str())-1);
+                    faceList.push_back(atoi(face[3].c_str())-1);
+                    if(face.size() == 5)
+                        faceList.push_back(atoi(face[4].c_str())-1);
+                    else
+                        faceList.push_back(atoi(face[3].c_str())-1);
+                    break;
+                }
+            }
+        }
+
+        objFile.close();
+        return this;
+    }
+    void handleDraw(Event const& e)
+    {
+        VertexBuffer* vb = owner->get<VertexBuffer>("VertexBuffer");
+        vb->setVertexBuffer(&vertexList[0],&faceList[0],faceList.size()/4,GL_QUADS);
+    }
+};
+
 int main(int argc, char* argv[])
 {
     LuckWindow* lkw = createLuckWindow(1024,768);
@@ -152,20 +160,22 @@ int main(int argc, char* argv[])
 
     SceneManager* smgr = SceneManager::getInstance();
 
-    smgr->createEntity("FixedBounds")
-        ->get<Position>("Position")->position(Vector3<f32>(0.f,-5.f,0.f));
+    smgr->createEntity("PLAYER")
+        ->add("Test Model")
+        ->get<Position>("Position")->position(Vector3<f32>(0.f,-5.f,0.f))->owner
+        ->get<Model>("Model")->loadModel("assets/monkey.obj");
 
-    Entity* player = smgr->createEntity("PLAYER")
-        ->add("Test Position")
-        ->get<Position>("Position")->position(Vector3<f32>(0.f,-5.f,0.f))->owner;
+    smgr->createEntity("Model Test")
+        ->get<Position>("Position")->position(Vector3<f32>(0.f,-7.f,0.f))->owner
+        ->get<Model>("Model")->loadModel("assets/cube.obj");
 
-    Entity* camera = smgr->createEntity("Camera FPSControl")
+    smgr->createEntity("Camera FPSControl")
         ->get<Position>("Position")->position(Vector3<f32>(0.f,0.f,0.f))->lookAt(Vector3<f32>(0.f,0.f,-1.f))
         ->owner
         ->get<Camera>("Camera")->fov(85.f)->near(0.1f)->far(500.f)
         ->owner;
 
-    smgr->addCamera("cam", camera);
+    smgr->addCamera("cam", smgr->find("Camera")[0]);
 
     while(lkw->isRunning())
     {
