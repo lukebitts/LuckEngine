@@ -7,6 +7,9 @@ namespace luck { namespace event
     struct Event //basic event layout
     {
         EventDispatcher* from;
+        string text;
+        Event(){}
+        Event(string text) : text(text) {}
         virtual ~Event(){}
     };
 }}

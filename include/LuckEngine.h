@@ -23,4 +23,6 @@
 #include "Vertex.h"
 #include "VertexBufferComponent.h"
 #include "lmath.h"
+#include "Mesh.h"
+#include "AssetManager.h"
 

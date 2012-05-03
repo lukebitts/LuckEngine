@@ -178,7 +178,7 @@ void SceneManager::drawScene(core::Color4 clearColor)
 
     glMatrixMode( GL_MODELVIEW );
 
-    glBindBuffer(GL_ARRAY_BUFFER, BufferName[COLOR_OBJECT]);
+    /*glBindBuffer(GL_ARRAY_BUFFER, BufferName[COLOR_OBJECT]);
     glBufferData(GL_ARRAY_BUFFER, ColorSize, ColorData, GL_STREAM_DRAW);
     glColorPointer(3, GL_UNSIGNED_BYTE, 0, 0);
 
@@ -192,9 +192,9 @@ void SceneManager::drawScene(core::Color4 clearColor)
     glDrawArrays(GL_TRIANGLES, 0, VertexCount);
 
     glDisableClientState(GL_COLOR_ARRAY);
-    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);*/
 
-    /*vector<Entity*> drawables = find("VertexBuffer");
+    vector<Entity*> drawables = find("VertexBuffer");
     for(u64 i = 0; i < drawables.size(); i++)
     {
         drawables[i]->dispatchEvent("Draw",Event());
@@ -234,7 +234,7 @@ void SceneManager::drawScene(core::Color4 clearColor)
             glPopMatrix();
         }
         drawables[i]->get<VertexBuffer>("VertexBuffer")->bufferList.clear();
-    }*/
+    }
 
     glLoadIdentity();
     glRotatef(pos->_rotation.x,1.f,0.f,0.f);

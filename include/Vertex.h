@@ -1,5 +1,8 @@
 #ifndef VERTEX_H
 #define VERTEX_H
+#include "luck.h"
+#include "Vector3.h"
+#include "Color4.h"
 namespace luck { namespace core
 {
     struct Vertex

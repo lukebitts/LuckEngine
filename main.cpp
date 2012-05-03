@@ -3,14 +3,13 @@
 #include <time.h>
 #include <math.h>
 #include <iostream>
-#include <fstream>
-#include <sstream>
 #include <cstdlib>
 
 using namespace luck;
 using namespace core;
 using namespace event;
 using namespace scene;
+using namespace asset;
 
 Component(Test)
 {
@@ -97,58 +96,20 @@ Component(FPSControl)
 Component(Model)
 {
     /// @todo Make a file loader to manage stuff in the memory (like the .obj model)
-    vector<Vertex> vertexList;
-    vector<s32> faceList;
+    Mesh* _model;
     void init()
     {
         owner->addEventListener("Draw",eventCallback(this,&Model::handleDraw));
         owner->requires("VertexBuffer");
     }
-    Model* loadModel(string path)
+    Model* model(Mesh* model)
     {
-        std::ifstream objFile;
-        objFile.open(path);
-
-        string line;
-        if (!objFile.is_open()) return this;
-        while (!objFile.eof())
-        {
-            std::getline(objFile,line);
-            switch(line[0])
-            {
-                case 'v':
-                {
-                    vector<string> vertex = split(line,' ');
-                    f64 v[3] = {
-                        atof(vertex[1].c_str()),
-                        atof(vertex[2].c_str()),
-                        atof(vertex[3].c_str())
-                    };
-                    vertexList.push_back(Vertex(Vector3<f32>(v[0],v[1],v[2]), Color4(rand()%256,rand()%256,rand()%256,255)  ));
-                    break;
-                }
-                case 'f':
-                {
-                    vector<string> face = split(line,' ');
-                    faceList.push_back(atoi(face[1].c_str())-1);
-                    faceList.push_back(atoi(face[2].c_str())-1);
-                    faceList.push_back(atoi(face[3].c_str())-1);
-                    if(face.size() == 5)
-                    {
-                        faceList.push_back(atoi(face[1].c_str())-1);
-                        faceList.push_back(atoi(face[3].c_str())-1);
-                        faceList.push_back(atoi(face[4].c_str())-1);
-                    }
-                }
-            }
-        }
-        objFile.close();
-        return this;
+        _model = model;
     }
     void handleDraw(Event const& e)
     {
         VertexBuffer* vb = owner->get<VertexBuffer>("VertexBuffer");
-        vb->setVertexBuffer(&vertexList[0],&faceList[0],faceList.size()/3,GL_TRIANGLES);
+        vb->setVertexBuffer(&_model->vertexList[0],&_model->faceList[0],_model->faceList.size()/3,GL_TRIANGLES);
     }
 };
 
@@ -159,15 +120,27 @@ int main(int argc, char* argv[])
     lkw->setWindowCaption("LuckEngine");
 
     SceneManager* smgr = SceneManager::getInstance();
+    AssetManager* assets = AssetManager::getInstance();
+
+    assets->addToLoadQueue("assets/cube.obj",assetType::ASSET_MESH);
+    assets->addToLoadQueue("assets/cube_tri.obj",assetType::ASSET_MESH);
+    assets->addToLoadQueue("assets/monkey.obj",assetType::ASSET_MESH);
+    assets->addToLoadQueue("assets/monkey_tri.obj",assetType::ASSET_MESH);
+    assets->addToLoadQueue("assets/monkey_high-1.obj",assetType::ASSET_MESH);
+    assets->addToLoadQueue("assets/monkey_high0.obj",assetType::ASSET_MESH);
+
+    assets->load([](Event const& e) -> void {
+        std::cout<<e.text<<"\n";
+    });
 
     smgr->createEntity("PLAYER")
         ->add("Test Model")
         ->get<Position>("Position")->position(Vector3<f32>(0.f,-5.f,0.f))->owner
-        ->get<Model>("Model")->loadModel("assets/monkey_high0.obj");
+        ->get<Model>("Model")->model(assets->getLoadedMesh("assets/monkey_high-1.obj"));
 
     smgr->createEntity("Model Test")
         ->get<Position>("Position")->position(Vector3<f32>(0.f,-7.f,0.f))->owner
-        ->get<Model>("Model")->loadModel("assets/cube.obj");
+        ->get<Model>("Model")->model(assets->getLoadedMesh("assets/cube.obj"));
 
     smgr->createEntity("Camera FPSControl")
         ->get<Position>("Position")->position(Vector3<f32>(0.f,0.f,0.f))->lookAt(Vector3<f32>(0.f,0.f,-1.f))
@@ -177,19 +150,9 @@ int main(int argc, char* argv[])
 
     smgr->addCamera("cam", smgr->find("Camera")[0]);
 
-    f64 lastTime = glfwGetTime();
-    s32 nbFrames = 0;
-
+    /// @todo create a FPS counter
     while(lkw->isRunning())
     {
-        f64 currentTime = glfwGetTime();
-        nbFrames++;
-        if ( currentTime - lastTime >= 1.0 ){
-            //std::cout<<"frames: "<<1000.0/(f64)nbFrames<<" m/s\n";
-            nbFrames = 0;
-            lastTime += 1.0;
-        }
-
         smgr->updateScene();
         smgr->drawScene(Color4(100,101,140,255));
     }
