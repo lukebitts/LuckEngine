@@ -1,6 +1,7 @@
 #include "LuckWindow.h"
 #include "KeyEvent.h"
 #include "MouseEvent.h"
+#include <GL/glew.h>
 #include <GL/glfw.h>
 using namespace luck;
 
@@ -57,6 +58,7 @@ LuckWindow* createLuckWindow(u16 width, u16 height, u16 redbits, u16 greenbits, 
                u16 alphabits, u16 depthbits, u16 stencilbits)
 {
     LuckWindow* lkw = LuckWindow::getInstance();
+
     if(glfwOpenWindow( width, height, redbits, greenbits, bluebits, alphabits, depthbits, stencilbits, GLFW_WINDOW ))
     {
         lkw->width = width;
@@ -66,7 +68,7 @@ LuckWindow* createLuckWindow(u16 width, u16 height, u16 redbits, u16 greenbits, 
         glfwSetMouseButtonCallback(LuckWindow::mouseClickCallback);
         glfwSetMouseWheelCallback(LuckWindow::mouseWheelCallback);
         glEnable(GL_DEPTH_TEST);
-        return lkw;
+        if(GLEW_OK == glewInit()) return lkw;
     }
     return nullptr;
 }

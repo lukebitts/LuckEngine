@@ -134,10 +134,11 @@ Component(Model)
                     faceList.push_back(atoi(face[2].c_str())-1);
                     faceList.push_back(atoi(face[3].c_str())-1);
                     if(face.size() == 5)
-                        faceList.push_back(atoi(face[4].c_str())-1);
-                    else
+                    {
+                        faceList.push_back(atoi(face[1].c_str())-1);
                         faceList.push_back(atoi(face[3].c_str())-1);
-                    break;
+                        faceList.push_back(atoi(face[4].c_str())-1);
+                    }
                 }
             }
         }
@@ -147,7 +148,7 @@ Component(Model)
     void handleDraw(Event const& e)
     {
         VertexBuffer* vb = owner->get<VertexBuffer>("VertexBuffer");
-        vb->setVertexBuffer(&vertexList[0],&faceList[0],faceList.size()/4,GL_QUADS);
+        vb->setVertexBuffer(&vertexList[0],&faceList[0],faceList.size()/3,GL_TRIANGLES);
     }
 };
 
@@ -162,7 +163,7 @@ int main(int argc, char* argv[])
     smgr->createEntity("PLAYER")
         ->add("Test Model")
         ->get<Position>("Position")->position(Vector3<f32>(0.f,-5.f,0.f))->owner
-        ->get<Model>("Model")->loadModel("assets/monkey.obj");
+        ->get<Model>("Model")->loadModel("assets/monkey_high0.obj");
 
     smgr->createEntity("Model Test")
         ->get<Position>("Position")->position(Vector3<f32>(0.f,-7.f,0.f))->owner
@@ -176,8 +177,19 @@ int main(int argc, char* argv[])
 
     smgr->addCamera("cam", smgr->find("Camera")[0]);
 
+    f64 lastTime = glfwGetTime();
+    s32 nbFrames = 0;
+
     while(lkw->isRunning())
     {
+        f64 currentTime = glfwGetTime();
+        nbFrames++;
+        if ( currentTime - lastTime >= 1.0 ){
+            //std::cout<<"frames: "<<1000.0/(f64)nbFrames<<" m/s\n";
+            nbFrames = 0;
+            lastTime += 1.0;
+        }
+
         smgr->updateScene();
         smgr->drawScene(Color4(100,101,140,255));
     }
