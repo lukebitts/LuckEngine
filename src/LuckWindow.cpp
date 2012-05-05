@@ -10,6 +10,10 @@ LuckWindow* LuckWindow::_instance = nullptr;
 LuckWindow::LuckWindow()
 {
     glfwInit();
+    glfwOpenWindowHint(GLFW_FSAA_SAMPLES, 4);
+    //glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 3);
+    //glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 3);
+    //glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     _running = true;
 }
 
@@ -67,7 +71,9 @@ LuckWindow* createLuckWindow(u16 width, u16 height, u16 redbits, u16 greenbits, 
         glfwSetMousePosCallback(LuckWindow::mouseMoveCallback);
         glfwSetMouseButtonCallback(LuckWindow::mouseClickCallback);
         glfwSetMouseWheelCallback(LuckWindow::mouseWheelCallback);
+
         glEnable(GL_DEPTH_TEST);
+
         if(GLEW_OK == glewInit()) return lkw;
     }
     return nullptr;

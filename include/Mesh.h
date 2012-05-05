@@ -7,7 +7,7 @@ namespace luck { namespace asset
     struct Mesh
     {
         vector<core::Vertex> vertexList;
-        vector<s32> faceList;
+        vector<u32> faceList;
     };
 }}
 #endif

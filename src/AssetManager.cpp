@@ -32,7 +32,7 @@ Mesh* AssetManager::_loadObj(string path)
                     atof(vertex[2].c_str()),
                     atof(vertex[3].c_str())
                 };
-                ret->vertexList.push_back(Vertex(Vector3<f32>(v[0],v[1],v[2]), Color4(rand()%256,rand()%256,rand()%256,255)  ));
+                ret->vertexList.push_back(Vertex(Vector3<f32>(v[0],v[1],v[2]),Color4(rand()%256,rand()%256,rand()%256,255)));
                 break;
             }
             case 'f':

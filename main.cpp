@@ -95,7 +95,6 @@ Component(FPSControl)
 
 Component(Model)
 {
-    /// @todo Make a file loader to manage stuff in the memory (like the .obj model)
     Mesh* _model;
     void init()
     {
@@ -105,11 +104,14 @@ Component(Model)
     Model* model(Mesh* model)
     {
         _model = model;
+        VertexBuffer* vb = owner->get<VertexBuffer>("VertexBuffer");
+        vb->setVertexBuffer(&_model->vertexList[0],&_model->faceList[0],_model->faceList.size()/3,GL_TRIANGLES);
+        std::cout<<"On Model, the faceList.size()/3 is "<<_model->faceList.size()/3<<"\n";
     }
     void handleDraw(Event const& e)
     {
-        VertexBuffer* vb = owner->get<VertexBuffer>("VertexBuffer");
-        vb->setVertexBuffer(&_model->vertexList[0],&_model->faceList[0],_model->faceList.size()/3,GL_TRIANGLES);
+        //VertexBuffer* vb = owner->get<VertexBuffer>("VertexBuffer");
+        //vb->setVertexBuffer(&_model->vertexList[0],&_model->faceList[0],_model->faceList.size()/3,GL_TRIANGLES);
     }
 };
 
@@ -123,11 +125,11 @@ int main(int argc, char* argv[])
     AssetManager* assets = AssetManager::getInstance();
 
     assets->addToLoadQueue("assets/cube.obj",assetType::ASSET_MESH);
-    assets->addToLoadQueue("assets/cube_tri.obj",assetType::ASSET_MESH);
+    //assets->addToLoadQueue("assets/cube_tri.obj",assetType::ASSET_MESH);
     assets->addToLoadQueue("assets/monkey.obj",assetType::ASSET_MESH);
-    assets->addToLoadQueue("assets/monkey_tri.obj",assetType::ASSET_MESH);
-    assets->addToLoadQueue("assets/monkey_high-1.obj",assetType::ASSET_MESH);
-    assets->addToLoadQueue("assets/monkey_high0.obj",assetType::ASSET_MESH);
+    //assets->addToLoadQueue("assets/monkey_tri.obj",assetType::ASSET_MESH);
+    //assets->addToLoadQueue("assets/monkey_high-1.obj",assetType::ASSET_MESH);
+    //assets->addToLoadQueue("assets/monkey_high0.obj",assetType::ASSET_MESH);
 
     assets->load([](Event const& e) -> void {
         std::cout<<e.text<<"\n";
@@ -136,7 +138,7 @@ int main(int argc, char* argv[])
     smgr->createEntity("PLAYER")
         ->add("Test Model")
         ->get<Position>("Position")->position(Vector3<f32>(0.f,-5.f,0.f))->owner
-        ->get<Model>("Model")->model(assets->getLoadedMesh("assets/monkey_high-1.obj"));
+        ->get<Model>("Model")->model(assets->getLoadedMesh("assets/monkey.obj"));
 
     smgr->createEntity("Model Test")
         ->get<Position>("Position")->position(Vector3<f32>(0.f,-7.f,0.f))->owner

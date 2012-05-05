@@ -121,39 +121,6 @@ void SceneManager::updateScene()
     }
 }
 
-static const s32 PositionSize = 6 * 2 * sizeof(f32);
-static const f32 PositionData[] =
-{
-	-1.0f,-1.0f,
-	 1.0f,-1.0f,
-	 1.0f, 1.0f,
-	 1.0f, 1.0f,
-	-1.0f, 1.0f,
-	-1.0f,-1.0f,
-};
-
-static const s32 ColorSize = 6 * 3 * sizeof(s16);
-static const s16 ColorData[] =
-{
-	255,   0,   0,
-	255, 255,   0,
-	  0, 255,   0,
-	  0, 255,   0,
-	  0,   0, 255,
-	255,   0,   0
-};
-
-static const s32 BufferSize = 2;
-static s32 BufferName[BufferSize];
-
-static const s32 VertexCount = 6;
-
-enum
-{
-    POSITION_OBJECT = 0,
-    COLOR_OBJECT = 1
-};
-
 void SceneManager::drawScene(core::Color4 clearColor)
 {
     LuckWindow* lkw = LuckWindow::getInstance();
@@ -178,22 +145,6 @@ void SceneManager::drawScene(core::Color4 clearColor)
 
     glMatrixMode( GL_MODELVIEW );
 
-    /*glBindBuffer(GL_ARRAY_BUFFER, BufferName[COLOR_OBJECT]);
-    glBufferData(GL_ARRAY_BUFFER, ColorSize, ColorData, GL_STREAM_DRAW);
-    glColorPointer(3, GL_UNSIGNED_BYTE, 0, 0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, BufferName[POSITION_OBJECT]);
-    glBufferData(GL_ARRAY_BUFFER, PositionSize, PositionData, GL_STREAM_DRAW);
-    glVertexPointer(2, GL_FLOAT, 0, 0);
-
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-
-    glDrawArrays(GL_TRIANGLES, 0, VertexCount);
-
-    glDisableClientState(GL_COLOR_ARRAY);
-    glDisableClientState(GL_VERTEX_ARRAY);*/
-
     vector<Entity*> drawables = find("VertexBuffer");
     for(u64 i = 0; i < drawables.size(); i++)
     {
@@ -203,37 +154,35 @@ void SceneManager::drawScene(core::Color4 clearColor)
         for(u64 j = 0; j < bufferList.size(); j++)
         {
             glPushMatrix();
+
             glTranslatef(drawablePos->_position.x,drawablePos->_position.y,drawablePos->_position.z);
             glRotatef(drawablePos->_rotation.x,1,0,0);
             glRotatef(drawablePos->_rotation.y,0,1,0);
             glRotatef(drawablePos->_rotation.z,0,0,1);
 
-            /// @todo use vertex buffer object instead of these calls
-            /// @todo split the drawing code to a internal class (DrawManager or something)
+            glBindBuffer(GL_ARRAY_BUFFER, bufferList[i].vboID);
+            glEnableVertexAttribArray(0);
+            glVertexAttribPointer(
+               0,
+               3,
+               GL_FLOAT,
+               false,
+               sizeof(Color4)+sizeof(f32)*3, //space between begining of one vertex and the begining of the next
+               (void*)0
+            );
 
-            glBegin(bufferList[j].type);
-            s32 amm;
-            if(bufferList[j].type == GL_TRIANGLES)   amm = 3;
-            else if (bufferList[j].type == GL_QUADS) amm = 4;
-            else if (bufferList[j].type == GL_LINES) amm = 2;
-            for(u64 v = 0; v < bufferList[j].faceAmm*amm; v+=amm)
-            {
-                for(u64 vi = v; vi < v+amm; vi++)
-                {
-                    s32 v1 = bufferList[j].faceList[vi];
-                    glColor4f((f32)bufferList[j].vertexList[v1].color.r/255,
-                              (f32)bufferList[j].vertexList[v1].color.g/255,
-                              (f32)bufferList[j].vertexList[v1].color.b/255,
-                              (f32)bufferList[j].vertexList[v1].color.a/255);
-                    glVertex3f(bufferList[j].vertexList[v1].position.x,
-                               bufferList[j].vertexList[v1].position.y,
-                               bufferList[j].vertexList[v1].position.z);
-                }
-            }
-            glEnd();
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferList[i].iboID);
+            glDrawElements(
+                GL_TRIANGLES,
+                bufferList[i].faceAmm*3,
+                GL_UNSIGNED_INT,
+                (void*)0
+            );
+            glDisableVertexAttribArray(0);
+
+
             glPopMatrix();
         }
-        drawables[i]->get<VertexBuffer>("VertexBuffer")->bufferList.clear();
     }
 
     glLoadIdentity();
