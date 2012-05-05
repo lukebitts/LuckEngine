@@ -146,6 +146,13 @@ void SceneManager::drawScene(core::Color4 clearColor)
 
     glMatrixMode( GL_MODELVIEW );
 
+    glBegin(GL_QUADS);
+        glVertex3f(-1.0,-1.0,0.0);
+        glVertex3f( 1.0,-1.0,0.0);
+        glVertex3f(-1.0, 1.0,0.0);
+        glVertex3f( 1.0, 1.0,0.0);
+    glEnd();
+
     vector<Entity*> drawables = find("Model");
     for(u64 i = 0; i < drawables.size(); i++)
     {
@@ -170,54 +177,16 @@ void SceneManager::drawScene(core::Color4 clearColor)
         );
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->iboID);
         glDrawElements(
-            GL_TRIANGLES,      // mode
-            m->faceList.size(),    // count
-            GL_UNSIGNED_INT,   // type
-            (void*)0           // element array buffer offset
+            GL_TRIANGLES,
+            m->faceList.size(),
+            GL_UNSIGNED_INT,
+            (void*)0
         );
 
         glDisableVertexAttribArray(0);
 
         glPopMatrix();
     }
-    /*for(u64 i = 0; i < drawables.size(); i++)
-    {
-        drawables[i]->dispatchEvent("Draw",Event());
-        vector<VertexBuffer::BufferInfo> bufferList = drawables[i]->get<VertexBuffer>("VertexBuffer")->bufferList;
-        Position* drawablePos = drawables[i]->get<Position>("Position");
-        for(u64 j = 0; j < bufferList.size(); j++)
-        {
-            glPushMatrix();
-
-            glTranslatef(drawablePos->_position.x,drawablePos->_position.y,drawablePos->_position.z);
-            glRotatef(drawablePos->_rotation.x,1,0,0);
-            glRotatef(drawablePos->_rotation.y,0,1,0);
-            glRotatef(drawablePos->_rotation.z,0,0,1);
-
-            glBindBuffer(GL_ARRAY_BUFFER, bufferList[i].vboID);
-            glEnableVertexAttribArray(0);
-            glVertexAttribPointer(
-               0,
-               3,
-               GL_FLOAT,
-               false,
-               sizeof(Color4)+sizeof(f32)*3, //space between begining of one vertex and the begining of the next
-               (void*)0
-            );
-
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferList[i].iboID);
-            glDrawElements(
-                GL_TRIANGLES,
-                bufferList[i].faceAmm*3,
-                GL_UNSIGNED_INT,
-                (void*)0
-            );
-            glDisableVertexAttribArray(0);
-
-
-            glPopMatrix();
-        }
-    }*/
 
     glLoadIdentity();
     glRotatef(pos->_rotation.x,1.f,0.f,0.f);

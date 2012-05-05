@@ -112,10 +112,7 @@ int main(int argc, char* argv[])
     AssetManager* assets = AssetManager::getInstance();
 
     assets->addToLoadQueue("assets/cube.obj",assetType::ASSET_MESH);
-    //assets->addToLoadQueue("assets/cube_tri.obj",assetType::ASSET_MESH);
     assets->addToLoadQueue("assets/monkey.obj",assetType::ASSET_MESH);
-    //assets->addToLoadQueue("assets/monkey_tri.obj",assetType::ASSET_MESH);
-    //assets->addToLoadQueue("assets/monkey_high-1.obj",assetType::ASSET_MESH);
     assets->addToLoadQueue("assets/monkey_high0.obj",assetType::ASSET_MESH);
 
     assets->load([](Event const& e) -> void {
@@ -132,7 +129,7 @@ int main(int argc, char* argv[])
         ->get<Model>("Model")->model(assets->getLoadedMesh("assets/monkey_high0.obj"));
 
     smgr->createEntity("Camera FPSControl")
-        ->get<Position>("Position")->position(Vector3<f32>(0.f,0.f,0.f))->lookAt(Vector3<f32>(0.f,0.f,-1.f))
+        ->get<Position>("Position")->position(Vector3<f32>(0.f,0.f,3.f))->lookAt(Vector3<f32>(0.f,0.f,-1.f))
         ->owner
         ->get<Camera>("Camera")->fov(85.f)->near(0.1f)->far(500.f)
         ->owner;

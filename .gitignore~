@@ -5,3 +5,5 @@
 /LuckEngine.cbp
 /LuckEngine.depend
 /LuckEngine.layout
+/src/*.[oa]
+/obj/*.*
