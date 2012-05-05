@@ -51,5 +51,6 @@ Mesh* AssetManager::_loadObj(string path)
         }
     }
     objFile.close();
+    ret->createVertexBuffer();
     return ret;
 }

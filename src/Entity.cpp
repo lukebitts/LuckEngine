@@ -31,7 +31,9 @@ Entity* Entity::add(string components)
 {
     vector<string> x = split(components, ' ');
     for(u16 i = 0; i < x.size(); i++)
+    {
         _add(x[i]);
+    }
     return this;
 }
 

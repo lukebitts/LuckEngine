@@ -5,7 +5,8 @@
 #include <cstdlib>
 #include "CameraComponent.h"
 #include "PositionComponent.h"
-#include "VertexBufferComponent.h"
+#include "ModelComponent.h"
+#include "Mesh.h"
 #include "lmath.h"
 
 using namespace luck;
@@ -145,8 +146,41 @@ void SceneManager::drawScene(core::Color4 clearColor)
 
     glMatrixMode( GL_MODELVIEW );
 
-    vector<Entity*> drawables = find("VertexBuffer");
+    vector<Entity*> drawables = find("Model");
     for(u64 i = 0; i < drawables.size(); i++)
+    {
+        Position* drawablePos = drawables[i]->get<Position>("Position");
+        asset::Mesh* m = drawables[i]->get<Model>("Model")->_model;
+
+        glPushMatrix();
+        glTranslatef(drawablePos->_position.x,drawablePos->_position.y,drawablePos->_position.z);
+        glRotatef(drawablePos->_rotation.x,1,0,0);
+        glRotatef(drawablePos->_rotation.y,0,1,0);
+        glRotatef(drawablePos->_rotation.z,0,0,1);
+
+        glEnableVertexAttribArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, m->vboID);
+        glVertexAttribPointer(
+            0,
+            3,
+            GL_FLOAT,
+            false,
+            sizeof(Color4)+sizeof(f32)*3,
+            (void*)0
+        );
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->iboID);
+        glDrawElements(
+            GL_TRIANGLES,      // mode
+            m->faceList.size(),    // count
+            GL_UNSIGNED_INT,   // type
+            (void*)0           // element array buffer offset
+        );
+
+        glDisableVertexAttribArray(0);
+
+        glPopMatrix();
+    }
+    /*for(u64 i = 0; i < drawables.size(); i++)
     {
         drawables[i]->dispatchEvent("Draw",Event());
         vector<VertexBuffer::BufferInfo> bufferList = drawables[i]->get<VertexBuffer>("VertexBuffer")->bufferList;
@@ -183,7 +217,7 @@ void SceneManager::drawScene(core::Color4 clearColor)
 
             glPopMatrix();
         }
-    }
+    }*/
 
     glLoadIdentity();
     glRotatef(pos->_rotation.x,1.f,0.f,0.f);

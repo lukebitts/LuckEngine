@@ -1,5 +1,8 @@
 #ifndef ENTITY_H
 #define ENTITY_H
+#define _STRICT_COMPONENT_
+#include <exception>
+#include <iostream>
 #include "luck.h"
 #include "EventDispatcher.h"
 #include "IComponent.h"
@@ -20,6 +23,13 @@ namespace luck { namespace core
             template <class T>
             T* get(string name)
             {
+                #ifdef _STRICT_COMPONENT_
+                if(_components[name] == NULL)
+                {
+                    std::cout<<"This Entity doesn't have this component ("<<name<<");\n";
+                    throw std::exception();
+                }
+                #endif
                 /// @todo cast based on the name of the component
                 return (T*)(_components[name]);
             }

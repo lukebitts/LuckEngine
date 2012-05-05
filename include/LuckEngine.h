@@ -25,4 +25,5 @@
 #include "lmath.h"
 #include "Mesh.h"
 #include "AssetManager.h"
+#include "ModelComponent.h"
 

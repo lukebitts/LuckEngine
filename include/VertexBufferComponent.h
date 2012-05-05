@@ -35,13 +35,13 @@ namespace luck { namespace core
             u32 vertexBufferID;
             u32 indexBufferID;
 
-            glGenBuffers(1, &vertexBufferID);
+            /*glGenBuffers(1, &vertexBufferID);
             glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
             glBufferData(GL_ARRAY_BUFFER, faceAmm*3*sizeof(f32), &vertexList[0], GL_STATIC_DRAW);
 
             glGenBuffers(1, &indexBufferID);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, faceAmm*3*sizeof(u32), &faceList[0], GL_STATIC_DRAW);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, faceAmm*3*sizeof(u32), &faceList[0], GL_STATIC_DRAW);*/
 
             //glEnableVertexAttribArray(owner->id);
 

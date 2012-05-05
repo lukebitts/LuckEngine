@@ -93,32 +93,14 @@ Component(FPSControl)
     }
 };
 
-Component(Model)
-{
-    Mesh* _model;
-    void init()
-    {
-        owner->addEventListener("Draw",eventCallback(this,&Model::handleDraw));
-        owner->requires("VertexBuffer");
-    }
-    Model* model(Mesh* model)
-    {
-        _model = model;
-        VertexBuffer* vb = owner->get<VertexBuffer>("VertexBuffer");
-        vb->setVertexBuffer(&_model->vertexList[0],&_model->faceList[0],_model->faceList.size()/3,GL_TRIANGLES);
-        std::cout<<"On Model, the faceList.size()/3 is "<<_model->faceList.size()/3<<"\n";
-    }
-    void handleDraw(Event const& e)
-    {
-        //VertexBuffer* vb = owner->get<VertexBuffer>("VertexBuffer");
-        //vb->setVertexBuffer(&_model->vertexList[0],&_model->faceList[0],_model->faceList.size()/3,GL_TRIANGLES);
-    }
-};
-
 int main(int argc, char* argv[])
 {
     LuckWindow* lkw = createLuckWindow(1024,768);
-    if(!lkw) return -1;
+    if(!lkw)
+    {
+        std::cout<<"Ccould not create a Window;";
+        return -1;
+    }
     lkw->setWindowCaption("LuckEngine");
 
     SceneManager* smgr = SceneManager::getInstance();
@@ -129,7 +111,7 @@ int main(int argc, char* argv[])
     assets->addToLoadQueue("assets/monkey.obj",assetType::ASSET_MESH);
     //assets->addToLoadQueue("assets/monkey_tri.obj",assetType::ASSET_MESH);
     //assets->addToLoadQueue("assets/monkey_high-1.obj",assetType::ASSET_MESH);
-    //assets->addToLoadQueue("assets/monkey_high0.obj",assetType::ASSET_MESH);
+    assets->addToLoadQueue("assets/monkey_high0.obj",assetType::ASSET_MESH);
 
     assets->load([](Event const& e) -> void {
         std::cout<<e.text<<"\n";
@@ -138,11 +120,12 @@ int main(int argc, char* argv[])
     smgr->createEntity("PLAYER")
         ->add("Test Model")
         ->get<Position>("Position")->position(Vector3<f32>(0.f,-5.f,0.f))->owner
-        ->get<Model>("Model")->model(assets->getLoadedMesh("assets/monkey.obj"));
+        ->get<Model>("Model")->model(assets->getLoadedMesh("assets/monkey_high0.obj"));
 
-    smgr->createEntity("Model Test")
-        ->get<Position>("Position")->position(Vector3<f32>(0.f,-7.f,0.f))->owner
-        ->get<Model>("Model")->model(assets->getLoadedMesh("assets/cube.obj"));
+    for(u16 i = 0; i < 150; i++)
+    smgr->createEntity("Test Model")
+        ->get<Position>("Position")->position(Vector3<f32>(0.5f*i,-7.f,0.f))->owner
+        ->get<Model>("Model")->model(assets->getLoadedMesh("assets/monkey_high0.obj"));
 
     smgr->createEntity("Camera FPSControl")
         ->get<Position>("Position")->position(Vector3<f32>(0.f,0.f,0.f))->lookAt(Vector3<f32>(0.f,0.f,-1.f))
