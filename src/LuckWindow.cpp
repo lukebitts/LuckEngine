@@ -10,7 +10,7 @@ LuckWindow* LuckWindow::_instance = nullptr;
 LuckWindow::LuckWindow()
 {
     glfwInit();
-    glfwOpenWindowHint(GLFW_FSAA_SAMPLES, 4);
+    //glfwOpenWindowHint(GLFW_FSAA_SAMPLES, 4);
     //glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 3);
     //glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 3);
     //glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);

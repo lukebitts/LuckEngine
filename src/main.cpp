@@ -122,11 +122,11 @@ int main(int argc, char* argv[])
     smgr->createEntity("PLAYER")
         ->add("Test Model")
         ->get<Position>("Position")->position(Vector3<f32>(0.f,-5.f,0.f))->owner
-        ->get<Model>("Model")->model(assets->getLoadedMesh("assets/monkey_high0.obj"));
+        ->get<Model>("Model")->model(assets->getLoadedMesh("assets/cube.obj"));
 
     smgr->createEntity("Test Model")
         ->get<Position>("Position")->position(Vector3<f32>(0.5f,-7.f,0.f))->owner
-        ->get<Model>("Model")->model(assets->getLoadedMesh("assets/monkey_high0.obj"));
+        ->get<Model>("Model")->model(assets->getLoadedMesh("assets/cube.obj"));
 
     smgr->createEntity("Camera FPSControl")
         ->get<Position>("Position")->position(Vector3<f32>(0.f,0.f,3.f))->lookAt(Vector3<f32>(0.f,0.f,-1.f))

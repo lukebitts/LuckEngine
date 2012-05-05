@@ -11,6 +11,7 @@ namespace luck { namespace core
         {
             //owner->addEventListener("Draw",eventCallback(this,&Model::handleDraw));
             owner->requires("Position");
+            _model = nullptr;
         }
         Model* model(asset::Mesh* model)
         {

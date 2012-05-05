@@ -158,6 +158,7 @@ void SceneManager::drawScene(core::Color4 clearColor)
     {
         Position* drawablePos = drawables[i]->get<Position>("Position");
         asset::Mesh* m = drawables[i]->get<Model>("Model")->_model;
+        if(!m || !drawablePos) continue;
 
         glPushMatrix();
         glTranslatef(drawablePos->_position.x,drawablePos->_position.y,drawablePos->_position.z);
@@ -172,7 +173,7 @@ void SceneManager::drawScene(core::Color4 clearColor)
             3,
             GL_FLOAT,
             false,
-            sizeof(Color4)+sizeof(f32)*3,
+            sizeof(Vertex),
             (void*)0
         );
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->iboID);
@@ -182,6 +183,9 @@ void SceneManager::drawScene(core::Color4 clearColor)
             GL_UNSIGNED_INT,
             (void*)0
         );
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
         glDisableVertexAttribArray(0);
 
