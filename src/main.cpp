@@ -103,6 +103,11 @@ int main(int argc, char* argv[])
     }
     lkw->setWindowCaption("LuckEngine");
 
+    if(GLEW_ARB_vertex_buffer_object)
+    {
+        std::cout<<"VBO!"<<"\n";
+    }
+
     SceneManager* smgr = SceneManager::getInstance();
     AssetManager* assets = AssetManager::getInstance();
 
@@ -122,9 +127,8 @@ int main(int argc, char* argv[])
         ->get<Position>("Position")->position(Vector3<f32>(0.f,-5.f,0.f))->owner
         ->get<Model>("Model")->model(assets->getLoadedMesh("assets/monkey_high0.obj"));
 
-    for(u16 i = 0; i < 150; i++)
     smgr->createEntity("Test Model")
-        ->get<Position>("Position")->position(Vector3<f32>(0.5f*i,-7.f,0.f))->owner
+        ->get<Position>("Position")->position(Vector3<f32>(0.5f,-7.f,0.f))->owner
         ->get<Model>("Model")->model(assets->getLoadedMesh("assets/monkey_high0.obj"));
 
     smgr->createEntity("Camera FPSControl")
