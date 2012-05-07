@@ -4,6 +4,7 @@
 #include <math.h>
 #include <iostream>
 #include <cstdlib>
+#include <type_traits>
 
 using namespace luck;
 using namespace core;
@@ -20,7 +21,7 @@ Component(Test)
     }
     void handleEnterFrame(Event const& e)
     {
-        EnterFrameEvent const& ef = (EnterFrameEvent const&)e;
+        EnterFrameEvent const& ef = (EnterFrameEvent const&)e;;
         Keyboard* k = owner->get<Keyboard>("Keyboard");
         Position* p = owner->get<Position>("Position");
         if(k->isDown(GLFW_KEY_DOWN))
@@ -95,17 +96,20 @@ Component(FPSControl)
 
 int main(int argc, char* argv[])
 {
+    static_assert(std::is_pod<Vertex>::value, "Vertex type should be a POD");
+
     LuckWindow* lkw = createLuckWindow(1024,768);
     if(!lkw)
     {
-        std::cout<<"Ccould not create a Window;";
-        return -1;
+        std::cout<<"Could not create a Window;";
+        return 1;
     }
     lkw->setWindowCaption("LuckEngine");
 
-    if(GLEW_ARB_vertex_buffer_object)
+    if(!GLEW_ARB_vertex_buffer_object)
     {
-        std::cout<<"VBO!"<<"\n";
+        std::cout<<"Vertex Buffer support not found."<<"\n";
+        return 2;
     }
 
     SceneManager* smgr = SceneManager::getInstance();
@@ -121,18 +125,17 @@ int main(int argc, char* argv[])
 
     smgr->createEntity("PLAYER")
         ->add("Test Model")
-        ->get<Position>("Position")->position(Vector3<f32>(0.f,-5.f,0.f))->owner
+        ->get<Position>("Position")->position(Vector3<f32>(0.f,-5.f,-1.2f))->owner
         ->get<Model>("Model")->model(assets->getLoadedMesh("assets/cube.obj"));
 
     smgr->createEntity("Test Model")
-        ->get<Position>("Position")->position(Vector3<f32>(0.5f,-7.f,0.f))->owner
-        ->get<Model>("Model")->model(assets->getLoadedMesh("assets/cube.obj"));
+        ->get<Position>("Position")->position(Vector3<f32>(0.f,-5.f,1.2f))->owner
+        ->get<Model>("Model")->model(assets->getLoadedMesh("assets/monkey_high0.obj"));
 
     smgr->createEntity("Camera FPSControl")
         ->get<Position>("Position")->position(Vector3<f32>(0.f,0.f,3.f))->lookAt(Vector3<f32>(0.f,0.f,-1.f))
         ->owner
-        ->get<Camera>("Camera")->fov(85.f)->near(0.1f)->far(500.f)
-        ->owner;
+        ->get<Camera>("Camera")->fov(85.f)->near(0.1f)->far(500.f);
 
     smgr->addCamera("cam", smgr->find("Camera")[0]);
 

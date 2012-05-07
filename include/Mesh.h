@@ -10,6 +10,7 @@ namespace luck { namespace asset
         vector<core::Vertex> vertexList;
         vector<u32> faceList;
         u32 vboID;
+        u32 cboID;
         u32 iboID;
         Mesh() : _hasVertexBuffer(false){}
         void createVertexBuffer()
@@ -18,6 +19,10 @@ namespace luck { namespace asset
 
             glGenBuffers(1, &vboID);
             glBindBuffer(GL_ARRAY_BUFFER, vboID);
+            glBufferData(GL_ARRAY_BUFFER, vertexList.size()*sizeof(core::Vertex), &vertexList[0], GL_STATIC_DRAW);
+
+            glGenBuffers(1, &cboID);
+            glBindBuffer(GL_ARRAY_BUFFER, cboID);
             glBufferData(GL_ARRAY_BUFFER, vertexList.size()*sizeof(core::Vertex), &vertexList[0], GL_STATIC_DRAW);
 
             glGenBuffers(1, &iboID);

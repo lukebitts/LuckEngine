@@ -21,7 +21,6 @@
 #include "Vector2.h"
 #include "MouseComponent.h"
 #include "Vertex.h"
-#include "VertexBufferComponent.h"
 #include "lmath.h"
 #include "Mesh.h"
 #include "AssetManager.h"

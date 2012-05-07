@@ -149,8 +149,8 @@ void SceneManager::drawScene(core::Color4 clearColor)
     glBegin(GL_QUADS);
         glVertex3f(-1.0,-1.0,0.0);
         glVertex3f( 1.0,-1.0,0.0);
-        glVertex3f(-1.0, 1.0,0.0);
         glVertex3f( 1.0, 1.0,0.0);
+        glVertex3f(-1.0, 1.0,0.0);
     glEnd();
 
     vector<Entity*> drawables = find("Model");
@@ -176,6 +176,18 @@ void SceneManager::drawScene(core::Color4 clearColor)
             sizeof(Vertex),
             (void*)0
         );
+
+        glEnableVertexAttribArray(1);
+        glBindBuffer(GL_ARRAY_BUFFER, m->cboID);
+        glVertexAttribPointer(
+            1,
+            3,
+            GL_BYTE,
+            false,
+            sizeof(Vertex),
+            (void*)(sizeof(Vector3<f32>))
+        );
+
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->iboID);
         glDrawElements(
             GL_TRIANGLES,
@@ -188,6 +200,7 @@ void SceneManager::drawScene(core::Color4 clearColor)
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
         glDisableVertexAttribArray(0);
+        glDisableVertexAttribArray(1);
 
         glPopMatrix();
     }

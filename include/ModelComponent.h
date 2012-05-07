@@ -17,9 +17,8 @@ namespace luck { namespace core
         {
             if(!model->hasVertexBuffer()) model->createVertexBuffer();
             _model = model;
-            //VertexBuffer* vb = owner->get<VertexBuffer>("VertexBuffer");
-            //vb->setVertexBuffer(&_model->vertexList[0],&_model->faceList[0],_model->faceList.size()/3,GL_TRIANGLES);
-            //std::cout<<"On Model, the faceList.size()/3 is "<<_model->faceList.size()/3<<"\n";
+
+            return this;
         }
     };
 }}

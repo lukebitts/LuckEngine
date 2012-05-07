@@ -47,6 +47,7 @@ Mesh* AssetManager::_loadObj(string path)
                     ret->faceList.push_back(atoi(face[3].c_str())-1);
                     ret->faceList.push_back(atoi(face[4].c_str())-1);
                 }
+                break;
             }
         }
     }

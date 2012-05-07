@@ -7,7 +7,42 @@ namespace luck { namespace core
     template <typename T>
     struct Vector3
     {
-        static Vector3<T> sub(Vector3<T> v1, Vector3<T> v2)
+        private:
+            T vec3[3];
+        public:
+            T& x;
+            T& y;
+            T& z;
+            Vector3() : x(vec3[0]), y(vec3[1]), z(vec3[2])
+            {
+                x = 0;
+                y = 0;
+                z = 0;
+            }
+            Vector3(T x_, T y_, T z_) : x(vec3[0]), y(vec3[1]), z(vec3[2])
+            {
+                x = x_;
+                y = y_;
+                z = z_;
+            }
+            Vector3<T>& operator= (Vector3<T> const& c)
+            {
+                x = c.x;
+                y = c.y;
+                z = c.z;
+                return *this;
+            }
+            void toString()
+            {
+                std::cout<<x<<" "<<y<<" "<<z<<"\n";
+            }
+            Vector3<T>& operator[](const u16 n)
+            {
+                return vec3[n];
+            }
+        //private:
+
+        /*static Vector3<T> sub(Vector3<T> v1, Vector3<T> v2)
         {
             return Vector3<T>(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z);
         }
@@ -78,22 +113,7 @@ namespace luck { namespace core
             x = x/len;
             y = y/len;
             z = z/len;
-        }
-        Vector3()
-        {
-            x = (T)0;
-            y = (T)0;
-            z = (T)0;
-        }
-        Vector3(T x, T y, T z)
-        {
-            this->x = x;
-            this->y = y;
-            this->z = z;
-        }
-        T x;
-        T y;
-        T z;
+        }*/
     };
 }}
 #endif
