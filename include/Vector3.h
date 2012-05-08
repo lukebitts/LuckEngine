@@ -8,35 +8,35 @@ namespace luck { namespace core
     struct Vector3
     {
         private:
-            T vec3[3];
+            T vec3[4];
         public:
             T& x;
             T& y;
             T& z;
-            Vector3() : x(vec3[0]), y(vec3[1]), z(vec3[2])
+            T& w;
+            Vector3() : x(vec3[0]), y(vec3[1]), z(vec3[2]), w(vec3[3])
             {
                 x = 0;
                 y = 0;
                 z = 0;
+                w = 0;
             }
-            Vector3(T x_, T y_, T z_) : x(vec3[0]), y(vec3[1]), z(vec3[2])
+            Vector3(T x_, T y_, T z_, T w_ = 0) : x(vec3[0]), y(vec3[1]), z(vec3[2]), w(vec3[3])
             {
                 x = x_;
                 y = y_;
                 z = z_;
+                w = w_;
             }
             Vector3<T>& operator= (Vector3<T> const& c)
             {
                 x = c.x;
                 y = c.y;
                 z = c.z;
+                w = c.w;
                 return *this;
             }
-            void toString()
-            {
-                std::cout<<x<<" "<<y<<" "<<z<<"\n";
-            }
-            Vector3<T>& operator[](const u16 n)
+            T& operator[](const u16 n)
             {
                 return vec3[n];
             }

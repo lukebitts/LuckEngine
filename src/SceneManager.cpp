@@ -177,7 +177,7 @@ void SceneManager::drawScene(core::Color4 clearColor)
             (void*)0
         );
 
-        glEnableVertexAttribArray(1);
+        /*glEnableVertexAttribArray(1);
         glBindBuffer(GL_ARRAY_BUFFER, m->cboID);
         glVertexAttribPointer(
             1,
@@ -186,7 +186,7 @@ void SceneManager::drawScene(core::Color4 clearColor)
             false,
             sizeof(Vertex),
             (void*)(sizeof(Vector3<f32>))
-        );
+        );*/
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->iboID);
         glDrawElements(
@@ -200,7 +200,7 @@ void SceneManager::drawScene(core::Color4 clearColor)
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
         glDisableVertexAttribArray(0);
-        glDisableVertexAttribArray(1);
+        //glDisableVertexAttribArray(1);
 
         glPopMatrix();
     }

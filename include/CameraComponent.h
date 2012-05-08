@@ -16,10 +16,6 @@ namespace luck { namespace core
         {
             owner->requires("Position");
         }
-        void handleEvent(string name, event::Event* e)
-        {
-
-        }
         Vector3<f32> calculateLookAtFromRotation()
         {
             Vector3<f32> rot = owner->get<Position>("Position")->_rotation;

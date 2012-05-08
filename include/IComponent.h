@@ -39,7 +39,6 @@ namespace luck { namespace core
     Component(FlagComponent)
     {
         void init(){}
-        void handleEvent(string type, event::Event* e){}
         ~FlagComponent(){}
     };
 

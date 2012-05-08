@@ -20,7 +20,6 @@ namespace luck { namespace core
             _position = Vector3<f32>();
             _rotation = Vector3<f32>();
         }
-        void handleEvent(string name, event::Event* e){}
         Position* position(Vector3<f32> position){ _position = position; return this; }
         Position* rotation(Vector3<f32> rotation){ _rotation = rotation; return this; }
         Position* lookAt(Vector3<f32> target)

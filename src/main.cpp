@@ -4,7 +4,6 @@
 #include <math.h>
 #include <iostream>
 #include <cstdlib>
-#include <type_traits>
 
 using namespace luck;
 using namespace core;
@@ -96,8 +95,6 @@ Component(FPSControl)
 
 int main(int argc, char* argv[])
 {
-    static_assert(std::is_pod<Vertex>::value, "Vertex type should be a POD");
-
     LuckWindow* lkw = createLuckWindow(1024,768);
     if(!lkw)
     {
