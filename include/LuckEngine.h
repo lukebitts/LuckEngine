@@ -17,7 +17,6 @@
 #include "Color4.h"
 #include "PositionComponent.h"
 #include "CameraComponent.h"
-#include "Quaternion.h"
 #include "Vector2.h"
 #include "MouseComponent.h"
 #include "Vertex.h"
@@ -25,4 +24,5 @@
 #include "Mesh.h"
 #include "AssetManager.h"
 #include "ModelComponent.h"
+#include "Matrix4x4.h"
 

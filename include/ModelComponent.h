@@ -15,6 +15,7 @@ namespace luck { namespace core
         }
         Model* model(asset::Mesh* model)
         {
+            if(!model) return this;
             if(!model->hasVertexBuffer()) model->createVertexBuffer();
             _model = model;
 

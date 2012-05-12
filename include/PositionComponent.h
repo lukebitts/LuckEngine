@@ -4,7 +4,6 @@
 #include "IComponent.h"
 #include "Entity.h"
 #include "Vector3.h"
-#include "Quaternion.h"
 #include <math.h>
 #include <iostream>
 

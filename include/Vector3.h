@@ -19,9 +19,9 @@ namespace luck { namespace core
                 x = 0;
                 y = 0;
                 z = 0;
-                w = 0;
+                w = 1;
             }
-            Vector3(T x_, T y_, T z_, T w_ = 0) : x(vec3[0]), y(vec3[1]), z(vec3[2]), w(vec3[3])
+            Vector3(T x_, T y_, T z_, T w_ = 1) : x(vec3[0]), y(vec3[1]), z(vec3[2]), w(vec3[3])
             {
                 x = x_;
                 y = y_;
@@ -35,6 +35,14 @@ namespace luck { namespace core
                 z = c.z;
                 w = c.w;
                 return *this;
+            }
+            void normalize()
+            {
+                if(x == 0 && y == 0 && z == 0) return;
+                T len = sqrtf((x*x)+(y*y)+(z*z));
+                x = x/len;
+                y = y/len;
+                z = z/len;
             }
             T& operator[](const u16 n)
             {

@@ -8,6 +8,7 @@
 #include "ModelComponent.h"
 #include "Mesh.h"
 #include "lmath.h"
+#include "Matrix4x4.h"
 
 using namespace luck;
 using namespace scene;
@@ -128,7 +129,7 @@ void SceneManager::drawScene(core::Color4 clearColor)
     lkw->updateWindowSize();
     glViewport( 0, 0, lkw->width, lkw->height );
 
-    glClearColor((f32)clearColor.r/255, (f32)clearColor.g/255, (f32)clearColor.b/255, (f32)clearColor.a/255);
+    glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
     Entity* ent = _cameras[_activeCamera];
@@ -137,21 +138,12 @@ void SceneManager::drawScene(core::Color4 clearColor)
     Position* pos = ent->get<Position>("Position");
     Camera* cam = ent->get<Camera>("Camera");
 
-    glMatrixMode( GL_PROJECTION );
-    glLoadIdentity();
-    f64 fW, fH;
-    fH = tan( cam->_fov / 360 * math::PI64 ) * cam->_near;
-    fW = fH * cam->_aspect;
-    glFrustum( -fW, fW, -fH, fH, cam->_near, cam->_far );
-
-    glMatrixMode( GL_MODELVIEW );
-
-    glBegin(GL_QUADS);
-        glVertex3f(-1.0,-1.0,0.0);
-        glVertex3f( 1.0,-1.0,0.0);
-        glVertex3f( 1.0, 1.0,0.0);
-        glVertex3f(-1.0, 1.0,0.0);
-    glEnd();
+    Matrix4x4<f32> ViewMatrix =
+        Matrix4x4<f32>::rotationMatrix(-pos->_rotation.x,Vector3<f32>(1,0,0))*
+        Matrix4x4<f32>::rotationMatrix(-pos->_rotation.y,Vector3<f32>(0,1,0))*
+        Matrix4x4<f32>::rotationMatrix(-pos->_rotation.z,Vector3<f32>(0,0,1))*
+        Matrix4x4<f32>::translationMatrix(-pos->_position.x,-pos->_position.y,-pos->_position.z);
+    Matrix4x4<f32> ProjectionMatrix = Matrix4x4<f32>::perspective(cam->_fov, cam->_aspect, cam->_near, cam->_far);
 
     vector<Entity*> drawables = find("Model");
     for(u64 i = 0; i < drawables.size(); i++)
@@ -160,11 +152,16 @@ void SceneManager::drawScene(core::Color4 clearColor)
         asset::Mesh* m = drawables[i]->get<Model>("Model")->_model;
         if(!m || !drawablePos) continue;
 
-        glPushMatrix();
-        glTranslatef(drawablePos->_position.x,drawablePos->_position.y,drawablePos->_position.z);
-        glRotatef(drawablePos->_rotation.x,1,0,0);
-        glRotatef(drawablePos->_rotation.y,0,1,0);
-        glRotatef(drawablePos->_rotation.z,0,0,1);
+        Matrix4x4<f32> ModelMatrix =
+            Matrix4x4<f32>::translationMatrix(drawablePos->_position.x,drawablePos->_position.y,drawablePos->_position.z)*
+            Matrix4x4<f32>::rotationMatrix(drawablePos->_rotation.x,Vector3<f32>(1,0,0))*
+            Matrix4x4<f32>::rotationMatrix(drawablePos->_rotation.y,Vector3<f32>(0,1,0))*
+            Matrix4x4<f32>::rotationMatrix(drawablePos->_rotation.z,Vector3<f32>(0,0,1));
+
+        Matrix4x4<f32> MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
+
+        glUseProgram(_defaultShader);
+        glUniformMatrix4fv(glGetUniformLocation(_defaultShader, "ModelViewProjection"),1,GL_FALSE,&MVP[0][0]);
 
         glEnableVertexAttribArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, m->vboID);
@@ -177,16 +174,16 @@ void SceneManager::drawScene(core::Color4 clearColor)
             (void*)0
         );
 
-        /*glEnableVertexAttribArray(1);
+        glEnableVertexAttribArray(1);
         glBindBuffer(GL_ARRAY_BUFFER, m->cboID);
         glVertexAttribPointer(
             1,
-            3,
-            GL_BYTE,
+            4,
+            GL_FLOAT,
             false,
             sizeof(Vertex),
-            (void*)(sizeof(Vector3<f32>))
-        );*/
+            (void*)(sizeof(f32)*3)
+        );
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->iboID);
         glDrawElements(
@@ -200,16 +197,9 @@ void SceneManager::drawScene(core::Color4 clearColor)
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
         glDisableVertexAttribArray(0);
-        //glDisableVertexAttribArray(1);
+        glDisableVertexAttribArray(1);
 
-        glPopMatrix();
     }
-
-    glLoadIdentity();
-    glRotatef(pos->_rotation.x,1.f,0.f,0.f);
-    glRotatef(pos->_rotation.y,0.f,1.f,0.f);
-    glRotatef(pos->_rotation.z,0.f,0.f,1.f);
-    glTranslatef(-pos->_position.x, -pos->_position.y, -pos->_position.z);
 
     glfwSwapBuffers();
 }

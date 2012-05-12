@@ -10,9 +10,15 @@ using namespace asset;
 
 AssetManager* AssetManager::_instance = nullptr;
 
+Color4 randomColor()
+{
+    return Color4((f32)rand()/RAND_MAX,(f32)rand()/RAND_MAX,(f32)rand()/RAND_MAX,1.f);
+}
+
 Mesh* AssetManager::_loadObj(string path)
 {
     /// @todo create a static OBJLoader class or something (OBJLoader::load(string) -> Mesh*)
+    /// @todo use this http://en.wikipedia.org/wiki/Wavefront_.obj_file
     Mesh* ret = new Mesh();
     std::ifstream objFile;
     objFile.open(path);
@@ -32,7 +38,7 @@ Mesh* AssetManager::_loadObj(string path)
                     atof(vertex[2].c_str()),
                     atof(vertex[3].c_str())
                 };
-                ret->vertexList.push_back(Vertex(Vector3<f32>(v[0],v[1],v[2]),Color4(rand()%256,rand()%256,rand()%256,255)));
+                ret->vertexList.push_back(Vertex(Vector3<f32>(v[0],v[1],v[2]), randomColor() ));
                 break;
             }
             case 'f':

@@ -27,6 +27,14 @@ Component(Test)
         {
             p->_rotation.z += 200.f * ef.deltaTime;
         }
+        if(k->isDown(GLFW_KEY_UP))
+        {
+            p->_rotation.y += 200.f * ef.deltaTime;
+        }
+        if(k->isDown(GLFW_KEY_RIGHT))
+        {
+            p->_rotation.x += 200.f * ef.deltaTime;
+        }
     }
     ~Test(){ }
 };
@@ -113,7 +121,9 @@ int main(int argc, char* argv[])
     AssetManager* assets = AssetManager::getInstance();
 
     assets->addToLoadQueue("assets/cube.obj",assetType::ASSET_MESH);
+    assets->addToLoadQueue("assets/cube_tri.obj",assetType::ASSET_MESH);
     assets->addToLoadQueue("assets/monkey.obj",assetType::ASSET_MESH);
+    assets->addToLoadQueue("assets/monkey_high-1.obj",assetType::ASSET_MESH);
     assets->addToLoadQueue("assets/monkey_high0.obj",assetType::ASSET_MESH);
 
     assets->load([](Event const& e) -> void {
@@ -129,10 +139,27 @@ int main(int argc, char* argv[])
         ->get<Position>("Position")->position(Vector3<f32>(0.f,-5.f,1.2f))->owner
         ->get<Model>("Model")->model(assets->getLoadedMesh("assets/monkey_high0.obj"));
 
+    Mesh* square = new Mesh();
+    square->vertexList.push_back(Vertex(-1,-1,0 , 1,0,0,1));
+    square->vertexList.push_back(Vertex( 1, 1,0 , 0,1,0,1));
+    square->vertexList.push_back(Vertex( 1,-1,0 , 0,0,1,1));
+    square->vertexList.push_back(Vertex(-1, 1,0 , 1,0,1,1));
+    square->faceList.push_back(0);
+    square->faceList.push_back(1);
+    square->faceList.push_back(2);
+    square->faceList.push_back(0);
+    square->faceList.push_back(1);
+    square->faceList.push_back(3);
+    square->createVertexBuffer();
+
+    smgr->createEntity("Position Model")
+        ->get<Position>("Position")->position(Vector3<f32>(0.f,-2.f,0.f))->owner
+        ->get<Model>("Model")->model(square);
+
     smgr->createEntity("Camera FPSControl")
         ->get<Position>("Position")->position(Vector3<f32>(0.f,0.f,3.f))->lookAt(Vector3<f32>(0.f,0.f,-1.f))
         ->owner
-        ->get<Camera>("Camera")->fov(85.f)->near(0.1f)->far(500.f);
+        ->get<Camera>("Camera")->fov(45.f)->near(1.f)->far(100.f);
 
     smgr->addCamera("cam", smgr->find("Camera")[0]);
 
@@ -140,7 +167,7 @@ int main(int argc, char* argv[])
     while(lkw->isRunning())
     {
         smgr->updateScene();
-        smgr->drawScene(Color4(100,101,140,255));
+        smgr->drawScene(Color4(100.f/255,101.f/255,140.f/255,1));
     }
 
     glfwTerminate();

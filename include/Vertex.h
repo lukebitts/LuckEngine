@@ -10,14 +10,14 @@ namespace luck { namespace core
         f32 x;
         f32 y;
         f32 z;
-        u8 a;
-        u8 r;
-        u8 g;
-        u8 b;
-        Vertex(f32 x, f32 y, f32 z, u8 r, u8 g, u8 b, u8 a) : x(x), y(y), z(z), a(a), r(r), g(g), b(b)
+        f32 r;
+        f32 g;
+        f32 b;
+        f32 a;
+        Vertex(f32 x, f32 y, f32 z, u8 r, u8 g, u8 b, u8 a) : x(x), y(y), z(z), r(r), g(g), b(b), a(a)
         { }
         Vertex(Vector3<f32> position, Color4 color) :
-            x(position.x), y(position.y), z(position.z), a(color.a), r(color.r), g(color.g), b(color.b)
+            x(position.x), y(position.y), z(position.z), r(color.r), g(color.g), b(color.b), a(color.a)
         { }
         Vertex() = default;
     };

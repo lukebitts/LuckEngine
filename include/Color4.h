@@ -4,15 +4,15 @@ namespace luck { namespace core
 {
     struct Color4
     {
-        u8 a;
-        u8 r;
-        u8 g;
-        u8 b;
+        f32 a;
+        f32 r;
+        f32 g;
+        f32 b;
         Color4()
         {
-            a = r = g = b = 255;
+            a = r = g = b = 1.f;
         }
-        Color4(u8 r, u8 g, u8 b, u8 a)
+        Color4(f32 r, f32 g, f32 b, f32 a)
         {
             this->a = a;
             this->r = r;

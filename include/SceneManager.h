@@ -5,6 +5,7 @@
 #include "Entity.h"
 #include "LuckWindow.h"
 #include "Color4.h"
+#include "ShaderComponent.h"
 namespace luck { namespace scene
 {
     class SceneManager : public event::EventDispatcher
@@ -15,6 +16,7 @@ namespace luck { namespace scene
             f64 _currentFrame;
             u16 _FPS;
             f64 _lastTime;
+            u16 _defaultShader;
             map<u64, core::Entity*> _entities;
             map<string, core::Entity*> _cameras;
             std::string _activeCamera;
@@ -34,6 +36,8 @@ namespace luck { namespace scene
                 lkw->addEventListener("MouseDown",event::eventCallback(this,&SceneManager::handleMouseDown));
                 lkw->addEventListener("MouseUp",event::eventCallback(this,&SceneManager::handleMouseUp));
                 lkw->addEventListener("MouseWheel",event::eventCallback(this,&SceneManager::handleMouseWheel));
+
+                _defaultShader = LoadShaders("assets/shader.vert","assets/shader.frag");
             }
         public:
             static SceneManager* getInstance()
