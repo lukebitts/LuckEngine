@@ -150,6 +150,7 @@ void SceneManager::drawScene(core::Color4 clearColor)
     {
         Position* drawablePos = drawables[i]->get<Position>("Position");
         asset::Mesh* m = drawables[i]->get<Model>("Model")->_model;
+        drawables[i]->dispatchEvent("OnDraw",Event());
         if(!m || !drawablePos) continue;
 
         Matrix4x4<f32> ModelMatrix =
@@ -198,8 +199,6 @@ void SceneManager::drawScene(core::Color4 clearColor)
 
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
-
     }
-
     glfwSwapBuffers();
 }

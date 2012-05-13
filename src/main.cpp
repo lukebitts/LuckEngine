@@ -109,7 +109,6 @@ int main(int argc, char* argv[])
         std::cout<<"Could not create a Window;";
         return 1;
     }
-    lkw->setWindowCaption("LuckEngine");
 
     if(!GLEW_ARB_vertex_buffer_object)
     {
@@ -124,7 +123,7 @@ int main(int argc, char* argv[])
     assets->addToLoadQueue("assets/cube_tri.obj",assetType::ASSET_MESH);
     assets->addToLoadQueue("assets/monkey.obj",assetType::ASSET_MESH);
     assets->addToLoadQueue("assets/monkey_high-1.obj",assetType::ASSET_MESH);
-    assets->addToLoadQueue("assets/monkey_high0.obj",assetType::ASSET_MESH);
+    assets->addToLoadQueue("assets/hex.obj",assetType::ASSET_MESH);
 
     assets->load([](Event const& e) -> void {
         std::cout<<e.text<<"\n";
@@ -137,7 +136,7 @@ int main(int argc, char* argv[])
 
     smgr->createEntity("Test Model")
         ->get<Position>("Position")->position(Vector3<f32>(0.f,-5.f,1.2f))->owner
-        ->get<Model>("Model")->model(assets->getLoadedMesh("assets/monkey_high0.obj"));
+        ->get<Model>("Model")->model(assets->getLoadedMesh("assets/hex.obj"));
 
     Mesh* square = new Mesh();
     square->vertexList.push_back(Vertex(-1,-1,0 , 1,0,0,1));
@@ -145,8 +144,8 @@ int main(int argc, char* argv[])
     square->vertexList.push_back(Vertex( 1,-1,0 , 0,0,1,1));
     square->vertexList.push_back(Vertex(-1, 1,0 , 1,0,1,1));
     square->faceList.push_back(0);
-    square->faceList.push_back(1);
     square->faceList.push_back(2);
+    square->faceList.push_back(1);
     square->faceList.push_back(0);
     square->faceList.push_back(1);
     square->faceList.push_back(3);
@@ -157,17 +156,26 @@ int main(int argc, char* argv[])
         ->get<Model>("Model")->model(square);
 
     smgr->createEntity("Camera FPSControl")
-        ->get<Position>("Position")->position(Vector3<f32>(0.f,0.f,3.f))->lookAt(Vector3<f32>(0.f,0.f,-1.f))
+        ->get<Position>("Position")->position(Vector3<f32>(0.f,0.f,3.f))->lookAt(Vector3<f32>(0.f,0.f,0.f))
         ->owner
-        ->get<Camera>("Camera")->fov(45.f)->near(1.f)->far(100.f);
+        ->get<Camera>("Camera")->fov(65.f)->near(0.5f)->far(100.f);
 
     smgr->addCamera("cam", smgr->find("Camera")[0]);
 
-    /// @todo create a FPS counter
+    f64 time = clock()/CLOCKS_PER_SEC;
+    f64 frameNum = 0;
     while(lkw->isRunning())
     {
         smgr->updateScene();
         smgr->drawScene(Color4(100.f/255,101.f/255,140.f/255,1));
+        frameNum++;
+
+        std::stringstream _fps;
+        f64 fps = frameNum/time;
+        _fps<<"LuckEngine - [FPS: "<<(fps - (fps-int(fps)))<<"]";
+        lkw->setWindowCaption(_fps.str());
+
+        time = clock()/CLOCKS_PER_SEC;
     }
 
     glfwTerminate();
