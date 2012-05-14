@@ -1,13 +1,15 @@
 TODO LIST:
+(there are @todo marks on the source code too)
 
-Make a Vertex Component (to wrap the drawing)
-- Make a vertex type which accepts the position, the uv coordinates and the color
-- Make other components to read 3D files and fill the Vertex component in a faster way than writing vertex by vertex in the source code
--- Make a interpreter for a basic 3D file type (.obj, .3ds or some other well known type, just for testing)
+Read UV Coordinates from .obj files
 Make a 2D Component (to draw GUI elements using openGL)
 Make a Texture Component (can read uv coordinates and apply a texture to the 3D object OR is a GUI image)
 Make file loaders (Meshs and textures for now, other kind of stuff later on)
 
-FIX:
-Check the openGL wrapper in the SceneManager
-Fix the lookAt / rotation in the Camera/Position Components
+DONE LIST:
+
+Make a Vertex Component (to wrap the drawing)
+- Make a vertex type which accepts the position, the uv coordinates and the color
+- Make other components to read 3D files and fill the Vertex component in a faster way than writing vertex by vertex in the source code
+- Make a interpreter for a basic 3D file type (.obj)
+Make file loaders (.obj loading is done)
