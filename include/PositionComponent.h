@@ -9,15 +9,40 @@
 
 namespace luck { namespace core
 {
-    ///@todo Add a parent to the component, so it will be in relative position/rotation to this parent
     Component(Position)
     {
         Vector3<f32> _position;
         Vector3<f32> _rotation;
+        Entity* _parent;
+        vector<Entity*> _children;
         void init()
         {
             _position = Vector3<f32>();
             _rotation = Vector3<f32>();
+            _parent = nullptr;
+        }
+        Position* parent(Entity* p)
+        {
+            /// @todo handle the destruction of the parent
+            ///       -> make it remove itself (or add itself) from the root nodes in the drawables list
+            /// @todo make it possible for non-models to becomed children and parents (like a camera)
+            if(_parent)
+            {
+                vector<Entity*>& children = _parent->get<Position>("Position")->_children;
+                for(u16 i = 0; i < children.size(); i++)
+                {
+                    if(children[i] == owner)
+                    {
+                        children.erase(children.begin()+i);
+                    }
+                }
+            }
+            if(p->has("Position"))
+            {
+                _parent = p;
+                p->get<Position>("Position")->_children.push_back(owner);
+            }
+            return this;
         }
         Position* position(Vector3<f32> position){ _position = position; return this; }
         Position* rotation(Vector3<f32> rotation){ _rotation = rotation; return this; }

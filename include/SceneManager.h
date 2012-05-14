@@ -6,6 +6,7 @@
 #include "LuckWindow.h"
 #include "Color4.h"
 #include "ShaderComponent.h"
+#include "Matrix4x4.h"
 namespace luck { namespace scene
 {
     class SceneManager : public event::EventDispatcher
@@ -20,6 +21,7 @@ namespace luck { namespace scene
             map<u64, core::Entity*> _entities;
             map<string, core::Entity*> _cameras;
             std::string _activeCamera;
+            void _drawModelsRecursively(core::Entity* e, const core::Matrix4x4<f32>& ProjectionMatrix, const core::Matrix4x4<f32>& ViewMatrix, core::Matrix4x4<f32> ParentModel = core::Matrix4x4<f32>(1.f));
             static SceneManager* _instance;
             SceneManager()
             {
@@ -58,6 +60,7 @@ namespace luck { namespace scene
             core::Entity* find(u64 id);
             vector<core::Entity*> find(string components);
             void addCamera(string name, core::Entity* cam);
+            void removeCamera(string name);
             void setActiveCamera(string name);
             void updateScene();
             void drawScene(core::Color4 clearColor);

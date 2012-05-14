@@ -8,14 +8,11 @@
 #include "ModelComponent.h"
 #include "Mesh.h"
 #include "lmath.h"
-#include "Matrix4x4.h"
 
 using namespace luck;
 using namespace scene;
 using namespace event;
 using namespace core;
-
-///@todo removeCamera method (or have the destroyEntity method also remove it from camera role)
 
 SceneManager* SceneManager::_instance = nullptr;
 
@@ -100,6 +97,11 @@ void SceneManager::addCamera(string name, core::Entity* e)
     if(_activeCamera == "") _activeCamera = name;
 }
 
+void SceneManager::removeCamera(string name)
+{
+    _cameras[name] = nullptr;
+}
+
 void SceneManager::setActiveCamera(string name)
 {
     if(!_cameras[name]) return;
@@ -148,57 +150,70 @@ void SceneManager::drawScene(core::Color4 clearColor)
     vector<Entity*> drawables = find("Model");
     for(u64 i = 0; i < drawables.size(); i++)
     {
-        Position* drawablePos = drawables[i]->get<Position>("Position");
-        asset::Mesh* m = drawables[i]->get<Model>("Model")->_model;
-        drawables[i]->dispatchEvent("OnDraw",Event());
-        if(!m || !drawablePos) continue;
-
-        Matrix4x4<f32> ModelMatrix =
-            Matrix4x4<f32>::translationMatrix(drawablePos->_position.x,drawablePos->_position.y,drawablePos->_position.z)*
-            Matrix4x4<f32>::rotationMatrix(drawablePos->_rotation.x,Vector3<f32>(1,0,0))*
-            Matrix4x4<f32>::rotationMatrix(drawablePos->_rotation.y,Vector3<f32>(0,1,0))*
-            Matrix4x4<f32>::rotationMatrix(drawablePos->_rotation.z,Vector3<f32>(0,0,1));
-
-        Matrix4x4<f32> MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
-
-        glUseProgram(_defaultShader);
-        glUniformMatrix4fv(glGetUniformLocation(_defaultShader, "ModelViewProjection"),1,GL_FALSE,&MVP[0][0]);
-
-        glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, m->vboID);
-        glVertexAttribPointer(
-            0,
-            3,
-            GL_FLOAT,
-            false,
-            sizeof(Vertex),
-            (void*)0
-        );
-
-        glEnableVertexAttribArray(1);
-        glBindBuffer(GL_ARRAY_BUFFER, m->cboID);
-        glVertexAttribPointer(
-            1,
-            4,
-            GL_FLOAT,
-            false,
-            sizeof(Vertex),
-            (void*)(sizeof(f32)*3)
-        );
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->iboID);
-        glDrawElements(
-            GL_TRIANGLES,
-            m->faceList.size(),
-            GL_UNSIGNED_INT,
-            (void*)0
-        );
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-        glDisableVertexAttribArray(0);
-        glDisableVertexAttribArray(1);
+        if(drawables[i]->get<Position>("Position")->_parent != nullptr) continue; //temporary
+        _drawModelsRecursively(drawables[i],ProjectionMatrix,ViewMatrix);
     }
     glfwSwapBuffers();
+}
+
+void SceneManager::_drawModelsRecursively(Entity* e, const Matrix4x4<f32>& ProjectionMatrix, const Matrix4x4<f32>& ViewMatrix, Matrix4x4<f32> ParentModel)
+{
+    Position* drawablePos = e->get<Position>("Position");
+    asset::Mesh* m = e->get<Model>("Model")->_model;
+    if(!m || !drawablePos) return;
+
+    Matrix4x4<f32> ModelMatrix(1.f);
+
+    ModelMatrix = ParentModel *
+        Matrix4x4<f32>::translationMatrix(drawablePos->_position.x,drawablePos->_position.y,drawablePos->_position.z)*
+        Matrix4x4<f32>::rotationMatrix(drawablePos->_rotation.x,Vector3<f32>(1,0,0))*
+        Matrix4x4<f32>::rotationMatrix(drawablePos->_rotation.y,Vector3<f32>(0,1,0))*
+        Matrix4x4<f32>::rotationMatrix(drawablePos->_rotation.z,Vector3<f32>(0,0,1));
+
+    vector<Entity*> children = drawablePos->_children;
+    for(u32 i = 0; i < children.size(); i++)
+    {
+        _drawModelsRecursively(children[i],ProjectionMatrix,ViewMatrix,ModelMatrix);
+    }
+
+    Matrix4x4<f32> MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
+
+    glUseProgram(_defaultShader);
+    glUniformMatrix4fv(glGetUniformLocation(_defaultShader, "ModelViewProjection"),1,GL_FALSE,&MVP[0][0]);
+
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, m->vboID);
+    glVertexAttribPointer(
+        0,
+        3,
+        GL_FLOAT,
+        false,
+        sizeof(Vertex),
+        (void*)0
+    );
+
+    glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ARRAY_BUFFER, m->cboID);
+    glVertexAttribPointer(
+        1,
+        4,
+        GL_FLOAT,
+        false,
+        sizeof(Vertex),
+        (void*)(sizeof(f32)*3)
+    );
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->iboID);
+    glDrawElements(
+        GL_TRIANGLES,
+        m->faceList.size(),
+        GL_UNSIGNED_INT,
+        (void*)0
+    );
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
 }
