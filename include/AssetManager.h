@@ -2,7 +2,7 @@
 #define ASSETMANAGER_H
 #include "luck.h"
 #include "Mesh.h"
-#include "event.h"
+#include "LoadProgressEvent.h"
 namespace luck { namespace asset {
     enum assetType
     {
@@ -40,6 +40,8 @@ namespace luck { namespace asset {
             template <typename Func>
             void load(Func func)
             {
+                u32 totalToLoad = _loadQueue.size();
+                u32 totalLoaded = 0;
                 while(_loadQueue.size() > 0)
                 {
                     if(_loadQueue[0].type == ASSET_MESH)
@@ -58,8 +60,7 @@ namespace luck { namespace asset {
                     {
 
                     }
-                    /// @todo create a LoadProgressEvent struct to pass
-                    func(event::Event(_loadQueue[0].path));
+                    func(event::LoadProgressEvent(_loadQueue[0].path,++totalLoaded,totalToLoad));
                     _loadQueue.erase(_loadQueue.begin());
                 }
             }
