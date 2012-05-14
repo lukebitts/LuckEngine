@@ -1,6 +1,5 @@
 #ifndef ENTITY_H
 #define ENTITY_H
-#define _STRICT_COMPONENT_
 #include <exception>
 #include <iostream>
 #include "luck.h"
@@ -24,13 +23,13 @@ namespace luck { namespace core
             T* get(string name)
             {
                 #ifdef _STRICT_COMPONENT_
+                /// @todo extend std::exception and throw more often
                 if(_components[name] == NULL)
                 {
-                    std::cout<<"This Entity doesn't have this component ("<<name<<");\n";
+                    std::cout<<"Entity "<<id<<" doesn't have this component ("<<name<<");\n";
                     throw std::exception();
                 }
                 #endif
-                /// @todo cast based on the name of the component
                 return (T*)(_components[name]);
             }
             bool has(string name)

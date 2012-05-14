@@ -41,6 +41,7 @@ Entity* Entity::remove(string name)
 {
     map<string, IComponent*>::iterator it = _components.find(name);
     if(it == _components.end()) return this;
+    /// @todo remove all event listeners related to this component
     //removeEventListener(it->second);
     delete _components[it->first];
     _components.erase(it);
@@ -67,12 +68,7 @@ Entity::Entity(u64 id, string components)
 
 Entity::~Entity()
 {
-    ///@todo Send destroy event
-    /// Is sending a destroy event worth it? Because we are calling the
-    /// deconstructor on each component, that should be enough to warn then
-    /// that their life is over
-    ///@todo Delete every listener
-    //_listeners.clear();
+    // listeners are deleted on EventDispatcher::~EventDispatcher
     for(auto it = _components.begin(); it != _components.end(); it++)
         delete _components[it->first];
     _components.clear();

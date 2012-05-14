@@ -25,7 +25,7 @@ Component(Test)
         Position* p = owner->get<Position>("Position");
         if(k->isDown(GLFW_KEY_DOWN))
         {
-            p->_rotation.z += 200.f * ef.deltaTime;
+            //p->_rotation.z += 200.f * ef.deltaTime;
         }
         if(k->isDown(GLFW_KEY_UP))
         {
@@ -33,7 +33,7 @@ Component(Test)
         }
         if(k->isDown(GLFW_KEY_RIGHT))
         {
-            p->_rotation.x += 200.f * ef.deltaTime;
+            //p->_rotation.x += 200.f * ef.deltaTime;
         }
     }
     ~Test(){ }
@@ -125,18 +125,23 @@ int main(int argc, char* argv[])
     assets->addToLoadQueue("assets/monkey_high-1.obj",assetType::ASSET_MESH);
     assets->addToLoadQueue("assets/hex.obj",assetType::ASSET_MESH);
 
-    assets->load([](Event const& e) -> void {
-        std::cout<<e.text<<"\n";
+    assets->load([](LoadProgressEvent const& e) -> void {
+        std::cout<<(e.percent - (e.percent - int(e.percent)))<<"% loaded: "<<e.file<<"\n";
     });
 
     smgr->createEntity("PLAYER")
         ->add("Test Model")
-        ->get<Position>("Position")->position(Vector3<f32>(0.f,-5.f,-1.2f))->owner
+        ->get<Position>("Position")->position(Vector3<f32>(0.f,-5.f,1.2f))->owner
         ->get<Model>("Model")->model(assets->getLoadedMesh("assets/cube.obj"));
 
-    smgr->createEntity("Test Model")
-        ->get<Position>("Position")->position(Vector3<f32>(0.f,-5.f,1.2f))->owner
+    smgr->createEntity("HEX Test Model")
+        ->get<Position>("Position")->position(Vector3<f32>(1.f,0.5f,1.0f))->parent(smgr->find("PLAYER")[0])->owner
+        ->get<Model>("Model")->model(assets->getLoadedMesh("assets/hex.obj"))->owner;
+
+    smgr->createEntity("Model")
+        ->get<Position>("Position")->position(Vector3<f32>(1.f,0.5f,1.0f))->parent(smgr->find("HEX")[0])->owner
         ->get<Model>("Model")->model(assets->getLoadedMesh("assets/hex.obj"));
+
 
     Mesh* square = new Mesh();
     square->vertexList.push_back(Vertex(-1,-1,0 , 1,0,0,1));
@@ -159,7 +164,6 @@ int main(int argc, char* argv[])
         ->get<Position>("Position")->position(Vector3<f32>(0.f,0.f,3.f))->lookAt(Vector3<f32>(0.f,0.f,0.f))
         ->owner
         ->get<Camera>("Camera")->fov(65.f)->near(0.5f)->far(100.f);
-
     smgr->addCamera("cam", smgr->find("Camera")[0]);
 
     f64 time = clock()/CLOCKS_PER_SEC;
@@ -168,10 +172,9 @@ int main(int argc, char* argv[])
     {
         smgr->updateScene();
         smgr->drawScene(Color4(100.f/255,101.f/255,140.f/255,1));
-        frameNum++;
 
         std::stringstream _fps;
-        f64 fps = frameNum/time;
+        f64 fps = frameNum++/time;
         _fps<<"LuckEngine - [FPS: "<<(fps - (fps-int(fps)))<<"]";
         lkw->setWindowCaption(_fps.str());
 
