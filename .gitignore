@@ -8,4 +8,5 @@
 /src/*.[oa]
 /obj/*
 /obj/Debug/src/*.[o]
-*~
+*.*~
+*.gitignore~
