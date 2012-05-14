@@ -6,5 +6,6 @@
 /LuckEngine.depend
 /LuckEngine.layout
 /src/*.[oa]
-/obj/*.*
+/obj/*
+/obj/Debug/src/*.[o]
 *~

@@ -2,6 +2,7 @@
 #define MATRIX4X4_H
 #include "luck.h"
 #include "Vector3.h"
+#include "lmath.h"
 namespace luck { namespace core
 {
     template<typename T>
@@ -22,7 +23,13 @@ namespace luck { namespace core
             {
                 std::fill_n(&mat4x4[0][0], 4*4, (T)0);
             }
-            Matrix4x4(T n)
+            Matrix4x4(const Matrix4x4<T>& c)
+            {
+                for(u16 i = 0; i < 4; i++)
+                for(u16 j = 0; j < 4; j++)
+                    mat4x4[i][j] = c.at(i,j);
+            }
+            explicit Matrix4x4(T n)
             {
                 mat4x4[0][0] = n; mat4x4[0][1] = 0; mat4x4[0][2] = 0; mat4x4[0][3] = 0;
                 mat4x4[1][0] = 0; mat4x4[1][1] = n; mat4x4[1][2] = 0; mat4x4[1][3] = 0;
