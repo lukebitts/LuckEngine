@@ -15,6 +15,7 @@ namespace luck { namespace core
             void _add(string name);
         public:
             u64 id;
+            bool deleted;
             void handleEvent(string s, event::Event const& e);
             Entity* add(string components);
             Entity* remove(string name);

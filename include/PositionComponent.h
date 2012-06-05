@@ -37,12 +37,16 @@ namespace luck { namespace core
                     }
                 }
             }
-            if(p->has("Position"))
+            if(p && p->has("Position"))
             {
                 _parent = p;
                 p->get<Position>("Position")->_children.push_back(owner);
             }
             return this;
+        }
+        ~Position()
+        {
+            parent(nullptr);
         }
         Position* position(Vector3<f32> position){ _position = position; return this; }
         Position* rotation(Vector3<f32> rotation){ _rotation = rotation; return this; }

@@ -63,6 +63,7 @@ Entity* Entity::requires(string components)
 Entity::Entity(u64 id, string components)
 {
     this->id = id;
+    deleted = false;
     add(components);
 }
 

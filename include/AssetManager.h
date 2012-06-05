@@ -2,6 +2,7 @@
 #define ASSETMANAGER_H
 #include "luck.h"
 #include "Mesh.h"
+#include "Image.h"
 #include "LoadProgressEvent.h"
 namespace luck { namespace asset {
     enum assetType
@@ -26,6 +27,7 @@ namespace luck { namespace asset {
             };
             vector<_toLoadInfo> _loadQueue;
             map<string, Mesh*> _meshList;
+            map<string, Image*> _imageList;
             Mesh* _loadObj(string path);
         public:
             static AssetManager* getInstance()
@@ -54,7 +56,10 @@ namespace luck { namespace asset {
                     }
                     else if(_loadQueue[0].type == ASSET_IMAGE)
                     {
-
+                        if(_imageList[_loadQueue[0].path] == NULL)
+                        {
+                            _imageList[_loadQueue[0].path] = new Image(_loadQueue[0].path);
+                        }
                     }
                     else if(_loadQueue[0].type == ASSET_SOUND)
                     {
@@ -67,6 +72,10 @@ namespace luck { namespace asset {
             Mesh* getLoadedMesh(string name)
             {
                 return _meshList[name];
+            }
+            Image* getLoadedImage(string name)
+            {
+                return _imageList[name];
             }
     };
 }}

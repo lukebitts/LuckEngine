@@ -62,13 +62,14 @@ void SceneManager::destroyEntity(core::Entity* e)
 void SceneManager::destroyEntity(u64 id)
 {
     map<u64,core::Entity*>::iterator it = _entities.find(id);
-    core::Entity* e;
+    //core::Entity* e;
     if(!(it == _entities.end()))
     {
-        e = it->second;
-        _entities.erase(it);
+        //e = it->second;
+        it->second->deleted = true;
+        //_entities.erase(it);
     }
-    delete e;
+    //delete e;
 }
 
 Entity* SceneManager::find(u64 id)
@@ -84,7 +85,7 @@ vector<Entity*> SceneManager::find(string components)
     {
         for(auto sit = x.begin(); sit != x.end(); sit++)
         {
-            if(it->second->has(*sit)) ret.push_back(it->second);
+            if(it->second->has(*sit) && it->second->deleted == false) ret.push_back(it->second);
         }
     }
     return ret;
@@ -123,16 +124,29 @@ void SceneManager::updateScene()
         }
         _lastTime = clock();
     }
+    auto it = _entities.begin();
+    while(it != _entities.end())
+    {
+        if(it->second->deleted)
+        {
+            core::Entity* e = it->second;
+            _entities.erase(it);
+            delete e;
+            it = _entities.begin();
+            continue;
+        }
+        ++it;
+    }
 }
 
 void SceneManager::drawScene(core::Color4 clearColor)
 {
     LuckWindow* lkw = LuckWindow::getInstance();
     lkw->updateWindowSize();
-    glViewport( 0, 0, lkw->width, lkw->height );
+    glViewport(0, 0, lkw->width, lkw->height);
 
     glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     Entity* ent = _cameras[_activeCamera];
     if(!ent) return;
@@ -147,7 +161,8 @@ void SceneManager::drawScene(core::Color4 clearColor)
         Matrix4x4<f32>::translationMatrix(-pos->_position.x,-pos->_position.y,-pos->_position.z);
     Matrix4x4<f32> ProjectionMatrix = Matrix4x4<f32>::perspective(cam->_fov, cam->_aspect, cam->_near, cam->_far);
 
-    vector<Entity*> drawables = find("Model");
+    /// @todo a scene graph to increase performance here. We can't rely on SceneManager::find, it's slow.
+    vector<Entity*> drawables = find("Position");
     for(u64 i = 0; i < drawables.size(); i++)
     {
         if(drawables[i]->get<Position>("Position")->_parent != nullptr) continue; //temporary
@@ -159,61 +174,82 @@ void SceneManager::drawScene(core::Color4 clearColor)
 void SceneManager::_drawModelsRecursively(Entity* e, const Matrix4x4<f32>& ProjectionMatrix, const Matrix4x4<f32>& ViewMatrix, Matrix4x4<f32> ParentModel)
 {
     Position* drawablePos = e->get<Position>("Position");
-    asset::Mesh* m = e->get<Model>("Model")->_model;
-    if(!m || !drawablePos) return;
-
     Matrix4x4<f32> ModelMatrix(1.f);
-
     ModelMatrix = ParentModel *
         Matrix4x4<f32>::translationMatrix(drawablePos->_position.x,drawablePos->_position.y,drawablePos->_position.z)*
         Matrix4x4<f32>::rotationMatrix(drawablePos->_rotation.x,Vector3<f32>(1,0,0))*
         Matrix4x4<f32>::rotationMatrix(drawablePos->_rotation.y,Vector3<f32>(0,1,0))*
         Matrix4x4<f32>::rotationMatrix(drawablePos->_rotation.z,Vector3<f32>(0,0,1));
 
+    asset::Mesh* m = nullptr;
+    if(e->has("Model")) m = e->get<Model>("Model")->_model;
+    if(m)
+    {
+        Matrix4x4<f32> MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
+
+        glUseProgram(_defaultShader);
+        glUniformMatrix4fv(glGetUniformLocation(_defaultShader, "ModelViewProjection"),1,GL_FALSE,&MVP[0][0]);
+
+        if(e->get<Model>("Model")->_texture)
+        {
+            u32 texID = e->get<Model>("Model")->_texture->textureID;
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, texID);
+            glUniform1i(glGetUniformLocation(_defaultShader, "myTextureSampler"), 0);
+        }
+
+        glEnableVertexAttribArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, m->vboID);
+        glVertexAttribPointer(
+            0,
+            3,
+            GL_FLOAT,
+            false,
+            sizeof(Vertex),
+            (void*)0
+        );
+
+        glEnableVertexAttribArray(1);
+        glBindBuffer(GL_ARRAY_BUFFER, m->cboID);
+        glVertexAttribPointer(
+            1,
+            4,
+            GL_FLOAT,
+            false,
+            sizeof(Vertex),
+            (void*)(sizeof(f32)*3)
+        );
+
+        glEnableVertexAttribArray(2);
+        glBindBuffer(GL_ARRAY_BUFFER, m->uvboID);
+        glVertexAttribPointer(
+            2,
+            2,
+            GL_FLOAT,
+            false,
+            sizeof(Vertex),
+            (void*)(sizeof(f32)*7)
+        );
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->iboID);
+        glDrawElements(
+            GL_TRIANGLES,
+            m->faceList.size(),
+            GL_UNSIGNED_INT,
+            (void*)0
+        );
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        glBindTexture(GL_TEXTURE_2D,0);
+
+        glDisableVertexAttribArray(0);
+        glDisableVertexAttribArray(1);
+        glDisableVertexAttribArray(2);
+    }
     vector<Entity*> children = drawablePos->_children;
     for(u32 i = 0; i < children.size(); i++)
     {
         _drawModelsRecursively(children[i],ProjectionMatrix,ViewMatrix,ModelMatrix);
     }
-
-    Matrix4x4<f32> MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
-
-    glUseProgram(_defaultShader);
-    glUniformMatrix4fv(glGetUniformLocation(_defaultShader, "ModelViewProjection"),1,GL_FALSE,&MVP[0][0]);
-
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, m->vboID);
-    glVertexAttribPointer(
-        0,
-        3,
-        GL_FLOAT,
-        false,
-        sizeof(Vertex),
-        (void*)0
-    );
-
-    glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, m->cboID);
-    glVertexAttribPointer(
-        1,
-        4,
-        GL_FLOAT,
-        false,
-        sizeof(Vertex),
-        (void*)(sizeof(f32)*3)
-    );
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->iboID);
-    glDrawElements(
-        GL_TRIANGLES,
-        m->faceList.size(),
-        GL_UNSIGNED_INT,
-        (void*)0
-    );
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    glDisableVertexAttribArray(0);
-    glDisableVertexAttribArray(1);
 }

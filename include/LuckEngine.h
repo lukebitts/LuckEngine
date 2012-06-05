@@ -26,3 +26,4 @@
 #include "ModelComponent.h"
 #include "Matrix4x4.h"
 #include "LoadProgressEvent.h"
+#include "Image.h"
