@@ -12,3 +12,4 @@ To build this project you will need the following libraries:
  * Anax
  * Assimp
  * BulletPhysics
+ * glm
