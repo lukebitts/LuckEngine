@@ -1,0 +1,379 @@
+#include <core/opengl.hpp>
+
+#include <core/systems/renderable_system.hpp>
+#include <core/common/glm.hpp>
+#include <core/screen.hpp>
+
+#include <core/systems/spatial_system.hpp>
+#include <core/systems/camera_system.hpp>
+#include <core/components/camera_component.hpp>
+#include <core/components/spatial_component.hpp>
+#include <core/components/mesh_component.hpp>
+#include <core/resources/material.hpp>
+#include <core/resources/mesh.hpp>
+#include <core/resources/texture.hpp>
+#include <core/resources/program.hpp>
+
+namespace luck
+{
+	renderable_system::renderable_system(spatial_system* s) : Base(luck::component_filter().requires<spatial_component, mesh_component>()), _spatial_system(s)
+	{
+
+	}
+
+	void renderable_system::onEntityAdded(luck::entity& e)
+	{
+		e.getComponent<spatial_component>().aabb = e.getComponent<mesh_component>().mesh->aabb;
+	}
+
+	bool renderable_system::sort_renderables(const luck::entity& a, const luck::entity& b)
+	{
+		return std::tie(a.getComponent<mesh_component>().material.passes[0], a.getComponent<mesh_component>().material.passes[0].program, a.getComponent<mesh_component>().mesh)
+		       <
+		       std::tie(b.getComponent<mesh_component>().material.passes[0], b.getComponent<mesh_component>().material.passes[0].program, b.getComponent<mesh_component>().mesh);
+	}
+
+	struct _Uniforms
+	{
+		luck::entity entity;
+		std::unordered_map<std::string, texture*> textures;
+		std::unordered_map<std::string, glm::vec2> vec2;
+	};
+
+	auto sort_renderables2(glm::vec3 camera_position, bool transparent)
+	{
+		return [camera_position, transparent](const _Uniforms & ua, const _Uniforms & ub) -> bool
+		{
+			auto a = ua.entity;
+			auto b = ub.entity;
+			if(transparent)
+			{
+				return glm::distance(camera_position, a.getComponent<spatial_component>().position) > glm::distance(camera_position, b.getComponent<spatial_component>().position);
+			}
+			return glm::distance(camera_position, a.getComponent<spatial_component>().position) < glm::distance(camera_position, b.getComponent<spatial_component>().position);
+		};
+	}
+
+//State > Program > Mesh > Uniforms
+
+	struct _Meshs
+	{
+		luck::mesh* mesh;
+		std::vector<_Uniforms> uniforms;
+	};
+
+	struct _Programs
+	{
+		luck::program* program;
+		std::vector<_Meshs> meshs;
+	};
+
+	struct _States
+	{
+		luck::opengl_state state;
+		std::vector<_Programs> programs;
+	};
+
+	void renderable_system::render(luck::entity current_camera)
+	{
+		//auto& c_camera = current_camera.getComponent<CameraComponent>();
+		auto& c_spatial = current_camera.getComponent<spatial_component>();
+
+		//c_camera.fov -= 10;
+
+		glm::mat4 mat_projection = camera_system::calculate_projection(current_camera);
+		glm::mat4 mat_view = camera_system::calculate_view(current_camera);
+
+		//c_camera.fov += 10;
+		auto entities = _spatial_system->_tree.query_frustum(mat_projection * mat_view);
+
+		//mat_projection = CameraSystem::calculate_projection(current_camera);
+		//mat_view = CameraSystem::calculate_view(current_camera);
+
+		entities.erase(std::remove_if(entities.begin(), entities.end(),
+		[](luck::entity e)
+		{
+			return !e.hasComponent<mesh_component>() || !e.hasComponent<spatial_component>();
+		}), entities.end());
+		std::sort(entities.begin(), entities.end(), sort_renderables);
+
+		std::vector<_States> states;
+		//goto after;
+		if(entities.size())
+		{
+			auto e = entities[0];
+
+			auto& e_mesh = e.getComponent<mesh_component>().mesh;
+			//auto& e_material = e.getComponent<mesh_component>().material; (unused)
+			auto& e_pass = e.getComponent<mesh_component>().material.passes[0];
+
+			states.push_back(_States {});
+			states.back().state = e_pass.state;
+
+			auto& state = states.back();
+			state.programs.push_back(_Programs {});
+			state.programs.back().program = e_pass.program;
+
+			auto& program = state.programs.back();
+			program.meshs.push_back(_Meshs {});
+			program.meshs.back().mesh = e_mesh;
+
+			auto& mesh = program.meshs.back();
+			mesh.uniforms.push_back(_Uniforms {});
+			mesh.uniforms.back().textures = e_pass.textures;
+			mesh.uniforms.back().vec2 = e_pass.vec2;
+			mesh.uniforms.back().entity = e;
+		}
+
+		for(auto & e : entities)
+		{
+			auto& e_mesh = e.getComponent<mesh_component>().mesh;
+			//auto& e_material = e.getComponent<mesh_component>().material;
+			auto& e_pass = e.getComponent<mesh_component>().material.passes[0];
+
+			auto& state = states.back();
+			auto& program = state.programs.back();
+			auto& mesh = program.meshs.back();
+			//He we are guaranteed to have at least one base state to start from, we can compare and fill the other entities now
+
+			if(!(e_pass.state < state.state) && !(state.state < e_pass.state)) //we have the same state, check the program
+			{
+				if(e_pass.program == program.program) //we have the same program, check the mesh
+				{
+					if(e_mesh == mesh.mesh) //we have the same mesh, just add our uniforms to the list
+					{
+						mesh.uniforms.push_back(_Uniforms {});
+						mesh.uniforms.back().textures = e_pass.textures;
+						mesh.uniforms.back().vec2 = e_pass.vec2;
+						mesh.uniforms.back().entity = e;
+					}
+					else //different meshs, lets add another one under this program
+					{
+						program.meshs.push_back(_Meshs {});
+						program.meshs.back().mesh = e_mesh;
+						program.meshs.back().uniforms.push_back(_Uniforms {});
+						program.meshs.back().uniforms.back().textures = e_pass.textures;
+						program.meshs.back().uniforms.back().vec2 = e_pass.vec2;
+						program.meshs.back().uniforms.back().entity = e;
+					}
+				}
+				else //different program, lets add another one under this state
+				{
+					state.programs.push_back(_Programs {});
+					state.programs.back().program = e_pass.program;
+					state.programs.back().meshs.push_back(_Meshs {});
+					state.programs.back().meshs.back().mesh = e_mesh;
+					state.programs.back().meshs.back().uniforms.push_back(_Uniforms {});
+					state.programs.back().meshs.back().uniforms.back().textures = e_pass.textures;
+					state.programs.back().meshs.back().uniforms.back().vec2 = e_pass.vec2;
+					state.programs.back().meshs.back().uniforms.back().entity = e;
+				}
+			}
+			else //finally, we have a new state
+			{
+				states.push_back(_States {});
+				states.back().state = e_pass.state;
+				states.back().programs.push_back(_Programs {});
+				states.back().programs.back().program = e_pass.program;
+				states.back().programs.back().meshs.push_back(_Meshs {});
+				states.back().programs.back().meshs.back().mesh = e_mesh;
+				states.back().programs.back().meshs.back().uniforms.push_back(_Uniforms {});
+				states.back().programs.back().meshs.back().uniforms.back().textures = e_pass.textures;
+				states.back().programs.back().meshs.back().uniforms.back().vec2 = e_pass.vec2;
+				states.back().programs.back().meshs.back().uniforms.back().entity = e;
+			}
+
+		}
+
+		glPushAttrib(GL_ENABLE_BIT);
+
+		for(auto & state : states)
+		{
+			state.state.set_state();
+
+			for(auto & program : state.programs)
+			{
+				auto program_id = program.program->id;
+
+				glUseProgram(program_id);
+				glUniformMatrix4fv(glGetUniformLocation(program_id, "view"), 1, GL_FALSE, glm::value_ptr(mat_view));
+				glUniformMatrix4fv(glGetUniformLocation(program_id, "projection"), 1, GL_FALSE, glm::value_ptr(mat_projection));
+				glUniform3fv(glGetUniformLocation(program_id, "camera_position"), 1, glm::value_ptr(c_spatial.position));
+
+				for(auto & meshs : program.meshs)
+				{
+					auto mesh = meshs.mesh;
+
+					glEnableVertexAttribArray(glGetAttribLocation(program_id, "position"));
+					glBindBuffer(GL_ARRAY_BUFFER, mesh->buffers[luck::mesh::buffer_type::VERTEX]);
+					glVertexAttribPointer(glGetAttribLocation(program_id, "position"), 3, GL_FLOAT, GL_FALSE, sizeof(mesh_data_resource::vertex), (void*)offsetof(mesh_data_resource::vertex, x));
+
+					glEnableVertexAttribArray(glGetAttribLocation(program_id, "texcoord"));
+					glBindBuffer(GL_ARRAY_BUFFER, mesh->buffers[luck::mesh::buffer_type::VERTEX]);
+					glVertexAttribPointer(glGetAttribLocation(program_id, "texcoord"), 2, GL_FLOAT, GL_FALSE, sizeof(mesh_data_resource::vertex), (void*)offsetof(mesh_data_resource::vertex, u));
+
+					std::sort(meshs.uniforms.begin(), meshs.uniforms.end(), sort_renderables2(c_spatial.position, state.state.transparent()));
+
+					for(auto & uniforms : meshs.uniforms)
+					{
+						auto e = uniforms.entity;
+
+						auto& spatial = e.getComponent<spatial_component>();
+						glm::mat4 mat_model(1.f);
+						mat_model = glm::translate(mat_model, spatial.position);
+						mat_model = mat_model * glm::toMat4(spatial.rotation);
+						mat_model = glm::scale(mat_model, spatial.scale);
+
+						glUniformMatrix4fv(glGetUniformLocation(program_id, "model"), 1, GL_FALSE, glm::value_ptr(mat_model));
+
+						auto gl = GL_TEXTURE0;
+						//int i = 0;
+						for(auto texture : uniforms.textures)
+						{
+							glActiveTexture(gl++);
+							glBindTexture(GL_TEXTURE_2D, texture.second->id);
+							//glUniform1i(glGetUniformLocation(program_id,texture.first.c_str()),i++);
+						}
+
+						for(auto vec2 : uniforms.vec2)
+						{
+							glUniform2f(glGetUniformLocation(program_id, vec2.first.c_str()), vec2.second.x, vec2.second.y);
+						}
+
+						glUniform1f(glGetUniformLocation(program_id, "time"), glfwGetTime());
+						
+						for(size_t i = 0; i < mesh->index_list.size(); ++i)
+						{
+							glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->index_list[i]);
+							glDrawElements(GL_TRIANGLES, mesh->element_number[i], GL_UNSIGNED_INT, (void*)0);
+						}
+						//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->buffers[luck::mesh::buffer_type::ELEMENT]);
+						//glDrawElements(GL_TRIANGLES, mesh->element_number, GL_UNSIGNED_INT, (void*)0);
+					}
+				}
+			}
+		}
+
+		glPopAttrib();
+
+		return;
+	/*after:
+	for(luck::entity & e : entities)
+		{
+			auto& spatial = e.getComponent<spatial_component>();
+			auto mesh = e.getComponent<mesh_component>().mesh;
+			auto material = e.getComponent<mesh_component>().material;
+
+			material.passes[0].state.set_state();
+
+			auto program_id = material.passes[0].program->id;
+
+			glm::mat4 mat_model(1.f);
+			mat_model = glm::translate(mat_model, spatial.position);
+			mat_model = mat_model * glm::toMat4(spatial.rotation);
+			mat_model = glm::scale(mat_model, spatial.scale);
+
+			//		glm::mat3 model3x3 = glm::mat3(mat_model);
+
+			glUseProgram(program_id);
+			glUniformMatrix4fv(glGetUniformLocation(program_id, "model"), 1, GL_FALSE, glm::value_ptr(mat_model));
+			glUniformMatrix4fv(glGetUniformLocation(program_id, "view"), 1, GL_FALSE, glm::value_ptr(mat_view));
+			glUniformMatrix4fv(glGetUniformLocation(program_id, "projection"), 1, GL_FALSE, glm::value_ptr(mat_projection));
+			glUniform3fv(glGetUniformLocation(program_id, "camera_position"), 1, glm::value_ptr(c_spatial.position));
+
+			//textures
+			auto gl = GL_TEXTURE0;
+			//int i = 0;
+		for(auto texture : material.passes[0].textures)
+			{
+				glActiveTexture(gl++);
+				glBindTexture(GL_TEXTURE_2D, texture.second->id);
+				//glUniform1i(glGetUniformLocation(program_id,texture.first.c_str()),i++);
+			}
+
+		for(auto vec2 : material.passes[0].vec2)
+			{
+				glUniform2f(glGetUniformLocation(program_id, vec2.first.c_str()), vec2.second.x, vec2.second.y);
+			}
+
+			//		glActivetexture(GL_TEXTURE0);
+			//		glBindtexture(GL_TEXTURE_2D, model.color->id);
+			//		glUniform1i(glGetUniformLocation(p->id(),"diffuse_map"),0);
+			//
+			//		glActivetexture(GL_TEXTURE1);
+			//		glBindtexture(GL_TEXTURE_2D, model.normal->id);
+			//		glUniform1i(glGetUniformLocation(p->id(),"normal_map"),1);
+			//
+			//		glActivetexture(GL_TEXTURE2);
+			//		glBindtexture(GL_TEXTURE_2D, model.specular->id);
+			//		glUniform1i(glGetUniformLocation(p->id(),"specular_map"),2);
+
+			glEnableVertexAttribArray(glGetAttribLocation(program_id, "position"));
+			glBindBuffer(GL_ARRAY_BUFFER, mesh->buffers[mesh::buffer_type::VERTEX]);
+			glVertexAttribPointer(glGetAttribLocation(program_id, "position"), 3, GL_FLOAT, GL_FALSE, sizeof(mesh_data_resource::vertex), (void*)offsetof(mesh_data_resource::vertex, x));
+
+			glEnableVertexAttribArray(glGetAttribLocation(program_id, "texcoord"));
+			glBindBuffer(GL_ARRAY_BUFFER, mesh->buffers[mesh::buffer_type::VERTEX]);
+			glVertexAttribPointer(glGetAttribLocation(program_id, "texcoord"), 2, GL_FLOAT, GL_FALSE, sizeof(mesh_data_resource::vertex), (void*)offsetof(mesh_data_resource::vertex, u));
+
+			//		glEnableVertexAttribArray(glGetAttribLocation(p->id, "normal"));
+			//		glBindBuffer(GL_ARRAY_BUFFER, mesh->buffers[MeshResource::BufferType::VERTEX]);
+			//		glVertexAttribPointer(glGetAttribLocation(p->id, "normal"),3,GL_FLOAT,GL_FALSE,sizeof(MeshResource::Vertex),(void*)offsetof(MeshResource::Vertex, nx));
+			//
+			//		glEnableVertexAttribArray(glGetAttribLocation(p->id, "tangent"));
+			//		glBindBuffer(GL_ARRAY_BUFFER, mesh->buffers[MeshResource::BufferType::VERTEX]);
+			//		glVertexAttribPointer(glGetAttribLocation(p->id, "tangent"),3,GL_FLOAT,GL_FALSE,sizeof(MeshResource::Vertex),(void*)offsetof(MeshResource::Vertex, tx));
+			//
+			//		glEnableVertexAttribArray(glGetAttribLocation(p->id, "bitangent"));
+			//		glBindBuffer(GL_ARRAY_BUFFER, mesh->buffers[MeshResource::BufferType::VERTEX]);
+			//		glVertexAttribPointer(glGetAttribLocation(p->id, "bitangent"),3,GL_FLOAT,GL_FALSE,sizeof(MeshResource::Vertex),(void*)offsetof(MeshResource::Vertex, bx));
+
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->buffers[mesh::buffer_type::ELEMENT]);
+			glDrawElements(GL_TRIANGLES, mesh->element_number, GL_UNSIGNED_INT, (void*)0);
+
+			glDisableVertexAttribArray(glGetAttribLocation(program_id, "position"));
+			glDisableVertexAttribArray(glGetAttribLocation(program_id, "texcoord"));
+			//		glDisableVertexAttribArray(glGetAttribLocation(p->id, "normal"));
+			//		glDisableVertexAttribArray(glGetAttribLocation(p->id, "tangent"));
+			//		glDisableVertexAttribArray(glGetAttribLocation(p->id, "bitangent"));
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+			glUseProgram(0);
+
+			//glDisable(GL_DEPTH_TEST);
+
+			glPushMatrix();
+
+			glLoadMatrixf(glm::value_ptr(mat_projection * mat_view * mat_model));
+
+			auto draw_line = [](glm::vec3 from, glm::vec3 to, glm::vec4 color)
+			{
+				glColor3f(color.x, color.y, color.z);
+				glVertex3d(from.x, from.y, from.z);
+				glVertex3d(to.x, to.y, to.z);
+			};
+
+			glm::aabb aabb = spatial.aabb;
+
+			for(int i = 0; i < 2; ++i)
+			{
+				glRotatef(i * 180, 0, 1, 0);
+				glBegin(GL_LINES);
+				{
+					draw_line(aabb.min, glm::vec3(aabb.max.x, aabb.min.y, aabb.min.z), glm::vec4(1, 0, 0, 1));
+					draw_line(glm::vec3(aabb.max.x, aabb.max.y, aabb.min.z), glm::vec3(aabb.max.x, aabb.min.y, aabb.min.z), glm::vec4(1, 0, 0, 1));
+					draw_line(glm::vec3(aabb.min.x, aabb.max.y, aabb.min.z), glm::vec3(aabb.max.x, aabb.max.y, aabb.min.z), glm::vec4(1, 0, 0, 1));
+					draw_line(glm::vec3(aabb.min.x, aabb.max.y, aabb.min.z), aabb.min, glm::vec4(1, 0, 0, 1));
+
+					draw_line(aabb.min, glm::vec3(aabb.min.x, aabb.min.y, aabb.max.z), glm::vec4(1, 0, 0, 1));
+					draw_line(glm::vec3(aabb.min.x, aabb.min.y, aabb.max.z), glm::vec3(aabb.min.x, aabb.max.y, aabb.max.z), glm::vec4(1, 0, 0, 1));
+					draw_line(glm::vec3(aabb.min.x, aabb.max.y, aabb.max.z), glm::vec3(aabb.min.x, aabb.max.y, aabb.min.z), glm::vec4(1, 0, 0, 1));
+				}
+				glEnd();
+			}
+			glPopMatrix();
+
+			//glEnable(GL_DEPTH_TEST);
+		}*/
+	}
+}

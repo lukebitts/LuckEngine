@@ -4,4 +4,5 @@
 
 #except
 !.gitignore
-!LuckEngine
+!include
+!src
