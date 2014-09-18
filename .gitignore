@@ -3,6 +3,6 @@
 /*/
 
 #except
-!README
+!README.md
 !.gitignore
 !LuckEngine
