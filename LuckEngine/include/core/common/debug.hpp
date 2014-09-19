@@ -70,12 +70,19 @@ namespace luck
 
 #ifdef DEBUG
 
+#ifdef _WIN32
 #define LOG(...) luck::debug::log(luck::tools::wget_file_from_path(__FILE__),"[",__LINE__, "]: ", __VA_ARGS__)
+#else //!_WIN32
+#ifdef __APPLE__
+#define LOG(...) luck::debug::log(luck::tools::get_file_from_path(__FILE__),"[",__LINE__, "]: ", __VA_ARGS__)
+#endif //_WIN32
+#endif //__MAC__
+
 #define STATIC_ASSERT(x,message) static_assert(x, message)
 #define ASSERT(x,message) assert((x) && message)
 #define WARN_IF(x,...) {if(x) LOG(__VA_ARGS__);}
 
-#else
+#else //!DEBUG
 
 #define LOG(...)
 #define STATIC_ASSERT(x,message)

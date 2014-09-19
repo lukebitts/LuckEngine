@@ -6,6 +6,8 @@
 #include <array>
 #include <string>
 
+///@todo binary files should not depend on the endianess
+
 namespace luck
 {
 	namespace tools

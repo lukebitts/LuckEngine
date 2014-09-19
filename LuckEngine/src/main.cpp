@@ -29,6 +29,9 @@
 #include <core/systems/spatial_system.hpp>
 
 #include <bullet/btBulletDynamicsCommon.h>
+#include <bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
+#include <bullet/BulletDynamics/Character/btKinematicCharacterController.h>
+#include <extras/kinematic_character_controller.hpp>
 
 namespace luck
 {
@@ -43,6 +46,7 @@ namespace luck
 			{
 				if(!camera_component::main.isValid()) return;
 				glPushMatrix();
+				glEnable(GL_DEPTH_TEST);
 
 				glm::mat4 mat_projection = camera_system::calculate_projection(camera_component::main);
 				glm::mat4 mat_view = camera_system::calculate_view(camera_component::main);
@@ -388,7 +392,18 @@ namespace luck
 			btSequentialImpulseConstraintSolver _solver{};
 			btDiscreteDynamicsWorld _world;
 			gl_debugdrawer _debug_drawer{};
+			void _on_collision(btDynamicsWorld* world, float time)
+			{
+				//LOG("ON COLLISION: ",world->getDispatcher()->getNumManifolds());
+			}
+			static void _tick_callback(btDynamicsWorld* world, float time)
+			{
+				bullet_system* s = static_cast<bullet_system*>(world->getWorldUserInfo());
+				s->_on_collision(world, time);
+			}
 		public:
+			btDiscreteDynamicsWorld* world() { return &_world; }
+			boost::signals2::signal<void(btDynamicsWorld*, float)> on_collision;
 			bullet_system() : Base(luck::component_filter().requires<spatial_component, base_shape_component, rigid_body_component>()),
 				_collision_dispatcher(&_collision_configuration),
 				_world(&_collision_dispatcher, &_broadphase, &_solver, &_collision_configuration)
@@ -396,7 +411,8 @@ namespace luck
 				_debug_drawer.setDebugMode(btIDebugDraw::DBG_MAX_DEBUG_DRAW_MODE);
 				_world.setDebugDrawer(&_debug_drawer);
 				_world.setGravity(btVector3(0, -10, 0));
-
+				
+				_world.setInternalTickCallback(_tick_callback, static_cast<void*>(this));
 			}
 			virtual void onEntityAdded(luck::entity& e) override
 			{
@@ -465,13 +481,20 @@ namespace luck
 
 	struct character_component : public luck::component<character_component>
 	{
-		
+		std::unique_ptr<btKinematicCharacterController> controller;
+		character_component()
+		{
+			
+		}
 	};
 	
 	class character_system : public luck::system<character_system>
 	{
+		btDiscreteDynamicsWorld* _world = nullptr;
 		public:
-			character_system() : Base(luck::component_filter().requires<spatial_component, base_shape_component, rigid_body_component, character_component>())
+			character_system(btDiscreteDynamicsWorld* world) :
+				Base(luck::component_filter().requires<spatial_component, base_shape_component, /*rigid_body_component,*/ character_component>()),
+				_world(world)
 			{
 
 			}
@@ -481,15 +504,48 @@ namespace luck
 				
 				int x = luck::input::key('A') ? -1 : luck::input::key('D') ? 1 : 0;
 				int z = luck::input::key('W') ? -1 : luck::input::key('S') ? 1 : 0;
+				bool jump = luck::input::key(GLFW_KEY_SPACE);
 				
 				for(auto e : entities)
 				{
-					auto& body = e.getComponent<luck::rigid_body_component>();
-					body.rigid_body->activate();
-					float y = body.rigid_body->getLinearVelocity().y();
+					auto& controller = e.getComponent<character_component>();
+					controller.controller->setWalkDirection(btVector3(x*10*application::delta,0,z*10*application::delta));
+					if(jump && controller.controller->canJump())
+						controller.controller->jump();
 					
-					body.rigid_body->setLinearVelocity(btVector3(x*1000*application::delta,y,z*1000*application::delta));
+					btVector3 position = controller.controller->getGhostObject()->getWorldTransform().getOrigin();
+					e.getComponent<spatial_component>().position = glm::vec3(position.x(),position.y(),position.z());
+					
+					controller.controller->updateAction(_world, application::delta);
 				}
+			}
+			virtual void onEntityAdded(luck::entity& e)
+			{
+				character_component& c = e.getComponent<character_component>();
+				
+				btVector3 start_vector{e.getComponent<spatial_component>().position.x,e.getComponent<spatial_component>().position.y,e.getComponent<spatial_component>().position.z};
+				btTransform start_transform;
+				start_transform.setIdentity ();
+				start_transform.setOrigin(start_vector);
+				
+				btPairCachingGhostObject* m_ghostObject = new btPairCachingGhostObject();  //ghost Object
+				m_ghostObject->setWorldTransform( start_transform );
+				_world->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback( new btGhostPairCallback() );
+				//m_ghostObject->setUserPointer( (void*)&e );
+				m_ghostObject->setCollisionShape( e.getComponent<base_shape_component>().shape());
+				m_ghostObject->setCollisionFlags( btCollisionObject::CF_CHARACTER_OBJECT );
+				m_ghostObject->setActivationState(DISABLE_DEACTIVATION);
+				
+				c.controller = std::unique_ptr<btKinematicCharacterController>(
+					new btKinematicCharacterController(m_ghostObject, (btConvexShape*)e.getComponent<base_shape_component>().shape(), 1.8f));
+				
+				c.controller->setGravity(9.8f*0.6f);
+				c.controller->setMaxJumpHeight(1.f);
+				c.controller->setFallSpeed(5.f);
+				c.controller->setJumpSpeed(10.f);
+				
+				_world->addCollisionObject(m_ghostObject,btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
+				_world->addAction(c.controller.get());
 			}
 	};
 }
@@ -515,7 +571,7 @@ int main()
 	luck::camera_system c{r};
 	luck::fps_controller_system f{};
 	luck::bullet_system b{};
-	luck::character_system casc;
+	luck::character_system casc{b.world()};
 	luck::tps_controller_system tps{};
 
 	luck::world w{};
@@ -545,15 +601,22 @@ int main()
 	e_rigidbody.rigid_body->setRollingFriction(1.f);*/
 
 	luck::entity character = w.createEntity();
-	character.addComponent<luck::spatial_component>(glm::vec3(0,20.f,80.f));
-	character.addComponent<luck::rigid_body_component>(1.f);
-	character.getComponent<luck::rigid_body_component>().type = luck::rigid_body_component::KINEMATIC;
-	character.getComponent<luck::rigid_body_component>().friction = 1.5f;
+	character.addComponent<luck::spatial_component>(glm::vec3(0,30.f,80.f));
+	//character.addComponent<luck::rigid_body_component>(1.f);
+	//character.getComponent<luck::rigid_body_component>().type = luck::rigid_body_component::KINEMATIC;
+	/*character.getComponent<luck::rigid_body_component>().friction = 1.5f;
 	character.getComponent<luck::rigid_body_component>().restitution = 0.6f;
-	character.getComponent<luck::rigid_body_component>().rolling_friction = 1.0f;
-	character.addComponent<luck::capsule_shape_component>();
+	character.getComponent<luck::rigid_body_component>().rolling_friction = 1.0f;*/
+	character.addComponent<luck::capsule_shape_component>(0.5f,1.8f);
 	character.addComponent<luck::character_component>();
 	character.activate();
+	
+	luck::entity box = w.createEntity();
+	box.addComponent<luck::spatial_component>(glm::vec3(10.f,2.f,80.f));
+	box.addComponent<luck::box_shape_component>(glm::vec3(2.f));
+	box.addComponent<luck::rigid_body_component>(1.f);
+	box.getComponent<luck::rigid_body_component>().type = luck::rigid_body_component::DYNAMIC;
+	box.activate();
 	
 	luck::entity camera = w.createEntity();
 	camera.addComponent<luck::spatial_component>(glm::vec3(0,20,70.f));
@@ -566,8 +629,8 @@ int main()
 	camera.getComponent<luck::fps_controller_component>().move_speed = 50.f;*/
 	camera.addComponent<luck::tps_controller_component>();
 	camera.getComponent<luck::tps_controller_component>().to_follow = character;
-	camera.getComponent<luck::tps_controller_component>().height = 20.f;
-	camera.getComponent<luck::tps_controller_component>().distance = 10.f;
+	camera.getComponent<luck::tps_controller_component>().height = 15.f;
+	camera.getComponent<luck::tps_controller_component>().distance = 15.f;
 	camera.activate();
 	
 	double last_time = glfwGetTime();
@@ -687,7 +750,7 @@ void load_scene(luck::world& world, luck::resources& resources, std::string scen
 				if(tex != "")
 				{
 					resources.load<luck::image_resource>(luck::tools::image::convert(path+"/"+tex));
-					//boost::replace_all(tex,".png",".lif");
+					boost::replace_all(tex,".png",".lif");
 					//resources.load<luck::image_resource>(path + "/" + tex);
 					auto texture = new luck::texture(resources.get<luck::image_resource>(path+"/"+tex));
 					
