@@ -630,8 +630,8 @@ void load_scene(luck::world& world, luck::resources& resources, std::string scen
 			std::vector<std::string> object_info;
 			boost::split(object_info,objects[i],boost::is_any_of("|"));
 			
-			//resources.load<luck::mesh_data_resource>(luck::tools::mesh::convert(path+"/"+object_info[0]+".obj")[0]);
-			resources.load<luck::mesh_data_resource>(path + "/" + object_info[0] + ".l3d");
+			resources.load<luck::mesh_data_resource>(luck::tools::mesh::convert(path+"/"+object_info[0]+".obj")[0]);
+			//resources.load<luck::mesh_data_resource>(path + "/" + object_info[0] + ".l3d");
 			auto mesh = new luck::mesh(resources.get<luck::mesh_data_resource>(path+"/"+object_info[0]+".l3d"));
 
 			std::vector<std::string> position_info;
@@ -681,9 +681,9 @@ void load_scene(luck::world& world, luck::resources& resources, std::string scen
 				boost::trim(tex);
 				if(tex != "")
 				{
-					//resources.load<luck::image_resource>(luck::tools::image::convert(path+"/"+tex));
-					boost::replace_all(tex,".png",".lif");
-					resources.load<luck::image_resource>(path + "/" + tex);
+					resources.load<luck::image_resource>(luck::tools::image::convert(path+"/"+tex));
+					//boost::replace_all(tex,".png",".lif");
+					//resources.load<luck::image_resource>(path + "/" + tex);
 					auto texture = new luck::texture(resources.get<luck::image_resource>(path+"/"+tex));
 					
 					luck::material mat = luck::material(luck::render_pass(program));

@@ -164,7 +164,7 @@ namespace luck
 					if(mesh->HasPositions())
 					{
 						f.vertices.reserve(f.vertices.size() + mesh->mNumVertices);
-						uint32_t offset = f.vertices.size();
+						uint32_t offset = (uint32_t)f.vertices.size();
 
 						for(unsigned j = 0; j < mesh->mNumVertices; ++j)
 						{

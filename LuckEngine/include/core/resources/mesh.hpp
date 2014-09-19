@@ -44,7 +44,7 @@ namespace luck
 					element_number.push_back(0);
 					
 					glGenBuffers(1, &index_list[i]);
-					element_number[i] = element_list[i].size();
+					element_number[i] = static_cast<GLsizei>(element_list[i].size());
 					glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_list[i]);
 					glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint)*element_list[i].size(), &element_list[i][0], GL_STATIC_DRAW);
 				}
