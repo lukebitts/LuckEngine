@@ -135,8 +135,8 @@ namespace luck
 					e_spatial.position.z += e.getComponent<luck::tps_controller_component>().distance;
 
 					glm::vec2 pos{ t_spatial.position.x, t_spatial.position.z };
-					pos += last_mouse_pos;
-					pos /= 2.f;
+					/*pos += last_mouse_pos;
+					pos /= 2.f;*/
 
 					e_spatial.look_at(glm::vec3{ pos.x, t_spatial.position.y, pos.y }); ///@todo copy unity's cool camera :3
 				}
@@ -298,6 +298,11 @@ namespace luck
 	struct sphere_shape_component : base_shape_component
 	{
 		sphere_shape_component(float radius = 1.f) : base_shape_component(new btSphereShape(radius)) {}
+	};
+
+	struct capsule_shape_component : base_shape_component
+	{
+		capsule_shape_component(float radius = 1.f, float height = 1.f) : base_shape_component(new btCapsuleShape(radius,height)) {}
 	};
 
 	struct box_shape_component : base_shape_component
@@ -542,11 +547,11 @@ int main()
 	luck::entity character = w.createEntity();
 	character.addComponent<luck::spatial_component>(glm::vec3(0,20.f,80.f));
 	character.addComponent<luck::rigid_body_component>(1.f);
-	character.getComponent<luck::rigid_body_component>().type = luck::rigid_body_component::DYNAMIC;
+	character.getComponent<luck::rigid_body_component>().type = luck::rigid_body_component::KINEMATIC;
 	character.getComponent<luck::rigid_body_component>().friction = 1.5f;
 	character.getComponent<luck::rigid_body_component>().restitution = 0.6f;
 	character.getComponent<luck::rigid_body_component>().rolling_friction = 1.0f;
-	character.addComponent<luck::sphere_shape_component>();
+	character.addComponent<luck::capsule_shape_component>();
 	character.addComponent<luck::character_component>();
 	character.activate();
 	
