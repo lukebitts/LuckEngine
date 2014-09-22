@@ -481,7 +481,7 @@ namespace luck
 
 	struct character_component : public luck::component<character_component>
 	{
-		std::unique_ptr<btKinematicCharacterController> controller;
+		std::unique_ptr<KinematicCharacterController> controller;
 		character_component()
 		{
 			
@@ -504,13 +504,14 @@ namespace luck
 				
 				int x = luck::input::key('A') ? -1 : luck::input::key('D') ? 1 : 0;
 				int z = luck::input::key('W') ? -1 : luck::input::key('S') ? 1 : 0;
-				bool jump = luck::input::key(GLFW_KEY_SPACE);
+				bool jump = luck::input::key(GLFW_KEY_SPACE) == GLFW_PRESS;
 				
 				for(auto e : entities)
 				{
 					auto& controller = e.getComponent<character_component>();
-					controller.controller->setWalkDirection(btVector3(x*10*application::delta,0,z*10*application::delta));
-					if(jump && controller.controller->canJump())
+					controller.controller->setWalkDirection(btVector3(float(x) * 10 * application::delta, 0, float(z) * 10 * application::delta));
+
+					if(jump)
 						controller.controller->jump();
 					
 					btVector3 position = controller.controller->getGhostObject()->getWorldTransform().getOrigin();
@@ -536,13 +537,13 @@ namespace luck
 				m_ghostObject->setCollisionFlags( btCollisionObject::CF_CHARACTER_OBJECT );
 				m_ghostObject->setActivationState(DISABLE_DEACTIVATION);
 				
-				c.controller = std::unique_ptr<btKinematicCharacterController>(
-					new btKinematicCharacterController(m_ghostObject, (btConvexShape*)e.getComponent<base_shape_component>().shape(), 1.8f));
+				c.controller = std::unique_ptr<KinematicCharacterController>(
+					new KinematicCharacterController(m_ghostObject, (btConvexShape*)e.getComponent<base_shape_component>().shape(), 0.05f));
 				
-				c.controller->setGravity(9.8f*0.6f);
+				c.controller->setGravity(9.8f*0.1f);
 				c.controller->setMaxJumpHeight(1.f);
-				c.controller->setFallSpeed(5.f);
-				c.controller->setJumpSpeed(10.f);
+				c.controller->setFallSpeed(3.f);
+				c.controller->setJumpSpeed(5.f);
 				
 				_world->addCollisionObject(m_ghostObject,btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
 				_world->addAction(c.controller.get());
