@@ -1,5 +1,5 @@
-#ifndef _DYNAMIC_TREE_HPP
-#define _DYNAMIC_TREE_HPP
+#ifndef DYNAMIC_TREE_HPP
+#define DYNAMIC_TREE_HPP
 
 #include <cstdint>
 #include <stack>
@@ -57,41 +57,41 @@ namespace luck
 			//void rebuild_bottom_up();
 			void shift_origin(const glm::vec3& new_origin);
 		private:
-			int32_t _allocate_node();
-			void _free_node(int32_t node);
-			void _insert_leaf(int32_t node);
-			void _remove_leaf(int32_t node);
-			int32_t _balance(int32_t index);
-			int32_t _compute_height() const;
-			int32_t _compute_height(int32_t node_id) const;
-			//void _validate_structure(int32_t index) const;
-			//void _validate_metrics(int32_t index) const;
-			int32_t _root;
-			tree_node* _nodes;
-			int32_t _node_count;
-			int32_t _node_capacity;
-			int32_t _free_list;
-			uint32_t _path;
-			int32_t _insertion_count;
+			int32_t m_allocate_node();
+			void m_free_node(int32_t node);
+			void m_insert_leaf(int32_t node);
+			void m_remove_leaf(int32_t node);
+			int32_t m_balance(int32_t index);
+			int32_t m_compute_height() const;
+			int32_t m_compute_height(int32_t node_id) const;
+			//void m_validate_structure(int32_t index) const;
+			//void m_validate_metrics(int32_t index) const;
+			int32_t m_root;
+			tree_node* m_nodes;
+			int32_t m_node_count;
+			int32_t m_node_capacity;
+			int32_t m_free_list;
+			uint32_t m_path;
+			int32_t m_insertion_count;
 	};
 
 	inline luck::entity dynamic_tree::user_data(int32_t proxy_id) const
 	{
-		ASSERT(0 <= proxy_id && proxy_id < _node_capacity, "Invalid proxy_id");
-		return _nodes[proxy_id].user_data;
+		ASSERT(0 <= proxy_id && proxy_id < m_node_capacity, "Invalid proxy_id");
+		return m_nodes[proxy_id].user_data;
 	}
 
 	inline const glm::aabb& dynamic_tree::fat_aabb(int32_t proxy_id) const
 	{
-		ASSERT(0 <= proxy_id && proxy_id < _node_capacity, "Invalid proxy_id");
-		return _nodes[proxy_id].aabb;
+		ASSERT(0 <= proxy_id && proxy_id < m_node_capacity, "Invalid proxy_id");
+		return m_nodes[proxy_id].aabb;
 	}
 
 	template <typename T>
 	inline void dynamic_tree::query(T callback, const glm::aabb& aabb) const
 	{
 		std::stack<int32_t> stack;
-		stack.push(_root);
+		stack.push(m_root);
 
 		while(stack.size())
 		{
@@ -102,7 +102,7 @@ namespace luck
 				continue;
 			}
 
-			const tree_node* node = _nodes + node_id;
+			const tree_node* node = m_nodes + node_id;
 
 			if(node->aabb.overlaps(aabb))
 			{
@@ -123,4 +123,4 @@ namespace luck
 
 }
 
-#endif // _DYNAMIC_TREE_HPP
+#endif // DYNAMIC_TREE_HPP

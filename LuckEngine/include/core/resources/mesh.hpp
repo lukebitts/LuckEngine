@@ -1,5 +1,5 @@
-#ifndef _MESH_HPP_
-#define _MESH_HPP_
+#ifndef MESH_HPP
+#define MESH_HPP
 
 #include <array>
 #include "../opengl.hpp"

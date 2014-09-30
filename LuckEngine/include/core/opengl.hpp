@@ -1,5 +1,5 @@
-#ifndef _OPENGL_HPP_
-#define _OPENGL_HPP_
+#ifndef OPENGL_HPP
+#define OPENGL_HPP
 
 #define GL_GLEXT_PROTOTYPES
 
@@ -12,4 +12,4 @@
 #endif //def _WIN32
 #endif //def __APPLE__
 
-#endif //_OPENGL_HPP_
+#endif //OPENGL_HPP

@@ -1,5 +1,5 @@
-#ifndef _SPATIAL_SYSTEM_HPP_
-#define _SPATIAL_SYSTEM_HPP_
+#ifndef SPATIAL_SYSTEM_HPP
+#define SPATIAL_SYSTEM_HPP
 
 #include "../../luck.hpp"
 #include "../common/dynamic_tree.hpp"
@@ -11,7 +11,7 @@ namespace luck
 	class spatial_system : public luck::system<spatial_system>
 	{
 		public:
-			dynamic_tree _tree;
+			dynamic_tree m_tree;
 		public:
 			spatial_system();
 			void onEntityAdded(luck::entity& e) override;
@@ -20,4 +20,4 @@ namespace luck
 			void onSpatialDestroy(spatial_component& c);
 	};
 }
-#endif // _SPATIAL_SYSTEM_HPP
+#endif // SPATIAL_SYSTEM_HPP

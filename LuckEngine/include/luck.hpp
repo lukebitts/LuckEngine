@@ -1,5 +1,5 @@
-#ifndef _LUCK_HPP_
-#define _LUCK_HPP_
+#ifndef LUCK_HPP
+#define LUCK_HPP
 
 #include <anax/anax.hpp>
 
@@ -15,4 +15,4 @@ namespace luck
 	typedef anax::World world;
 }
 
-#endif //_LUCK_HPP_
+#endif //LUCK_HPP

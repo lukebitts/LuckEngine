@@ -8,6 +8,14 @@ namespace luck
 {
 	namespace tools
 	{
+		union mix { uint32_t sdat; uint8_t cdat[4]; };
+		static const mix m{ 0x1 };
+
+		const bool little_endian() //if the current system is litte endian, then we can safely read and write files, otherwise we convert the data to little endian
+		{
+			return m.cdat[0] == 1;
+		}
+
 		std::vector<std::string>& split(const std::string& s, char delim, std::vector<std::string>& elems)
 		{
 			std::stringstream ss(s);

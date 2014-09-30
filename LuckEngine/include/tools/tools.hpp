@@ -1,5 +1,5 @@
-#ifndef _TOOLS_HPP_
-#define _TOOLS_HPP_
+#ifndef TOOLS_HPP
+#define TOOLS_HPP
 
 #include <stdint.h>
 #include <vector>
@@ -24,6 +24,7 @@ namespace luck
 			//inline ~file_header() { delete[] name; }
 		};
 		
+		const bool little_endian();
 		std::vector<std::string>& split(const std::string& s, char delim, std::vector<std::string>& elems);
 		std::vector<std::string> split(const std::string& s, char delim);
 		std::string get_file_path(std::string path);
@@ -47,4 +48,4 @@ namespace luck
 	}
 }
 
-#endif //_TOOLS_HPP_
+#endif //TOOLS_HPP

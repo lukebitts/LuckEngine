@@ -1,5 +1,5 @@
-#ifndef _RESOURCES_HPP_
-#define _RESOURCES_HPP_
+#ifndef RESOURCES_HPP
+#define RESOURCES_HPP
 
 #include <unordered_map>
 #include <string>
@@ -18,10 +18,10 @@ namespace luck
 	struct resource_handle
 	{
 		private:
-			const resources* _r = nullptr;
-			std::string _path = "";
+			const resources* m_r = nullptr;
+			std::string m_path = "";
 		public:
-			resource_handle(const resources* r, std::string path) : _r(r), _path(path) {}
+			resource_handle(const resources* r, std::string path) : m_r(r), m_path(path) {}
 			resource_handle() {}
 			T& get() const;
 			resource_handle<T> wait_load() const;
@@ -30,12 +30,12 @@ namespace luck
 	class resources
 	{
 		private:
-			std::unordered_map<std::string, std::unique_ptr<resource>> _resources;
+			std::unordered_map<std::string, std::unique_ptr<resource>> m_resources;
 			template<class T>
-			inline T* _get(std::string path) const
+			inline T* m_get(std::string path) const
 			{
-				if(_resources.find(path) != _resources.end())
-					return static_cast<T*>(_resources.at(path).get());
+				if(m_resources.find(path) != m_resources.end())
+					return static_cast<T*>(m_resources.at(path).get());
 				return nullptr;
 			}
 			template <class T>
@@ -55,7 +55,7 @@ namespace luck
 				std::unique_ptr<T> t {new T{}};
 				if(T::load(t.get(), path, std::forward<Params>(params)...))
 				{
-					_resources[path] = std::move(t);
+					m_resources[path] = std::move(t);
 					on_load(path);
 					return true;
 				}
@@ -73,18 +73,18 @@ namespace luck
 	T& resource_handle<T>::get() const
 	{
 		static T default_return {};
-		auto resource = _r ? static_cast<T*>(_r->_get<T>(_path)) : nullptr;
-		WARN_IF(!resource, "Could not find resource at ", _path);
+		auto resource = m_r ? static_cast<T*>(m_r->m_get<T>(m_path)) : nullptr;
+		WARN_IF(!resource, "Could not find resource at ", m_path);
 		return resource ? *resource : default_return;
 	}
 
 	template<class T>
 	resource_handle<T> resource_handle<T>::wait_load() const
 	{
-		while(_r->_get<T>(_path) == nullptr);
+		while(m_r->m_get<T>(m_path) == nullptr);
 		return resource_handle<T>(*this);
 	}
 
 }
 
-#endif //_RESOURCES_HPP_
+#endif //RESOURCES_HPP

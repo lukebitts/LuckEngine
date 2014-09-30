@@ -11,14 +11,14 @@ namespace luck
 	void spatial_system::onEntityAdded(luck::entity& e)
 	{
 		spatial_component& e_spatial = e.getComponent<spatial_component>();
-		e_spatial._system = this;
+		e_spatial.m_system = this;
 
 		glm::aabb aabb = e_spatial.aabb;
 		aabb.translate(e_spatial.position);
 		aabb.scale(e_spatial.scale, e_spatial.position);
 
-		int32_t proxy = _tree.create_proxy(aabb, e);
-		e_spatial._proxy = proxy;
+		int32_t proxy = m_tree.create_proxy(aabb, e);
+		e_spatial.m_proxy = proxy;
 	}
 
 	void spatial_system::onEntityRemoved(luck::entity& /*e*/)
@@ -28,7 +28,7 @@ namespace luck
 
 	void spatial_system::onSpatialDestroy(spatial_component& c)
 	{
-		_tree.destroy_proxy(c._proxy);
+		m_tree.destroy_proxy(c.m_proxy);
 	}
 
 	void spatial_system::update()
@@ -43,10 +43,10 @@ namespace luck
 			glm::quat rotation;
 			glm::vec3 scale;
 			glm::aabb aabb;
-			spatial._difference(position, rotation, scale, aabb);
+			spatial.m_difference(position, rotation, scale, aabb);
 			aabb.translate(spatial.position);
 			aabb.scale(spatial.scale, spatial.position);
-			_tree.move_proxy(e.getComponent<spatial_component>()._proxy, aabb, position);
+			m_tree.move_proxy(e.getComponent<spatial_component>().m_proxy, aabb, position);
 		}
 	}
 }

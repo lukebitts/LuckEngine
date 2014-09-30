@@ -1,5 +1,5 @@
-#ifndef _PROGRAM_HPP_
-#define _PROGRAM_HPP_
+#ifndef PROGRAM_HPP
+#define PROGRAM_HPP
 
 #include "../opengl.hpp"
 #include "shader.hpp"
@@ -43,4 +43,4 @@ namespace luck
 	};
 }
 
-#endif // _PROGRAM_HPP_
+#endif // PROGRAM_HPP

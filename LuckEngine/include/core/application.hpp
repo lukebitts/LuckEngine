@@ -1,5 +1,5 @@
-#ifndef _APPLICATION_HPP_
-#define _APPLICATION_HPP_
+#ifndef APPLICATION_HPP
+#define APPLICATION_HPP
 
 #include "screen.hpp"
 
@@ -18,10 +18,10 @@ namespace luck
 			}
 			static void window_title(const char* title)
 			{
-				glfwSetWindowTitle(luck::screen::_window, title);
+				glfwSetWindowTitle(luck::screen::m_window, title);
 			}
 	};
 
 }
 
-#endif //__APPLICATION_HPP_
+#endif //APPLICATION_HPP

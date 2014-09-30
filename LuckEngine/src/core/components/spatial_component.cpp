@@ -74,6 +74,6 @@ namespace luck
 
 	spatial_component::~spatial_component()
 	{
-		_system->onSpatialDestroy(*this);
+		m_system->onSpatialDestroy(*this);
 	}
 }

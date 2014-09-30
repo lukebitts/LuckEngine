@@ -16,7 +16,7 @@
 
 namespace luck
 {
-	renderable_system::renderable_system(spatial_system* s) : Base(luck::component_filter().requires<spatial_component, mesh_component>()), _spatial_system(s)
+	renderable_system::renderable_system(spatial_system* s) : Base(luck::component_filter().requires<spatial_component, mesh_component>()), m_spatial_system(s)
 	{
 
 	}
@@ -47,7 +47,7 @@ namespace luck
 		glm::mat4 mat_projection = camera_system::calculate_projection(current_camera);
 		glm::mat4 mat_view = camera_system::calculate_view(current_camera);
 
-		auto entities = _spatial_system->_tree.query_frustum(mat_projection * mat_view);
+		auto entities = m_spatial_system->m_tree.query_frustum(mat_projection * mat_view);
 		entities.erase(std::remove_if(entities.begin(), entities.end(),
 		[](const luck::entity& e)
 		{

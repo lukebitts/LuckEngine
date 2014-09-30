@@ -1,5 +1,5 @@
-#ifndef _RESOURCE_HPP_
-#define _RESOURCE_HPP_
+#ifndef RESOURCE_HPP
+#define RESOURCE_HPP
 
 #include <vector>
 #include <string>
@@ -55,6 +55,6 @@ namespace luck
 
 }
 
-#endif //_RESOURCE_HPP_
+#endif //RESOURCE_HPP
 
 

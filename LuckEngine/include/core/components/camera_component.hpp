@@ -1,5 +1,5 @@
-#ifndef _CAMERA_COMPONENT_HPP_
-#define _CAMERA_COMPONENT_HPP_
+#ifndef CAMERA_COMPONENT_HPP
+#define CAMERA_COMPONENT_HPP
 
 #include "../../luck.hpp"
 
@@ -17,4 +17,4 @@ namespace luck
 			static entity main;
 	};
 }
-#endif // _CAMERA_COMPONENT_HPP_
+#endif //CAMERA_COMPONENT_HPP

@@ -1,5 +1,5 @@
-#ifndef _CAMERA_SYSTEM_HPP_
-#define _CAMERA_SYSTEM_HPP_
+#ifndef CAMERA_SYSTEM_HPP
+#define CAMERA_SYSTEM_HPP
 
 #include "../../luck.hpp"
 #include "../common/glm.hpp"
@@ -14,7 +14,7 @@ namespace luck
 	class camera_system : public luck::system<camera_system>
 	{
 		private:
-			renderable_system& _renderable_system;
+			renderable_system& m_renderable_system;
 		public:
 			camera_system(renderable_system& renderable_system);
 			void render();
@@ -22,4 +22,4 @@ namespace luck
 			static glm::mat4 calculate_projection(luck::entity);
 	};
 }
-#endif // _CAMERA_SYSTEM_HPP_
+#endif // CAMERA_SYSTEM_HPP

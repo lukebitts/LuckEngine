@@ -1,5 +1,5 @@
-#ifndef _GLM_HPP_
-#define _GLM_HPP_
+#ifndef GLM_HPP
+#define GLM_HPP
 
 #define GLM_FORCE_RADIANS
 
@@ -14,4 +14,4 @@ namespace luck
 
 }
 
-#endif //_GLM_HPP_
+#endif //GLM_HPP

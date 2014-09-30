@@ -24,78 +24,19 @@
 #include <core/components/spatial_component.hpp>
 #include <core/components/mesh_component.hpp>
 #include <core/components/camera_component.hpp>
+#include <core/components/shape_component.hpp>
+#include <core/components/rigid_body_component.hpp>
 #include <core/systems/camera_system.hpp>
 #include <core/systems/renderable_system.hpp>
 #include <core/systems/spatial_system.hpp>
+#include <core/systems/bullet_system.hpp>
 
-#include <bullet/btBulletDynamicsCommon.h>
 #include <bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
 #include <bullet/BulletDynamics/Character/btKinematicCharacterController.h>
 #include <extras/kinematic_character_controller.hpp>
 
 namespace luck
 {
-	class gl_debugdrawer : public btIDebugDraw
-	{
-		private:
-			int m_debugMode;
-		public:
-			gl_debugdrawer() {}
-			virtual ~gl_debugdrawer() {}
-			virtual void drawLine(const btVector3& from, const btVector3& to, const btVector3& from_color, const btVector3& to_color)
-			{
-				if(!camera_component::main.isValid()) return;
-				glPushMatrix();
-				glEnable(GL_DEPTH_TEST);
-
-				glm::mat4 mat_projection = camera_system::calculate_projection(camera_component::main);
-				glm::mat4 mat_view = camera_system::calculate_view(camera_component::main);
-
-				glLoadMatrixf(glm::value_ptr(mat_projection * mat_view));
-
-				glBegin(GL_LINES);
-				glColor3f(from_color.getX(), from_color.getY(), from_color.getZ());
-				glVertex3d(from.getX(), from.getY(), from.getZ());
-				glColor3f(to_color.getX(), to_color.getY(), to_color.getZ());
-				glVertex3d(to.getX(), to.getY(), to.getZ());
-				glEnd();
-
-				glPopMatrix();
-			}
-			virtual void drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
-			{
-				drawLine(from, to, color, color);
-			}
-			virtual void drawSphere(const btVector3&, btScalar, const btVector3&)
-			{
-				
-			}
-			virtual void drawTriangle(const btVector3&, const btVector3&, const btVector3&, const btVector3&, btScalar)
-			{
-				
-			}
-			virtual void drawContactPoint(const btVector3&, const btVector3&, btScalar, int, const btVector3&)
-			{
-				
-			}
-			virtual void reportErrorWarning(const char* warning_string)
-			{
-				LOG(warning_string);
-			}
-			virtual void draw3dText(const btVector3&, const char*)
-			{
-				
-			}
-			virtual void setDebugMode(int debugMode)
-			{
-				m_debugMode = debugMode;
-			}
-			virtual int getDebugMode() const
-			{
-				return m_debugMode;
-			}
-	};
-
 	struct tps_controller_component : public luck::component<tps_controller_component>
 	{
 		luck::entity to_follow;
@@ -220,265 +161,6 @@ namespace luck
 			}
 	};
 
-	class motion_state : public btMotionState
-	{
-		private:
-			luck::entity _e;
-			btTransform _initial_position;
-		public:
-			motion_state(const btTransform& initial_position, luck::entity e)
-			{
-				_e = e;
-				_initial_position = initial_position;
-			}
-			virtual ~motion_state()
-			{
-			}
-			void setNode(luck::entity e)
-			{
-				_e = e;
-			}
-			virtual void getWorldTransform(btTransform& world_trans) const override
-			{
-				world_trans = _initial_position;
-			}
-			virtual void setWorldTransform(const btTransform& world_trans) override
-			{
-				if(!_e.isValid())
-					return;
-
-				btQuaternion rot = world_trans.getRotation();
-				_e.getComponent<spatial_component>().rotation = glm::quat(rot.x(), rot.y(), rot.z(), rot.w());
-				btVector3 pos = world_trans.getOrigin();
-				_e.getComponent<spatial_component>().position = glm::vec3(pos.x(), pos.y(), pos.z());
-			}
-	};
-
-	class kinematic_motion_state : public btMotionState
-	{
-		private:
-			luck::entity _e;
-			btTransform _initial_position;
-		public:
-			kinematic_motion_state(const btTransform& initial_position, luck::entity e)
-			{
-				_e = e;
-				_initial_position = initial_position;
-			}
-			virtual ~kinematic_motion_state()
-			{
-
-			}
-			void setNode(luck::entity e)
-			{
-				_e = e;
-			}
-			virtual void getWorldTransform(btTransform& world_trans) const override
-			{
-			 glm::vec3 pos = _e.getComponent<spatial_component>().position;
-			 glm::quat rot = _e.getComponent<spatial_component>().rotation;
-			 world_trans = btTransform(btQuaternion(rot.x, rot.y, rot.z, rot.w), btVector3(pos.x, pos.y, pos.z));
-			}
-			virtual void setWorldTransform(const btTransform& worldTrans) override {}
-	};
-
-	struct base_shape_component : luck::component<base_shape_component>
-	{
-		///@todo create the other shapeComponents allowed by Bullet
-		protected:
-			btCollisionShape* _shape = nullptr;
-			base_shape_component(btCollisionShape* shape) : _shape(shape) {}
-			virtual ~base_shape_component()
-			{
-				delete _shape;
-			}
-		public:
-			btCollisionShape* shape() const
-			{
-				return _shape;
-			}
-	};
-
-	struct sphere_shape_component : base_shape_component
-	{
-		sphere_shape_component(float radius = 1.f) : base_shape_component(new btSphereShape(radius)) {}
-	};
-
-	struct capsule_shape_component : base_shape_component
-	{
-		capsule_shape_component(float radius = 1.f, float height = 1.f) : base_shape_component(new btCapsuleShape(radius,height)) {}
-	};
-
-	struct box_shape_component : base_shape_component
-	{
-		box_shape_component(glm::vec3 halfExtents = glm::vec3(1.f, 1.f, 1.f)) : base_shape_component(new btBoxShape(btVector3(halfExtents.x, halfExtents.y, halfExtents.z))) {}
-	};
-
-	struct static_plane_shape_component : base_shape_component
-	{
-		static_plane_shape_component() : base_shape_component(new btStaticPlaneShape(btVector3(0, 1, 0), 0)) {}
-	};
-
-	struct static_triangle_mesh_shape_component : base_shape_component
-	{
-		btTriangleMesh* _mesh = nullptr;
-		static_triangle_mesh_shape_component(luck::resource_handle<luck::mesh_data_resource> mesh) : base_shape_component(nullptr), _mesh(triangle_mesh_from_mesh(mesh))
-		{
-			_shape = new btBvhTriangleMeshShape(_mesh, false);
-		}
-		static btTriangleMesh* triangle_mesh_from_mesh(luck::resource_handle<luck::mesh_data_resource> mesh)
-		{
-			auto tmesh = new btTriangleMesh();
-
-			for (auto faces : mesh.get().submeshes)
-			{
-				for (size_t i = 0; i < faces.size(); i += 3)
-				{
-					auto v1 = btVector3(mesh.get().vertices[faces[i]].x, mesh.get().vertices[faces[i]].y, mesh.get().vertices[faces[i]].z);
-					auto v2 = btVector3(mesh.get().vertices[faces[i + 1]].x, mesh.get().vertices[faces[i + 1]].y, mesh.get().vertices[faces[i + 1]].z);
-					auto v3 = btVector3(mesh.get().vertices[faces[i + 2]].x, mesh.get().vertices[faces[i + 2]].y, mesh.get().vertices[faces[i + 2]].z);
-					tmesh->addTriangle(v1, v2, v3, false);
-				}
-			}
-
-			return tmesh;
-		}
-		virtual ~static_triangle_mesh_shape_component()
-		{
-			delete _mesh;
-		}
-	};
-
-	struct rigid_body_component : luck::component<rigid_body_component>
-	{
-		enum body_type { STATIC, DYNAMIC, KINEMATIC };
-		body_type type = STATIC;
-
-		std::unique_ptr<btMotionState> motion_state = nullptr;
-		std::unique_ptr<btRigidBody> rigid_body = nullptr;
-		btDiscreteDynamicsWorld* world = nullptr;
-
-		float mass = 0.f;
-		glm::vec3 local_inertia = glm::vec3(0,0,0);
-		float linear_damping = 0.f;
-		float angular_damping = 0.f;
-		float friction = 0.5f;
-		float rolling_friction = 0.f;
-		float restitution = 0.f;
-		float linear_sleeping_threshold = 0.8f;
-		float angular_sleeping_threshold = 1.f;
-		bool additional_damping = false;
-		float additional_damping_factor = 0.005f;
-		float additional_linear_damping_threshold_sqr = 0.01f;
-		float additional_angular_damping_threshold_sqr = 0.01f;
-		float additional_angular_damping_factor = 0.01f;
-
-		rigid_body_component(float mass = 0.f, bool kinematic = false) : mass(mass), type(kinematic ? KINEMATIC : STATIC)
-		{
-
-		}
-		~rigid_body_component()
-		{
-			world->removeRigidBody(rigid_body.get());
-		}
-	};
-
-	class bullet_system : public luck::system<bullet_system> ///@todo add to a separate file
-	{
-		private:
-			btDbvtBroadphase _broadphase {};
-			btDefaultCollisionConfiguration _collision_configuration {};
-			btCollisionDispatcher _collision_dispatcher;
-			btSequentialImpulseConstraintSolver _solver{};
-			btDiscreteDynamicsWorld _world;
-			gl_debugdrawer _debug_drawer{};
-			void _on_collision(btDynamicsWorld* world, float time)
-			{
-				//LOG("ON COLLISION: ",world->getDispatcher()->getNumManifolds());
-			}
-			static void _tick_callback(btDynamicsWorld* world, float time)
-			{
-				bullet_system* s = static_cast<bullet_system*>(world->getWorldUserInfo());
-				s->_on_collision(world, time);
-			}
-		public:
-			btDiscreteDynamicsWorld* world() { return &_world; }
-			boost::signals2::signal<void(btDynamicsWorld*, float)> on_collision;
-			bullet_system() : Base(luck::component_filter().requires<spatial_component, base_shape_component, rigid_body_component>()),
-				_collision_dispatcher(&_collision_configuration),
-				_world(&_collision_dispatcher, &_broadphase, &_solver, &_collision_configuration)
-			{
-				_debug_drawer.setDebugMode(btIDebugDraw::DBG_MAX_DEBUG_DRAW_MODE);
-				_world.setDebugDrawer(&_debug_drawer);
-				_world.setGravity(btVector3(0, -10, 0));
-				
-				_world.setInternalTickCallback(_tick_callback, static_cast<void*>(this));
-			}
-			virtual void onEntityAdded(luck::entity& e) override
-			{
-				spatial_component& e_spatial = e.getComponent<spatial_component>();
-				rigid_body_component& e_rigidbody = e.getComponent<rigid_body_component>();
-				base_shape_component& e_shape = e.getComponent<base_shape_component>();
-
-				e_rigidbody.world = &_world;
-				if (e_rigidbody.type == rigid_body_component::body_type::KINEMATIC)
-				{
-					e_rigidbody.motion_state = std::unique_ptr<kinematic_motion_state>(new kinematic_motion_state(
-					btTransform(btQuaternion(e_spatial.rotation.x, e_spatial.rotation.y, e_spatial.rotation.z, e_spatial.rotation.w),
-					btVector3(e_spatial.position.x, e_spatial.position.y, e_spatial.position.z)), e));
-				}
-				else
-				{
-					e_rigidbody.motion_state = std::unique_ptr<motion_state>(new motion_state(
-					btTransform(btQuaternion(e_spatial.rotation.x, e_spatial.rotation.y, e_spatial.rotation.z, e_spatial.rotation.w),
-					btVector3(e_spatial.position.x, e_spatial.position.y, e_spatial.position.z)), e));
-				}
-
-				btVector3 inertia(0, 0, 0);
-				if (e_rigidbody.type == rigid_body_component::body_type::DYNAMIC || e_rigidbody.mass > 0)
-					e_shape.shape()->calculateLocalInertia(e_rigidbody.mass, inertia);
-
-				btRigidBody::btRigidBodyConstructionInfo info{e_rigidbody.mass, e_rigidbody.motion_state.get(), e_shape.shape(), inertia};
-				info.m_mass = e_rigidbody.mass;
-				//info.m_localInertia = btVector3(e_rigidbody.local_inertia.x, e_rigidbody.local_inertia.y, e_rigidbody.local_inertia.z);
-				info.m_linearDamping = e_rigidbody.linear_damping;
-				info.m_angularDamping = e_rigidbody.angular_damping;
-				info.m_friction = e_rigidbody.friction;
-				info.m_rollingFriction = e_rigidbody.rolling_friction;
-				info.m_restitution = e_rigidbody.restitution;
-				info.m_linearSleepingThreshold = e_rigidbody.linear_sleeping_threshold;
-				info.m_angularSleepingThreshold = e_rigidbody.angular_sleeping_threshold;
-				info.m_additionalDamping = e_rigidbody.additional_damping;
-				info.m_additionalDampingFactor = e_rigidbody.additional_damping_factor;
-				info.m_additionalLinearDampingThresholdSqr = e_rigidbody.additional_linear_damping_threshold_sqr;
-				info.m_additionalAngularDampingThresholdSqr = e_rigidbody.additional_angular_damping_threshold_sqr;
-				info.m_additionalAngularDampingFactor = e_rigidbody.additional_damping_factor;
-
-				e_rigidbody.rigid_body = std::unique_ptr<btRigidBody>(new btRigidBody(info));
-
-				if (e_rigidbody.type == rigid_body_component::body_type::KINEMATIC)
-				{
-					e_rigidbody.rigid_body->setCollisionFlags(e_rigidbody.rigid_body->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
-					e_rigidbody.rigid_body->setActivationState(DISABLE_DEACTIVATION);
-				}
-
-				_world.addRigidBody(e_rigidbody.rigid_body.get());
-			}
-			virtual void onEntityRemoved(luck::entity&) override
-			{
-				///@todo remove from the world and destroy the rigidbody here?
-				/// reinitialize the RigidBodyComponent to clear it from references?
-			}
-			void update()
-			{
-				_world.stepSimulation(1 / 60.f, 10);
-			}
-			void debug_draw()
-			{
-				_world.debugDrawWorld();
-			}
-	};
-
 	struct character_component : public luck::component<character_component>
 	{
 		std::unique_ptr<KinematicCharacterController> controller;
@@ -486,15 +168,20 @@ namespace luck
 		{
 			
 		}
+		private:
+			int m_test;
+		public:
+			int test() const { return m_test;  }
+			character_component& test(int value) { m_test = value; return *this; }
 	};
 	
 	class character_system : public luck::system<character_system>
 	{
-		btDiscreteDynamicsWorld* _world = nullptr;
+		btDiscreteDynamicsWorld* m_world = nullptr;
 		public:
 			character_system(btDiscreteDynamicsWorld* world) :
 				Base(luck::component_filter().requires<spatial_component, base_shape_component, /*rigid_body_component,*/ character_component>()),
-				_world(world)
+				m_world(world)
 			{
 
 			}
@@ -517,7 +204,7 @@ namespace luck
 					btVector3 position = controller.controller->getGhostObject()->getWorldTransform().getOrigin();
 					e.getComponent<spatial_component>().position = glm::vec3(position.x(),position.y(),position.z());
 					
-					controller.controller->updateAction(_world, application::delta);
+					controller.controller->updateAction(m_world, application::delta);
 				}
 			}
 			virtual void onEntityAdded(luck::entity& e)
@@ -531,7 +218,7 @@ namespace luck
 				
 				btPairCachingGhostObject* m_ghostObject = new btPairCachingGhostObject();  //ghost Object
 				m_ghostObject->setWorldTransform( start_transform );
-				_world->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback( new btGhostPairCallback() );
+				m_world->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback( new btGhostPairCallback() );
 				//m_ghostObject->setUserPointer( (void*)&e );
 				m_ghostObject->setCollisionShape( e.getComponent<base_shape_component>().shape());
 				m_ghostObject->setCollisionFlags( btCollisionObject::CF_CHARACTER_OBJECT );
@@ -545,16 +232,24 @@ namespace luck
 				c.controller->setFallSpeed(3.f);
 				c.controller->setJumpSpeed(5.f);
 				
-				_world->addCollisionObject(m_ghostObject,btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
-				_world->addAction(c.controller.get());
+				m_world->addCollisionObject(m_ghostObject,btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
+				m_world->addAction(c.controller.get());
 			}
 	};
 }
 
 void load_scene(luck::world& world, luck::resources& resources, std::string scene_file, luck::program* program);
 
+#define MEMBERFY(SELF, TYPE, NAME) private: TYPE m_##NAME; public: TYPE NAME() { return m_##NAME; }  SELF& NAME(TYPE value) { m_##NAME = value; return *this; }
+
+struct aa {
+	MEMBERFY(aa, int, lucas);
+	MEMBERFY(aa, int, test);
+	MEMBERFY(aa, int, rosa);
+};
+
 int main()
-{
+{	
 	luck::screen screen(800, 600, false);
 	luck::input::initialize();
 	glClearColor(0.3f,0.65f,0.95f,1.f);
@@ -609,7 +304,7 @@ int main()
 	character.getComponent<luck::rigid_body_component>().restitution = 0.6f;
 	character.getComponent<luck::rigid_body_component>().rolling_friction = 1.0f;*/
 	character.addComponent<luck::capsule_shape_component>(0.5f,1.8f);
-	character.addComponent<luck::character_component>();
+	//character.addComponent<luck::character_component>();
 	character.activate();
 	
 	luck::entity box = w.createEntity();

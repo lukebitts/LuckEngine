@@ -1,5 +1,5 @@
-#ifndef _TEXTURE_HPP_
-#define _TEXTURE_HPP_
+#ifndef TEXTURE_HPP
+#define TEXTURE_HPP
 
 #include <initializer_list>
 #include <utility>
@@ -58,4 +58,4 @@ namespace luck
 			}
 	};
 }
-#endif // _TEXTURE_HPP_
+#endif // TEXTURE_HPP

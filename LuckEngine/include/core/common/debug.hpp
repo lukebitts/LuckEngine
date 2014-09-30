@@ -1,5 +1,5 @@
-#ifndef _DEBUG_HPP_
-#define _DEBUG_HPP_
+#ifndef DEBUG_HPP
+#define DEBUG_HPP
 
 #ifdef DEBUG
 
@@ -19,17 +19,17 @@ namespace luck
 	{
 		private:
 			template <class First, class ... Rest>
-			static void _log(First f, Rest ... r)
+			static void m_log(First f, Rest ... r)
 			{
-				_tlog<First>(f);
-				_log(r...);
+				m_tlog<First>(f);
+				m_log(r...);
 			}
-			static void _log()
+			static void m_log()
 			{
 				std::cout << std::endl;
 			}
 			template <class T>
-			static void _tlog(T t)
+			static void m_tlog(T t)
 			{
 				std::cout << t;
 			}
@@ -37,32 +37,32 @@ namespace luck
 			template <class ... T>
 			static void log(T ... t)
 			{
-				_log(t...);
+				m_log(t...);
 			}
 	};
 
 	template <>
-	inline void debug::_tlog(glm::vec3 v)
+	inline void debug::m_tlog(glm::vec3 v)
 	{
 		std::cout << "vec3 (" << v.x << "," << v.y << "," << v.z << ")";
 	}
 
 	template <>
-	inline void debug::_tlog(glm::quat v)
+	inline void debug::m_tlog(glm::quat v)
 	{
 		std::cout << "quat (" << v.x << "," << v.y << "," << v.z << "," << v.w << ")";
 	}
 
 	template <>
-	inline void debug::_tlog(std::vector<std::string> v)
+	inline void debug::m_tlog(std::vector<std::string> v)
 	{
-		_tlog("vector (");
+		m_tlog("vector (");
 		for(size_t i = 0; i < v.size(); ++i)
 		{
-			_tlog(v[i]);
-			if(i+1 < v.size()) _tlog(",");
+			m_tlog(v[i]);
+			if(i+1 < v.size()) m_tlog(",");
 		}
-		_tlog(")");
+		m_tlog(")");
 	}
 	
 #endif
@@ -91,4 +91,4 @@ namespace luck
 
 #endif //DEBUG
 
-#endif // _DEBUG_HPP_
+#endif // DEBUG_HPP

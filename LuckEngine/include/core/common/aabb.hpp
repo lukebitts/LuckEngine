@@ -1,5 +1,5 @@
-#ifndef _AABB_HPP_
-#define _AABB_HPP_
+#ifndef AABB_HPP
+#define AABB_HPP
 
 #include "glm.hpp"
 
@@ -122,4 +122,4 @@ namespace glm
 	};
 }
 
-#endif //_AABB_HPP_
+#endif //AABB_HPP

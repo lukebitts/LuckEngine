@@ -1,5 +1,5 @@
-#ifndef _MESH_CONVERTER_HPP
-#define _MESH_CONVERTER_HPP
+#ifndef MESH_CONVERTER_HPP
+#define MESH_CONVERTER_HPP
 
 #include <vector>
 #include "tools.hpp"
@@ -32,4 +32,4 @@ namespace luck
 	}
 }
 
-#endif //_MESH_CONVERTER_HPP
+#endif //MESH_CONVERTER_HPP

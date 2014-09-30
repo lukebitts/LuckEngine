@@ -1,5 +1,5 @@
-#ifndef _MATERIAL_HPP_
-#define _MATERIAL_HPP_
+#ifndef MATERIAL_HPP
+#define MATERIAL_HPP
 
 #include "../opengl.hpp"
 
@@ -57,4 +57,4 @@ namespace luck
 
 }
 
-#endif // _MATERIAL_HPP_
+#endif // MATERIAL_HPP

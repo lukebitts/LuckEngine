@@ -1,5 +1,5 @@
-#ifndef _IMAGE_CONVERTER_HPP
-#define _IMAGE_CONVERTER_HPP
+#ifndef IMAGE_CONVERTER_HPP
+#define IMAGE_CONVERTER_HPP
 
 #include "../core/common/debug.hpp"
 #include "tools.hpp"
@@ -56,4 +56,4 @@ namespace luck
 	}
 }
 
-#endif //_IMAGE_CONVERTER_HPP
+#endif //IMAGE_CONVERTER_HPP

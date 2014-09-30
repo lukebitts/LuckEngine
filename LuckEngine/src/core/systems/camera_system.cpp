@@ -7,7 +7,7 @@
 
 namespace luck
 {
-	camera_system::camera_system(renderable_system& renderable_system) : Base(anax::ComponentFilter().requires<spatial_component, camera_component>()), _renderable_system(renderable_system) {}
+	camera_system::camera_system(renderable_system& renderable_system) : Base(anax::ComponentFilter().requires<spatial_component, camera_component>()), m_renderable_system(renderable_system) {}
 
 	void camera_system::render() ///@todo filter what a camera will render based on rendering flags
 	{
@@ -18,7 +18,7 @@ namespace luck
 
 	for(anax::Entity e : cameras)
 		{
-			_renderable_system.render(e);
+			m_renderable_system.render(e);
 		}
 	}
 

@@ -1,5 +1,5 @@
-#ifndef _SHADER_HPP_
-#define _SHADER_HPP_
+#ifndef SHADER_HPP
+#define SHADER_HPP
 
 #include "resources.hpp"
 #include "resource.hpp"
@@ -56,4 +56,4 @@ namespace luck
 			}
 	};
 }
-#endif // _SHADER_HPP_
+#endif // SHADER_HPP

@@ -1,5 +1,5 @@
-#ifndef _RENDERABLE_SYSTEM_HPP_
-#define _RENDERABLE_SYSTEM_HPP_
+#ifndef RENDERABLE_SYSTEM_HPP
+#define RENDERABLE_SYSTEM_HPP
 
 #include "../../luck.hpp"
 #include "../resources/resources.hpp"
@@ -55,7 +55,7 @@ namespace luck
 	class renderable_system : public luck::system<renderable_system>
 	{
 		private:
-			spatial_system* _spatial_system;
+			spatial_system* m_spatial_system;
 		public:
 			//resource_handle<ProgramResource> _p;
 			renderable_system(spatial_system* s);
@@ -65,4 +65,4 @@ namespace luck
 			static std::vector<detail::program> sort_solids(const std::vector<detail::renderable_state_reference>& solid_renderables);
 	};
 }
-#endif // _RENDERABLE_SYSTEM_HPP_
+#endif // RENDERABLE_SYSTEM_HPP
