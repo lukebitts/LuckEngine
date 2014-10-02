@@ -31,7 +31,7 @@ namespace luck
 
 		rigid_body_component(float mass = 0.f, bool kinematic = false) : mass(mass), type(kinematic ? KINEMATIC : STATIC)
 		{
-
+			
 		}
 		~rigid_body_component()
 		{

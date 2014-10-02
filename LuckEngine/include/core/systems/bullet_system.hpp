@@ -99,9 +99,16 @@ namespace luck
 			///@todo remove from the world and destroy the rigidbody here?
 			/// reinitialize the RigidBodyComponent to clear it from references?
 		}
+		float m_accum = 0;
 		void update()
 		{
-			m_world.stepSimulation(1 / 60.f, 10);
+			m_accum += luck::application::delta;
+			if(m_accum >= 1.f/60.f)
+			{
+				m_world.stepSimulation(1 / 60.f, 10);
+				m_accum = 0;
+			}
+			//m_world.stepSimulation(luck::application::delta, 10);
 		}
 		void debug_draw()
 		{
