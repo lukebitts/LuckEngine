@@ -228,7 +228,7 @@ namespace luck
 				m_ghostObject->setActivationState(DISABLE_DEACTIVATION);
 				
 				c.controller = std::unique_ptr<KinematicCharacterController>(
-					new KinematicCharacterController(m_ghostObject, (btConvexShape*)e.getComponent<base_shape_component>().shape(), 0.05f));
+					new KinematicCharacterController(m_ghostObject, (btConvexShape*)e.getComponent<base_shape_component>().shape(), 1.05f));
 				
 				c.controller->setGravity(9.8f*2.f);
 				c.controller->setMaxJumpHeight(1.f);
@@ -431,6 +431,10 @@ void load_scene2(luck::world& world, luck::resources& resources, std::string sce
 					boost::split(rotation_info,property[1],boost::is_any_of(","));
 					rotation = glm::quat(::atof(rotation_info[0].c_str()),::atof(rotation_info[1].c_str()),::atof(rotation_info[2].c_str()),::atof(rotation_info[3].c_str()));
 					rot = glm::vec3(glm::radians(::atof(rotation_info[0].c_str())),glm::radians(::atof(rotation_info[1].c_str())),glm::radians(::atof(rotation_info[2].c_str())));
+					
+					rot = glm::vec3();
+					LOG(property);
+					LOG(rot);
 				}
 				else if(property[0] == "scale")
 				{
@@ -503,7 +507,7 @@ void load_scene2(luck::world& world, luck::resources& resources, std::string sce
 				}
 			}
 			
-			entity.addComponent<luck::spatial_component>(position,glm::quat(rot),scale);
+			entity.addComponent<luck::spatial_component>(position,glm::quat(/*rot*/),scale);
 			entity.activate();
 			
 		}

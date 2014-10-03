@@ -55,13 +55,13 @@ namespace luck
 			{
 				e_rigidbody.motion_state = std::unique_ptr<kinematic_motion_state>(new kinematic_motion_state(
 					btTransform(btQuaternion(e_spatial.rotation.x, e_spatial.rotation.y, e_spatial.rotation.z, e_spatial.rotation.w),
-					btVector3(e_spatial.position.x, e_spatial.position.y, e_spatial.position.z)), e));
+								btVector3(e_spatial.position.x, e_spatial.position.y, e_spatial.position.z)), e));
 			}
 			else
 			{
 				e_rigidbody.motion_state = std::unique_ptr<motion_state>(new motion_state(
 					btTransform(btQuaternion(e_spatial.rotation.x, e_spatial.rotation.y, e_spatial.rotation.z, e_spatial.rotation.w),
-					btVector3(e_spatial.position.x, e_spatial.position.y, e_spatial.position.z)), e));
+								btVector3(e_spatial.position.x, e_spatial.position.y, e_spatial.position.z)), e));
 			}
 
 			btVector3 inertia(0, 0, 0);
