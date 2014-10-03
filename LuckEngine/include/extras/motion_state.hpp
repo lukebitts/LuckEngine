@@ -36,7 +36,7 @@ namespace luck
 				return;
 
 			btQuaternion rot = world_trans.getRotation();
-			m_e.getComponent<spatial_component>().rotation = glm::quat(rot.x(), rot.y(), rot.z(), rot.w());
+			m_e.getComponent<spatial_component>().rotation = glm::quat(rot.w(), rot.x(), rot.y(), rot.z());
 			btVector3 pos = world_trans.getOrigin();
 			m_e.getComponent<spatial_component>().position = glm::vec3(pos.x(), pos.y(), pos.z());
 		}
