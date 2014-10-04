@@ -1,6 +1,10 @@
 #ifndef DEBUG_HPP
 #define DEBUG_HPP
 
+#ifndef DEBUG
+#define DEBUG
+#endif
+
 #ifdef DEBUG
 
 #include <cassert>

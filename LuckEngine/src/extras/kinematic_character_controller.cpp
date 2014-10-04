@@ -15,6 +15,7 @@ subject to the following restrictions:
 
 
 #include <stdio.h>
+#include <core/common/debug.hpp>
 #include <bullet/LinearMath/btIDebugDraw.h>
 #include <bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
 #include <bullet/BulletCollision/CollisionShapes/btMultiSphereShape.h>
@@ -24,18 +25,28 @@ subject to the following restrictions:
 #include <bullet/LinearMath/btDefaultMotionState.h>
 #include <extras/kinematic_character_controller.hpp>
 
+///@todo stop the character from sliding down ramps
 
 // static helper method
 static btVector3
 getNormalizedVector(const btVector3& v)
 {
-	btVector3 n(0, 0, 0);
+	/*btVector3 n(0, 0, 0);
 
 	if (v.fuzzyZero()) return n;
 
 	if (v.length() > SIMD_EPSILON) {
 		n = v.normalized();
 	}
+	return n;*/
+	btVector3 n;
+	if (v.fuzzyZero()) {
+		n.setValue(0, 0, 0);
+	}
+	else {
+		n = v.normalized();
+	}
+
 	return n;
 }
 
@@ -360,6 +371,7 @@ void KinematicCharacterController::stepForwardAndStrafe(btCollisionWorld* collis
 	{
 		start.setOrigin(m_currentPosition);
 		end.setOrigin(m_targetPosition);
+		
 		btVector3 sweepDirNegative(m_currentPosition - m_targetPosition);
 
 		btKinematicClosestNotMeConvexResultCallback callback(m_ghostObject, sweepDirNegative, btScalar(0.0));
@@ -371,7 +383,7 @@ void KinematicCharacterController::stepForwardAndStrafe(btCollisionWorld* collis
 		m_convexShape->setMargin(margin + m_addedMargin);
 
 
-		if (m_useGhostObjectSweepTest)
+		if (m_useGhostObjectSweepTest) ///@todo if start and end are equal in debug mode, bullet asserts
 		{
 			m_ghostObject->convexSweepTest(m_convexShape, start, end, callback, collisionWorld->getDispatchInfo().m_allowedCcdPenetration);
 		}

@@ -242,15 +242,6 @@ namespace luck
 }
 
 void load_scene(luck::world& world, luck::resources& resources, std::string scene_file, luck::program* program);
-void load_scene2(luck::world& world, luck::resources& resources, std::string scene_file, luck::program* program);
-
-#define MEMBERFY(SELF, TYPE, NAME) private: TYPE m_##NAME; public: TYPE NAME() { return m_##NAME; }  SELF& NAME(TYPE value) { m_##NAME = value; return *this; }
-
-struct aa {
-	MEMBERFY(aa, int, lucas);
-	MEMBERFY(aa, int, test);
-	MEMBERFY(aa, int, rosa);
-};
 
 int main()
 {	
@@ -294,17 +285,10 @@ int main()
 		LOG(std::setfill('0'),std::setw(3),(int)(((float)resources_loaded/(float)resource_count)*100),"%\t",path," (Error)");
 	});
 
-	load_scene2(w, resources, "assets/scene_test/scene.lsc", &program1);
+	load_scene(w, resources, "assets/scene_test/scene.lsc", &program1);
 
 	luck::entity character = w.createEntity();
 	character.addComponent<luck::spatial_component>(glm::vec3(0,3.f,4.5f));
-	/*character.addComponent<luck::rigid_body_component>(80.f);
-	character.getComponent<luck::rigid_body_component>().type = luck::rigid_body_component::KINEMATIC;*/
-	/*character.getComponent<luck::rigid_body_component>().friction = 1.5f;
-	character.getComponent<luck::rigid_body_component>().restitution = 0.6f;
-	character.getComponent<luck::rigid_body_component>().rolling_friction = 1.0f;
-	character.getComponent<luck::rigid_body_component>().linear_sleeping_threshold = 0.0f;
-	character.getComponent<luck::rigid_body_component>().angular_sleeping_threshold = 0.0f;*/
 	character.addComponent<luck::capsule_shape_component>(0.5f,1.8f);
 	character.addComponent<luck::character_component>();
 	character.activate();
@@ -380,7 +364,7 @@ street_light.004|position:x,y,z|rotation:x,y,z,w|scale:x,y,z|solid:static,boundi
 
 */
 
-void load_scene2(luck::world& world, luck::resources& resources, std::string scene_file, luck::program* program)
+void load_scene(luck::world& world, luck::resources& resources, std::string scene_file, luck::program* program)
 {
 	resources.load<luck::text_resource>(scene_file);
 	std::string scene_data = resources.get<luck::text_resource>(scene_file).get().text;
@@ -409,12 +393,11 @@ void load_scene2(luck::world& world, luck::resources& resources, std::string sce
 			entity.addComponent<luck::mesh_component>(mesh);
 			
 			glm::vec3 position;
-			glm::quat rotation;
-			glm::vec3 rot;
+			glm::vec3 rotation;
 			glm::vec3 scale;
 			int materials = 0;
 			
-			for(int i = 2; i < object_info.size(); ++i)
+			for(size_t i = 2; i < object_info.size(); ++i)
 			{
 				std::vector<std::string> property;
 				boost::split(property,object_info[i],boost::is_any_of(":"));
@@ -429,12 +412,7 @@ void load_scene2(luck::world& world, luck::resources& resources, std::string sce
 				{
 					std::vector<std::string> rotation_info;
 					boost::split(rotation_info,property[1],boost::is_any_of(","));
-					rotation = glm::quat(::atof(rotation_info[0].c_str()),::atof(rotation_info[1].c_str()),::atof(rotation_info[2].c_str()),::atof(rotation_info[3].c_str()));
-					rot = glm::vec3(glm::radians(::atof(rotation_info[0].c_str())),glm::radians(::atof(rotation_info[1].c_str())),glm::radians(::atof(rotation_info[2].c_str())));
-					
-					rot = glm::vec3();
-					LOG(property);
-					LOG(rot);
+					rotation = glm::vec3(glm::radians(::atof(rotation_info[0].c_str())), glm::radians(::atof(rotation_info[1].c_str())), glm::radians(::atof(rotation_info[2].c_str())));
 				}
 				else if(property[0] == "scale")
 				{
@@ -489,10 +467,8 @@ void load_scene2(luck::world& world, luck::resources& resources, std::string sce
 						
 						if(texture[1] != "")
 						{
-							//LOG(texture[1]);
 							resources.load<luck::image_resource>(luck::tools::image::convert(path+"/"+texture[1]));
 							boost::replace_all(texture[1],".png",".lif");
-							//resources.load<luck::image_resource>(path + "/" + tex);
 							auto tex = new luck::texture(resources.get<luck::image_resource>(path+"/"+texture[1]));
 							
 							luck::material mat = luck::material(luck::render_pass(program));
@@ -503,11 +479,10 @@ void load_scene2(luck::world& world, luck::resources& resources, std::string sce
 							entity.getComponent<luck::mesh_component>().materials.push_back(mat);
 						}
 					}
-					//LOG("\n");
 				}
 			}
 			
-			entity.addComponent<luck::spatial_component>(position,glm::quat(/*rot*/),scale);
+			entity.addComponent<luck::spatial_component>(position,glm::quat(rotation),scale);
 			entity.activate();
 			
 		}

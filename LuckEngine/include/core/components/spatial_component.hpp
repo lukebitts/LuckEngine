@@ -12,7 +12,7 @@ namespace luck
 	struct spatial_component : public luck::component<spatial_component>
 	{
 			glm::vec3 position {};
-			glm::quat rotation {};
+			glm::quat rotation {}; ///@todo rename rotation to orientation
 			glm::vec3 scale{1, 1, 1};
 			glm::aabb aabb{glm::vec3(-1, -1, -1), glm::vec3(1, 1, 1)};
 			inline spatial_component(glm::vec3 position = glm::vec3(), glm::quat rotation = glm::quat (),

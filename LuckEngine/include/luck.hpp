@@ -13,6 +13,9 @@ namespace luck
 	using system = anax::System<T>;
 	typedef anax::ComponentFilter component_filter;
 	typedef anax::World world;
+
+	///@todo finish the memberfy macro and use it inside components
+	#define MEMBERFY(SELF, TYPE, NAME) private: TYPE m_##NAME; public: TYPE NAME() { return m_##NAME; }  SELF& NAME(TYPE value) { m_##NAME = value; return *this; }
 }
 
 #endif //LUCK_HPP

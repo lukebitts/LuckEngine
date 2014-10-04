@@ -45,35 +45,11 @@ namespace luck
 		glm::quat targetOrientation = rot2 * rot1;
 
 		rotation = targetOrientation;
-		/*rotation = glm::quat(0,0,0,1);
-		
-		glm::vec3 vector_to(glm::normalize(look_at-position));
-
-		glm::vec3 local_vector = rotation * glm::vec3(0,0,-1);
-		glm::vec3 axis = glm::cross(vector_to,local_vector);
-		float angle = acos(glm::dot(vector_to,local_vector));
-		glm::vec3 third_vec = glm::cross(axis,local_vector);
-
-		if (glm::dot(third_vec,vector_to) < 0)
-		{
-			angle = -angle;
-		}
-
-		glm::quat axis_angle;
-		axis = glm::normalize(axis);
-		axis_angle = glm::angleAxis(angle, glm::vec3(axis.x, axis.y, axis.z));
-
-		rotation = axis_angle * rotation;
-		
-		glm::mat4 mat(1);
-		//mat = glm::translate(mat, position);
-		mat = glm::lookAt(position-position,look_at-position,up_direction);*/
-
-		//rotation = glm::quat(mat);
 	}
 
 	spatial_component::~spatial_component()
 	{
+		///@todo if the entity was not initialized, this line breaks because there is no proxy to be destroyed in the spatial tree
 		m_system->onSpatialDestroy(*this);
 	}
 }
