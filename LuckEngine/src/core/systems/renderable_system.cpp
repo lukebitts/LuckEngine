@@ -54,7 +54,7 @@ namespace luck
 			return !e.hasComponent<mesh_component>();
 		}), entities.end());
 
-		LOG("Rendering #", entities.size(), " entities");
+		//LOG("Rendering #", entities.size(), " entities");
 
 		std::vector<detail::renderable_state_reference> solid_renderables;
 		std::vector<detail::renderable_state_reference> transparent_renderables;
@@ -172,13 +172,14 @@ namespace luck
 						glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->index_list[meshs.submesh]);
 						glDrawElements(GL_TRIANGLES, mesh->element_number[meshs.submesh], GL_UNSIGNED_INT, (void*)0);
 
+						///@todo: remove AABB drawing
 						glUseProgram(0);
 						//glDisable(GL_DEPTH_TEST);
 						glPushMatrix();
 						
 						glLoadMatrixf(glm::value_ptr(mat_projection * mat_view * glm::translate(glm::mat4(1.f), spatial.position)));
 						
-						auto draw_line = [](glm::vec3 from, glm::vec3 to, glm::vec4 color)
+						/*auto draw_line = [](glm::vec3 from, glm::vec3 to, glm::vec4 color)
 						{
 							glColor3f(color.x, color.y, color.z);
 							glVertex3d(from.x, from.y, from.z);
@@ -202,7 +203,10 @@ namespace luck
 								draw_line(glm::vec3(aabb.min.x, aabb.max.y, aabb.max.z), glm::vec3(aabb.min.x, aabb.max.y, aabb.min.z), glm::vec4(1, 0, 0, 1));
 							}
 							glEnd();
-						}
+						}*/
+						
+						spatial.aabb.draw();
+						
 						glPopMatrix();
 						//glEnable(GL_DEPTH_TEST);
 						glUseProgram(program_id);

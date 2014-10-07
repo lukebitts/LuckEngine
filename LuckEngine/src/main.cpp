@@ -287,11 +287,11 @@ int main()
 
 	load_scene(w, resources, "assets/scene_test2/scene.lsc", &program1);
 
-	/*luck::entity character = w.createEntity();
+	luck::entity character = w.createEntity();
 	character.addComponent<luck::spatial_component>(glm::vec3(0,3.f,4.5f));
 	character.addComponent<luck::capsule_shape_component>(0.5f,1.8f);
 	character.addComponent<luck::character_component>();
-	character.activate();*/
+	character.activate();
 	
 	luck::entity camera = w.createEntity();
 	camera.addComponent<luck::spatial_component>(glm::vec3(0,20,70.f));
@@ -299,13 +299,13 @@ int main()
 	camera.getComponent<luck::camera_component>().fov = 45.f;
 	camera.getComponent<luck::camera_component>().near = 0.1f;
 	camera.getComponent<luck::camera_component>().far = 1000.f;
-	camera.addComponent<luck::fps_controller_component>();
+	/*camera.addComponent<luck::fps_controller_component>();
 	camera.getComponent<luck::fps_controller_component>().sensitivity = 0.0025f;
-	camera.getComponent<luck::fps_controller_component>().move_speed = 50.f;
-	/*camera.addComponent<luck::tps_controller_component>();
+	camera.getComponent<luck::fps_controller_component>().move_speed = 50.f;*/
+	camera.addComponent<luck::tps_controller_component>();
 	camera.getComponent<luck::tps_controller_component>().to_follow = character;
 	camera.getComponent<luck::tps_controller_component>().height = 15.f;
-	camera.getComponent<luck::tps_controller_component>().distance = 15.f;*/
+	camera.getComponent<luck::tps_controller_component>().distance = 15.f;
 	camera.activate();
 	
 	double last_time = glfwGetTime();
@@ -345,8 +345,7 @@ int main()
 		tps_controller_system.update();
 		spatial_system.update();
 		camera_system.render();
-		//bullet_system.debug_draw();
-		//45,50
+		bullet_system.debug_draw();
 		screen.swap_buffers();
 		
 		if(luck::input::key(GLFW_KEY_ESCAPE)) break;
@@ -372,6 +371,8 @@ void load_scene(luck::world& world, luck::resources& resources, std::string scen
 	std::vector<std::string> objects;
 	boost::split(objects,scene_data,boost::is_any_of("\n"));
 	std::string path = luck::tools::get_file_path(scene_file);
+	
+	std::unordered_map<std::string,luck::texture*> loaded_textures;
 	
 	for(size_t i = 0; i < objects.size(); ++i)
 	{
@@ -468,9 +469,24 @@ void load_scene(luck::world& world, luck::resources& resources, std::string scen
 						
 						if(texture[1] != "")
 						{
+							luck::texture* tex;
+						
+							if(loaded_textures[path+"/"+texture[1]] != nullptr)
+							{
+								tex = loaded_textures[path+"/"+texture[1]];
+							}
+							else
+							{
+								std::string old_path = path+"/"+texture[1];
+								resources.load<luck::image_resource>(luck::tools::image::convert(path+"/"+texture[1]));
+								boost::replace_all(texture[1],".png",".lif");
+								loaded_textures[old_path] = new luck::texture(resources.get<luck::image_resource>(path+"/"+texture[1]));
+								tex = loaded_textures[old_path];
+							}
+						
 							resources.load<luck::image_resource>(luck::tools::image::convert(path+"/"+texture[1]));
 							boost::replace_all(texture[1],".png",".lif");
-							auto tex = new luck::texture(resources.get<luck::image_resource>(path+"/"+texture[1]));
+							//auto tex = new luck::texture(resources.get<luck::image_resource>(path+"/"+texture[1]));
 							
 							luck::material mat = luck::material(luck::render_pass(program));
 							mat.passes[0].textures["albedo"] = tex;

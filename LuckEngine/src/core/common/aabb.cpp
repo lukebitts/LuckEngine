@@ -1,4 +1,5 @@
 #include <core/common/aabb.hpp>
+#include <core/opengl.hpp>
 #include <glm/gtx/component_wise.hpp>
 
 namespace glm
@@ -225,5 +226,84 @@ namespace glm
 		result = result && aabb.max.x <= max.x;
 		result = result && aabb.max.y <= max.y;
 		return result;
+	}
+	
+	void aabb::draw() const
+	{
+		auto mode = GL_LINES;
+		auto m_min = min;
+		auto m_max = max;
+	
+		//--- pos z
+		glBegin(mode);
+		glNormal3f(0,0,1);
+		glVertex3f((GLfloat)m_min.x,(GLfloat)m_min.y,(GLfloat)m_max.z);
+		glNormal3f(0,0,1);
+		glVertex3f((GLfloat)m_max.x,(GLfloat)m_min.y,(GLfloat)m_max.z);
+		glNormal3f(0,0,1);
+		glVertex3f((GLfloat)m_max.x,(GLfloat)m_max.y,(GLfloat)m_max.z);
+		glNormal3f(0,0,1);
+		glVertex3f((GLfloat)m_min.x,(GLfloat)m_max.y,(GLfloat)m_max.z);
+		glEnd();
+
+		//--- pos x
+		glBegin(mode);
+		glNormal3f(1,0,0);
+		glVertex3f((GLfloat)m_max.x,(GLfloat)m_min.y,(GLfloat)m_max.z);
+		glNormal3f(1,0,0);
+		glVertex3f((GLfloat)m_max.x,(GLfloat)m_min.y,(GLfloat)m_min.z);
+		glNormal3f(1,0,0);
+		glVertex3f((GLfloat)m_max.x,(GLfloat)m_max.y,(GLfloat)m_min.z);
+		glNormal3f(1,0,0);
+		glVertex3f((GLfloat)m_max.x,(GLfloat)m_max.y,(GLfloat)m_max.z);
+		glEnd();
+
+		//---- pos y
+		glBegin(mode);
+		glNormal3f(0,1,0);
+		glVertex3f((GLfloat)m_min.x,(GLfloat)m_max.y,(GLfloat)m_max.z);
+		glNormal3f(0,1,0);
+		glVertex3f((GLfloat)m_max.x,(GLfloat)m_max.y,(GLfloat)m_max.z);
+		glNormal3f(0,1,0);
+		glVertex3f((GLfloat)m_max.x,(GLfloat)m_max.y,(GLfloat)m_min.z);
+		glNormal3f(0,1,0);
+		glVertex3f((GLfloat)m_min.x,(GLfloat)m_max.y,(GLfloat)m_min.z);
+		glEnd();
+
+		//--- neg z
+		glBegin(mode);
+		glNormal3f(0,0,-1);
+		glVertex3f((GLfloat)m_min.x,(GLfloat)m_min.y,(GLfloat)m_min.z);
+		glNormal3f(0,0,-1);
+		glVertex3f((GLfloat)m_min.x,(GLfloat)m_max.y,(GLfloat)m_min.z);
+		glNormal3f(0,0,-1);
+		glVertex3f((GLfloat)m_max.x,(GLfloat)m_max.y,(GLfloat)m_min.z);
+		glNormal3f(0,0,-1);
+		glVertex3f((GLfloat)m_max.x,(GLfloat)m_min.y,(GLfloat)m_min.z);
+		glEnd();
+
+		//--- neg y
+		glBegin(mode);
+		glNormal3f(0,-1,0);
+		glVertex3f((GLfloat)m_min.x,(GLfloat)m_min.y,(GLfloat)m_min.z);
+		glNormal3f(0,-1,0);
+		glVertex3f((GLfloat)m_max.x,(GLfloat)m_min.y,(GLfloat)m_min.z);
+		glNormal3f(0,-1,0);
+		glVertex3f((GLfloat)m_max.x,(GLfloat)m_min.y,(GLfloat)m_max.z);
+		glNormal3f(0,-1,0);
+		glVertex3f((GLfloat)m_min.x,(GLfloat)m_min.y,(GLfloat)m_max.z);
+		glEnd();
+
+		//--- neg x
+		glBegin(mode);
+		glNormal3f(-1,0,0);
+		glVertex3f((GLfloat)m_min.x,(GLfloat)m_min.y,(GLfloat)m_min.z);
+		glNormal3f(-1,0,0);
+		glVertex3f((GLfloat)m_min.x,(GLfloat)m_min.y,(GLfloat)m_max.z);
+		glNormal3f(-1,0,0);
+		glVertex3f((GLfloat)m_min.x,(GLfloat)m_max.y,(GLfloat)m_max.z);
+		glNormal3f(-1,0,0);
+		glVertex3f((GLfloat)m_min.x,(GLfloat)m_max.y,(GLfloat)m_min.z);
+		glEnd();
 	}
 }

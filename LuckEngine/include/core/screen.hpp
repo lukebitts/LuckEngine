@@ -27,6 +27,10 @@ namespace luck
 				glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 				m_window = glfwCreateWindow(width, height, "", fullscreen ? glfwGetPrimaryMonitor() : nullptr, nullptr);
 				ASSERT(m_window, "There was a problem opening the window.");
+				#ifdef __APPLE__
+				///@todo: we have to hide the cursor on mac, this should be wrapped by the input class though
+				glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+				#endif
 				glfwMakeContextCurrent(m_window);
 				glfwSwapInterval(0);
 			}

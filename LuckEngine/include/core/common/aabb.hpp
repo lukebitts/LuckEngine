@@ -116,6 +116,7 @@ namespace glm
 			float getPerimeter() const;
 			void combine(const aabb& aabb1, const aabb& aabb2);
 			bool contains(const glm::aabb& aabb) const;
+			void draw() const;
 
 			glm::vec3 min;   ///< Minimum point.
 			glm::vec3 max;   ///< Maximum point.
