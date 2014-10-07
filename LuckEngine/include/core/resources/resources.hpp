@@ -46,11 +46,11 @@ namespace luck
 			template <class T, class ... Params>
 			inline bool load(std::string path, Params && ... params)
 			{
-				/*if(_resources.find(path) != _resources.end())
+				if(m_resources.find(path) != m_resources.end())
 				{
 					on_load(path);
 					return true;
-				}*/
+				}
 					
 				std::unique_ptr<T> t {new T{}};
 				if(T::load(t.get(), path, std::forward<Params>(params)...))

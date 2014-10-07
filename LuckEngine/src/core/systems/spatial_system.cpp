@@ -16,6 +16,8 @@ namespace luck
 		glm::aabb aabb = e_spatial.aabb;
 		aabb.translate(e_spatial.position);
 		aabb.scale(e_spatial.scale, e_spatial.position);
+		
+		///@todo rotate the aabb
 
 		int32_t proxy = m_tree.create_proxy(aabb, e);
 		e_spatial.m_proxy = proxy;

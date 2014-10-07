@@ -54,6 +54,8 @@ namespace luck
 			return !e.hasComponent<mesh_component>();
 		}), entities.end());
 
+		LOG("Rendering #", entities.size(), " entities");
+
 		std::vector<detail::renderable_state_reference> solid_renderables;
 		std::vector<detail::renderable_state_reference> transparent_renderables;
 
@@ -170,11 +172,11 @@ namespace luck
 						glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->index_list[meshs.submesh]);
 						glDrawElements(GL_TRIANGLES, mesh->element_number[meshs.submesh], GL_UNSIGNED_INT, (void*)0);
 
-						/*glUseProgram(0);
+						glUseProgram(0);
 						//glDisable(GL_DEPTH_TEST);
 						glPushMatrix();
 						
-						glLoadMatrixf(glm::value_ptr(mat_projection * mat_view * mat_model));
+						glLoadMatrixf(glm::value_ptr(mat_projection * mat_view * glm::translate(glm::mat4(1.f), spatial.position)));
 						
 						auto draw_line = [](glm::vec3 from, glm::vec3 to, glm::vec4 color)
 						{
@@ -203,7 +205,7 @@ namespace luck
 						}
 						glPopMatrix();
 						//glEnable(GL_DEPTH_TEST);
-						glUseProgram(program_id);*/
+						glUseProgram(program_id);
 						
 					}
 				}

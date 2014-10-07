@@ -25,6 +25,7 @@ namespace luck
 		};
 		
 		const bool little_endian();
+		bool file_exists(const std::string& name);
 		std::vector<std::string>& split(const std::string& s, char delim, std::vector<std::string>& elems);
 		std::vector<std::string> split(const std::string& s, char delim);
 		std::string get_file_path(std::string path);

@@ -27,7 +27,7 @@ namespace luck
 			
 			std::string save(const file& f, std::string path);
 			file load(std::string path);
-			std::vector<std::string> convert(std::string path, std::string output_path = "");
+			std::vector<std::string> convert(std::string path, std::string output_path = "", bool force = false);
 		}
 	}
 }

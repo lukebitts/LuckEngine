@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <sys/stat.h>
 
 namespace luck
 {
@@ -14,6 +15,11 @@ namespace luck
 		const bool little_endian() //if the current system is litte endian, then we can safely read and write files, otherwise we convert the data to little endian
 		{
 			return m.cdat[0] == 1;
+		}
+
+		bool file_exists(const std::string& name) {
+			struct stat buffer;
+			return (stat(name.c_str(), &buffer) == 0);
 		}
 
 		std::vector<std::string>& split(const std::string& s, char delim, std::vector<std::string>& elems)

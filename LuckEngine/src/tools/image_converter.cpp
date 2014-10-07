@@ -1,6 +1,7 @@
 #include <tools/image_converter.hpp>
 #include <core/common/debug.hpp>
 #include <core/common/lodepng.h>
+
 #include <fstream>
 
 namespace luck
@@ -78,8 +79,20 @@ namespace luck
 				return f;
 			}
 
-			std::string convert(std::string path, std::string output_path)
+			std::string convert(std::string path, std::string output_path, bool force)
 			{
+				if (!force)
+				{
+					std::vector<std::string> file_info = tools::split(path,'.');
+					std::string new_file = tools::reform(file_info.begin(), file_info.end() - 1,'.') + ".lif";
+
+					if (tools::file_exists(new_file))
+					{
+						LOG(new_file, " was already converted, skipping.");
+						return new_file;
+					}
+				}
+
 				file f;
 
 				std::vector<uint8_t> data;

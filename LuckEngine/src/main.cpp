@@ -153,7 +153,7 @@ namespace luck
 					spatial.position.y += directions[2] * frametime * controller.move_speed;
 				}
 
-				//luck::screen::cursor_pos({screen_size.x/2,screen_size.y/2});
+				luck::screen::cursor_pos({screen_size.x/2,screen_size.y/2});
 			}
 			void onEntityAdded(luck::entity&) override
 			{
@@ -285,13 +285,13 @@ int main()
 		LOG(std::setfill('0'),std::setw(3),(int)(((float)resources_loaded/(float)resource_count)*100),"%\t",path," (Error)");
 	});
 
-	load_scene(w, resources, "assets/scene_test/scene.lsc", &program1);
+	load_scene(w, resources, "assets/scene_test2/scene.lsc", &program1);
 
-	luck::entity character = w.createEntity();
+	/*luck::entity character = w.createEntity();
 	character.addComponent<luck::spatial_component>(glm::vec3(0,3.f,4.5f));
 	character.addComponent<luck::capsule_shape_component>(0.5f,1.8f);
 	character.addComponent<luck::character_component>();
-	character.activate();
+	character.activate();*/
 	
 	luck::entity camera = w.createEntity();
 	camera.addComponent<luck::spatial_component>(glm::vec3(0,20,70.f));
@@ -299,13 +299,13 @@ int main()
 	camera.getComponent<luck::camera_component>().fov = 45.f;
 	camera.getComponent<luck::camera_component>().near = 0.1f;
 	camera.getComponent<luck::camera_component>().far = 1000.f;
-	/*camera.addComponent<luck::fps_controller_component>();
+	camera.addComponent<luck::fps_controller_component>();
 	camera.getComponent<luck::fps_controller_component>().sensitivity = 0.0025f;
-	camera.getComponent<luck::fps_controller_component>().move_speed = 50.f;*/
-	camera.addComponent<luck::tps_controller_component>();
+	camera.getComponent<luck::fps_controller_component>().move_speed = 50.f;
+	/*camera.addComponent<luck::tps_controller_component>();
 	camera.getComponent<luck::tps_controller_component>().to_follow = character;
 	camera.getComponent<luck::tps_controller_component>().height = 15.f;
-	camera.getComponent<luck::tps_controller_component>().distance = 15.f;
+	camera.getComponent<luck::tps_controller_component>().distance = 15.f;*/
 	camera.activate();
 	
 	double last_time = glfwGetTime();
@@ -345,8 +345,8 @@ int main()
 		tps_controller_system.update();
 		spatial_system.update();
 		camera_system.render();
-		bullet_system.debug_draw();
-
+		//bullet_system.debug_draw();
+		//45,50
 		screen.swap_buffers();
 		
 		if(luck::input::key(GLFW_KEY_ESCAPE)) break;
@@ -386,6 +386,7 @@ void load_scene(luck::world& world, luck::resources& resources, std::string scen
 			luck::entity entity = world.createEntity();
 			
 			std::string name = object_info[1];
+			LOG(name);
 
 			resources.load<luck::mesh_data_resource>(luck::tools::mesh::convert(path+"/"+name)[0]);
 			auto mesh = new luck::mesh(resources.get<luck::mesh_data_resource>(path+"/"+luck::tools::get_file_name(name)+".l3d"));

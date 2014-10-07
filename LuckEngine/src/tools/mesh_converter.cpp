@@ -144,8 +144,23 @@ namespace luck
 				return f;
 			}
 
-			std::vector<std::string> convert(std::string path, std::string output_path)
+			std::vector<std::string> convert(std::string path, std::string output_path, bool force)
 			{
+				if (!force)
+				{
+					std::vector<std::string> file_info = tools::split(path, '.');
+					std::string new_file = tools::reform(file_info.begin(), file_info.end() - 1, '.') + ".l3d";
+
+					file_info.clear();
+					file_info.push_back(new_file);
+
+					if (tools::file_exists(new_file))
+					{
+						LOG(new_file, " was already converted, skipping.");
+						return file_info;
+					}
+				}
+
 				file f;
 
 				const aiScene* scene = aiImportFile(path.c_str(), aiProcessPreset_TargetRealtime_MaxQuality);
