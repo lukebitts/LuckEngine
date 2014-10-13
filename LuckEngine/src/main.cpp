@@ -266,8 +266,8 @@ int main()
 	luck::tps_controller_system tps_controller_system{};
 
 	luck::world w{};
-	w.addSystem(spatial_system);
 	w.addSystem(renderable_system);
+	w.addSystem(spatial_system);
 	w.addSystem(camera_system);
 	w.addSystem(fps_controller_system);
 	w.addSystem(bullet_system);
@@ -289,12 +289,12 @@ int main()
 
 	luck::entity character = w.createEntity();
 	character.addComponent<luck::spatial_component>(glm::vec3(0,3.f,4.5f));
-	character.addComponent<luck::capsule_shape_component>(0.5f,1.8f);
+	character.addComponent<luck::capsule_shape_component>(0.2f,0.8f);
 	character.addComponent<luck::character_component>();
 	character.activate();
 	
 	luck::entity camera = w.createEntity();
-	camera.addComponent<luck::spatial_component>(glm::vec3(0,20,70.f));
+	camera.addComponent<luck::spatial_component>(glm::vec3(0, 20, 70.f));
 	camera.addComponent<luck::camera_component>();
 	camera.getComponent<luck::camera_component>().fov = 45.f;
 	camera.getComponent<luck::camera_component>().near = 0.1f;
@@ -304,10 +304,10 @@ int main()
 	camera.getComponent<luck::fps_controller_component>().move_speed = 50.f;*/
 	camera.addComponent<luck::tps_controller_component>();
 	camera.getComponent<luck::tps_controller_component>().to_follow = character;
-	camera.getComponent<luck::tps_controller_component>().height = 15.f;
-	camera.getComponent<luck::tps_controller_component>().distance = 15.f;
+	camera.getComponent<luck::tps_controller_component>().height = 8.f;
+	camera.getComponent<luck::tps_controller_component>().distance = 8.f;
 	camera.activate();
-	
+
 	double last_time = glfwGetTime();
 	int nb_frames = 0;
 	int frame = 0;
@@ -315,22 +315,22 @@ int main()
 
 	double accum = 0;
 	int rframe = 0;
-	while(!screen.should_close())
+	while (!screen.should_close())
 	{
 		//FPS
 		double current_time = glfwGetTime();
 		nb_frames++;
 		frame++;
 		rframe++;
-		if(current_time - last_time >= 1.0)
+		if (current_time - last_time >= 1.0)
 		{
-			std::sprintf(buffer, "%f : %f", 1000.0 / double(nb_frames), rframe / (glfwGetTime()-accum));
+			std::sprintf(buffer, "%f : %f", 1000.0 / double(nb_frames), rframe / (glfwGetTime() - accum));
 			luck::application::window_title((const char*)buffer);
 			nb_frames = 0;
 			last_time += 1.0;
 		}
 
-		if(rframe >= 500)
+		if (rframe >= 500)
 			rframe = 0, accum = glfwGetTime();
 		//End FPS
 
@@ -347,8 +347,8 @@ int main()
 		camera_system.render();
 		bullet_system.debug_draw();
 		screen.swap_buffers();
-		
-		if(luck::input::key(GLFW_KEY_ESCAPE)) break;
+
+		if (luck::input::key(GLFW_KEY_ESCAPE)) break;
 	}
 	return 0;
 }
@@ -367,30 +367,41 @@ void load_scene(luck::world& world, luck::resources& resources, std::string scen
 {
 	resources.load<luck::text_resource>(scene_file);
 	std::string scene_data = resources.get<luck::text_resource>(scene_file).get().text;
-	
+
 	std::vector<std::string> objects;
-	boost::split(objects,scene_data,boost::is_any_of("\n"));
+	boost::split(objects, scene_data, boost::is_any_of("\n"));
 	std::string path = luck::tools::get_file_path(scene_file);
-	
-	std::unordered_map<std::string,luck::texture*> loaded_textures;
-	
-	for(size_t i = 0; i < objects.size(); ++i)
+
+	std::unordered_map<std::string, luck::texture*> loaded_textures;
+	std::unordered_map<std::string, luck::mesh*> loaded_meshs;
+
+	for (size_t i = 0; i < objects.size(); ++i)
 	{
 		boost::trim(objects[i]);
-		if(objects[i] == "") continue;
-		
+		if (objects[i] == "") continue;
+
 		std::vector<std::string> object_info;
-		boost::split(object_info,objects[i],boost::is_any_of("|"));
-		
-		if(object_info[0] == "mesh")
+		boost::split(object_info, objects[i], boost::is_any_of("|"));
+
+		if (object_info[0] == "mesh")
 		{
 			luck::entity entity = world.createEntity();
-			
+
 			std::string name = object_info[1];
 			LOG(name);
 
-			resources.load<luck::mesh_data_resource>(luck::tools::mesh::convert(path+"/"+name)[0]);
-			auto mesh = new luck::mesh(resources.get<luck::mesh_data_resource>(path+"/"+luck::tools::get_file_name(name)+".l3d"));
+			luck::mesh* mesh;
+
+			if (loaded_meshs[path + "/" + luck::tools::get_file_name(name) + ".l3d"] != nullptr)
+			{
+				mesh = loaded_meshs[path + "/" + luck::tools::get_file_name(name) + ".l3d"];
+			}
+			else 
+			{
+				resources.load<luck::mesh_data_resource>(luck::tools::mesh::convert(path + "/" + name)[0]);
+				mesh = new luck::mesh(resources.get<luck::mesh_data_resource>(path + "/" + luck::tools::get_file_name(name) + ".l3d"));
+				loaded_meshs[path + "/" + luck::tools::get_file_name(name) + ".l3d"] = mesh;
+			}
 			
 			entity.addComponent<luck::mesh_component>(mesh);
 			
@@ -440,16 +451,17 @@ void load_scene(luck::world& world, luck::resources& resources, std::string scen
 							entity.getComponent<luck::rigid_body_component>().type = luck::rigid_body_component::STATIC;
 							entity.getComponent<luck::rigid_body_component>().mass = 0.f;
 						}
-						else if(s == "mesh")
+						else if (s == "mesh" || s == "bounding")
 						{
 							entity.addComponent<luck::static_triangle_mesh_shape_component>(resources.get<luck::mesh_data_resource>(path+"/"+luck::tools::get_file_name(name)+".l3d"));
 						}
-						else if(s == "bounding")
+						/*else if(s == "bounding")
 						{
 							resources.get<luck::mesh_data_resource>(path+"/"+luck::tools::get_file_name(name)+".l3d").get().calculate_aabb();
 							auto h = resources.get<luck::mesh_data_resource>(path+"/"+luck::tools::get_file_name(name)+".l3d").get().aabb;
+							h.rotate(glm::quat(rotation));
 							entity.addComponent<luck::box_shape_component>(h.getDiagonal()/2.f);
-						}
+						}*/
 					}
 				}
 				else if(property[0] == "materials")

@@ -12,6 +12,7 @@
 #include <iostream>
 #include <iomanip>
 #include "glm.hpp"
+#include "aabb.hpp"
 #include "../../tools/tools.hpp"
 
 #endif
@@ -52,9 +53,36 @@ namespace luck
 	}
 
 	template <>
+	inline void debug::m_tlog(glm::vec4 v)
+	{
+		std::cout << "vec4 (" << v.x << "," << v.y << "," << v.z << v.w << ")";
+	}
+
+	template <>
 	inline void debug::m_tlog(glm::quat v)
 	{
 		std::cout << "quat (" << v.x << "," << v.y << "," << v.z << "," << v.w << ")";
+	}
+
+	template <>
+	inline void debug::m_tlog(glm::mat4 v)
+	{
+		std::cout << "mat4 (";
+		m_tlog(v[0]);
+		m_tlog(v[1]);
+		m_tlog(v[2]);
+		m_tlog(v[3]);
+		std::cout << ")";
+	}
+
+	template <>
+	inline void debug::m_tlog(glm::aabb v)
+	{
+		std::cout << "aabb (";
+		m_tlog(v.min);
+		std::cout << ", ";
+		m_tlog(v.max);
+		std::cout << ")";
 	}
 
 	template <>

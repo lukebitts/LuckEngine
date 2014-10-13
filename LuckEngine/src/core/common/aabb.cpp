@@ -227,6 +227,44 @@ namespace glm
 		result = result && aabb.max.y <= max.y;
 		return result;
 	}
+
+	std::array<glm::vec3, 8> aabb::vertices() const
+	{
+		std::array<glm::vec3, 8> vertices;
+
+		vertices[0] = min;
+		vertices[1] = glm::vec3(max.x, min.y, min.z);
+		vertices[2] = glm::vec3(min.x, max.y, min.z);
+		vertices[3] = glm::vec3(min.x, min.y, max.z);
+		vertices[4] = glm::vec3(min.x, max.y, max.z);
+		vertices[5] = glm::vec3(max.x, min.y, max.z);
+		vertices[6] = glm::vec3(max.x, max.y, min.z);
+		vertices[7] = max;
+
+		return vertices;
+	}
+
+	void aabb::rotate(glm::quat orientation)
+	{
+		auto v = vertices();
+
+		glm::mat4 mat_model(1.f);
+		mat_model = mat_model * glm::toMat4(orientation);
+
+		for (int i = 0; i < 8; ++i)
+		{
+			v[i] = glm::vec3(mat_model * glm::vec4(v[i], 1.f));
+		}
+
+		min = v[0];
+		max = v[0];
+
+		for (int i = 0; i < 8; ++i)
+		{
+			min = glm::min(min, v[i]);
+			max = glm::max(max, v[i]);
+		}
+	}
 	
 	void aabb::draw() const
 	{

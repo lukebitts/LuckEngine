@@ -47,7 +47,10 @@ namespace luck
 		glm::mat4 mat_projection = camera_system::calculate_projection(current_camera);
 		glm::mat4 mat_view = camera_system::calculate_view(current_camera);
 
+		//LOG(mat_projection * mat_view);
+
 		auto entities = m_spatial_system->m_tree.query_frustum(mat_projection * mat_view);
+
 		entities.erase(std::remove_if(entities.begin(), entities.end(),
 		[](const luck::entity& e)
 		{
@@ -173,43 +176,14 @@ namespace luck
 						glDrawElements(GL_TRIANGLES, mesh->element_number[meshs.submesh], GL_UNSIGNED_INT, (void*)0);
 
 						///@todo: remove AABB drawing
-						glUseProgram(0);
+						/*glUseProgram(0);
 						//glDisable(GL_DEPTH_TEST);
 						glPushMatrix();
-						
-						glLoadMatrixf(glm::value_ptr(mat_projection * mat_view * glm::translate(glm::mat4(1.f), spatial.position)));
-						
-						/*auto draw_line = [](glm::vec3 from, glm::vec3 to, glm::vec4 color)
-						{
-							glColor3f(color.x, color.y, color.z);
-							glVertex3d(from.x, from.y, from.z);
-							glVertex3d(to.x, to.y, to.z);
-						};
-						
-						glm::aabb aabb = spatial.aabb;
-						
-						//for(int i = 0; i < 2; ++i)
-						{
-							//glRotatef(i * 180, 0, 1, 0);
-							glBegin(GL_LINES);
-							{
-								draw_line(aabb.min, glm::vec3(aabb.max.x, aabb.min.y, aabb.min.z), glm::vec4(1, 0, 0, 1));
-								draw_line(glm::vec3(aabb.max.x, aabb.max.y, aabb.min.z), glm::vec3(aabb.max.x, aabb.min.y, aabb.min.z), glm::vec4(1, 0, 0, 1));
-								draw_line(glm::vec3(aabb.min.x, aabb.max.y, aabb.min.z), glm::vec3(aabb.max.x, aabb.max.y, aabb.min.z), glm::vec4(1, 0, 0, 1));
-								draw_line(glm::vec3(aabb.min.x, aabb.max.y, aabb.min.z), aabb.min, glm::vec4(1, 0, 0, 1));
-								
-								draw_line(aabb.min, glm::vec3(aabb.min.x, aabb.min.y, aabb.max.z), glm::vec4(1, 0, 0, 1));
-								draw_line(glm::vec3(aabb.min.x, aabb.min.y, aabb.max.z), glm::vec3(aabb.min.x, aabb.max.y, aabb.max.z), glm::vec4(1, 0, 0, 1));
-								draw_line(glm::vec3(aabb.min.x, aabb.max.y, aabb.max.z), glm::vec3(aabb.min.x, aabb.max.y, aabb.min.z), glm::vec4(1, 0, 0, 1));
-							}
-							glEnd();
-						}*/
-						
+						glLoadMatrixf(glm::value_ptr(mat_projection * mat_view));
 						spatial.aabb.draw();
-						
 						glPopMatrix();
 						//glEnable(GL_DEPTH_TEST);
-						glUseProgram(program_id);
+						glUseProgram(program_id);*/
 						
 					}
 				}

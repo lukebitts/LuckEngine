@@ -2,6 +2,7 @@
 #define AABB_HPP
 
 #include "glm.hpp"
+#include <array>
 
 namespace glm
 {
@@ -117,6 +118,8 @@ namespace glm
 			void combine(const aabb& aabb1, const aabb& aabb2);
 			bool contains(const glm::aabb& aabb) const;
 			void draw() const;
+			std::array<glm::vec3,8> vertices() const;
+			void rotate(glm::quat orientation);
 
 			glm::vec3 min;   ///< Minimum point.
 			glm::vec3 max;   ///< Maximum point.
