@@ -57,8 +57,10 @@ namespace luck
 		private:
 			spatial_system* m_spatial_system;
 		public:
+			bool render_aabbs = false;
 			//resource_handle<ProgramResource> _p;
 			renderable_system(spatial_system* s);
+			void simple_render(luck::entity current_camera);
 			void render(luck::entity current_camera);
 			void onEntityAdded(luck::entity& e) override;
 			static bool sort_renderables(const luck::entity& a, const luck::entity& b);

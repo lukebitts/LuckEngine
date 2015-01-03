@@ -10,10 +10,29 @@ namespace luck
 		///@todo create the other shapeComponents allowed by Bullet
 	protected:
 		btCollisionShape* m_shape = nullptr;
-		base_shape_component(btCollisionShape* shape) : m_shape(shape) {}
+		base_shape_component(btCollisionShape* shape, glm::vec3 offset = glm::vec3{0.f,0.f,0.f}) //: m_shape(shape) 
+		{
+			this->shape(shape, offset);
+		}
 		virtual ~base_shape_component()
 		{
 			delete m_shape;
+		}
+		void shape(btCollisionShape* shape, glm::vec3 offset = glm::vec3{ 0.f, 0.f, 0.f })
+		{
+			if(!shape) return;
+
+			delete m_shape;
+
+			m_shape = shape;
+
+			/*btCompoundShape* cmpShape = new btCompoundShape();
+			btTransform t;
+			t.setIdentity();
+			t.setOrigin(btVector3(offset.x,offset.y,offset.z));
+			cmpShape->addChildShape(t, shape);
+
+			m_shape = cmpShape;*/
 		}
 	public:
 		btCollisionShape* shape() const
@@ -29,7 +48,7 @@ namespace luck
 
 	struct capsule_shape_component : base_shape_component
 	{
-		capsule_shape_component(float radius = 1.f, float height = 1.f) : base_shape_component(new btCapsuleShape(radius, height)) {}
+		capsule_shape_component(float radius = 1.f, float height = 1.f, glm::vec3 offset = glm::vec3{ 0.f, 0.f, 0.f }) : base_shape_component(new btCapsuleShape(radius, height), offset) {}
 	};
 
 	struct box_shape_component : base_shape_component
@@ -47,7 +66,8 @@ namespace luck
 		btTriangleMesh* m_mesh = nullptr;
 		static_triangle_mesh_shape_component(luck::resource_handle<luck::mesh_data_resource> mesh) : base_shape_component(nullptr), m_mesh(triangle_mesh_from_mesh(mesh))
 		{
-			m_shape = new btBvhTriangleMeshShape(m_mesh, false);
+			//m_shape = new btBvhTriangleMeshShape(m_mesh, false);
+			this->shape(new btBvhTriangleMeshShape(m_mesh, false));
 		}
 		static btTriangleMesh* triangle_mesh_from_mesh(luck::resource_handle<luck::mesh_data_resource> mesh)
 		{

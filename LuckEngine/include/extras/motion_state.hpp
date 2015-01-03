@@ -40,6 +40,14 @@ namespace luck
 			btVector3 pos = world_trans.getOrigin();
 			m_e.getComponent<spatial_component>().position = glm::vec3(pos.x(), pos.y(), pos.z());
 		}
+		void* operator new(size_t size) throw()
+		{
+			return _aligned_malloc(size, 16);
+		}
+		void operator delete(void *ptr) throw()
+		{
+			_aligned_free(ptr);
+		}
 	};
 }
 

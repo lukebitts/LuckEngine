@@ -231,7 +231,7 @@ bool KinematicCharacterController::recoverFromPenetration(btCollisionWorld* coll
 
 				btScalar dist = pt.getDistance();
 
-				if (dist < 0.0)
+				if (fabs(dist) > 0.2f)
 				{
 					if (dist < maxPen)
 					{
@@ -348,6 +348,10 @@ void KinematicCharacterController::stepForwardAndStrafe(btCollisionWorld* collis
 	// phase 2: forward and strafe
 	btTransform start, end;
 	m_targetPosition = m_currentPosition + walkMove;
+
+	if (walkMove.fuzzyZero()) {
+		return;
+	}
 
 	start.setIdentity();
 	end.setIdentity();
@@ -540,8 +544,9 @@ void KinematicCharacterController::stepDown(btCollisionWorld* collisionWorld, bt
 				//due to errors in the closestHitFraction variable when used with large polygons, calculate the hit fraction manually
 				m_currentPosition.setInterpolate3(m_currentPosition, m_targetPosition, fraction);
 		}
-		else
+		else {
 			m_currentPosition.setInterpolate3(m_currentPosition, m_targetPosition, callback.m_closestHitFraction);
+		}
 
 		full_drop = false;
 
@@ -659,7 +664,7 @@ void KinematicCharacterController::playerStep(btCollisionWorld* collisionWorld, 
 	//	printf("  dt = %f", dt);
 
 	// quick check...
-	if (!m_useWalkDirection && m_velocityTimeInterval <= 0.0) {
+	if (!m_useWalkDirection && (m_velocityTimeInterval <= 0.0 || m_walkDirection.fuzzyZero())) {
 		//		printf("\n");
 		return;		// no motion
 	}

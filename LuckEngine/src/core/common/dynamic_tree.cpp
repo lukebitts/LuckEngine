@@ -4,6 +4,7 @@
 #include <vector>
 
 #include <core/common/debug.hpp>
+#include <core/components/spatial_component.hpp>
 
 namespace luck
 {
@@ -141,7 +142,9 @@ namespace luck
 
 			const tree_node* node = m_nodes + node_id;
 
-			int result = isBoxInFrustum(node->aabb.getCenter(), node->aabb.getDiagonal() / 2.f, planes);
+			glm::vec3 pos = node->aabb.getCenter();
+
+			int result = isBoxInFrustum(pos, node->aabb.getDiagonal() / 2.f, planes);
 
 			if(result == INSIDE)
 			{

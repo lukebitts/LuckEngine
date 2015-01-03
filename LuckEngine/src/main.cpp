@@ -48,20 +48,26 @@ namespace luck
 	{
 		private:
 			bool right_down = false;
+			bool left_down = false;
+			float scroll_amount = 0.f;
 			glm::vec2 last_mouse_pos;
 		public:
 			tps_controller_system() : Base(luck::component_filter().requires<spatial_component, tps_controller_component>())
 			{
 				input::on_mouse_down.connect([this](int button, int action){
-					if(button == GLFW_MOUSE_BUTTON_RIGHT && action)
+					if(button == GLFW_MOUSE_BUTTON_RIGHT)
 					{
-						right_down = true;
-						last_mouse_pos = input::mouse_pos();
+						right_down = (action != 0);
+						if(action) last_mouse_pos = input::mouse_pos();
 					}
-					if(button == GLFW_MOUSE_BUTTON_RIGHT && !action)
+					if (button == GLFW_MOUSE_BUTTON_LEFT)
 					{
-						right_down = false;
+						left_down = (action != 0);
 					}
+				});
+
+				input::on_mouse_wheel.connect([this](float x, float y){
+					scroll_amount = y;
 				});
 			}
 			void update()
@@ -83,9 +89,19 @@ namespace luck
 					/*pos += last_mouse_pos;
 					pos /= 2.f;*/
 
+					if (left_down) {
+						e.getComponent<luck::tps_controller_component>().height += 0.2f;
+					}
+					if (right_down) {
+						e.getComponent<luck::tps_controller_component>().height -= 0.2f;
+					}
+
+					e.getComponent<luck::tps_controller_component>().distance += scroll_amount;
+
 					e_spatial.look_at(glm::vec3{ pos.x, t_spatial.position.y, pos.y }); ///@todo copy unity's cool camera :3
 				}
 
+				scroll_amount = 0.f;
 				last_mouse_pos = input::mouse_pos();
 			}
 	};
@@ -163,6 +179,8 @@ namespace luck
 
 	struct character_component : public luck::component<character_component>
 	{
+		float speed = 8.5f;
+		float time = 0.f;
 		std::unique_ptr<KinematicCharacterController> controller;
 		character_component()
 		{
@@ -191,7 +209,20 @@ namespace luck
 				for(auto e : entities)
 				{
 					auto& controller = e.getComponent<character_component>();
-					controller.controller->setWalkDirection(btVector3(float(x) * 10 * application::delta, 0, float(z) * 10 * application::delta));
+
+					if (x == 0 && z == 0)
+					{
+						controller.time = 0.f;
+					}
+
+					float speed = controller.speed * controller.time * application::delta;
+					float div = 1.f;
+					if (x && z)
+						div = 1.41f;
+
+					controller.controller->setWalkDirection(btVector3(float(x)/div * speed, 0, float(z)/div * speed));
+
+					controller.time = std::min(1.f, controller.time + application::delta * 3.f);
 
 					if(jump)
 						controller.controller->jump();
@@ -228,12 +259,14 @@ namespace luck
 				m_ghostObject->setActivationState(DISABLE_DEACTIVATION);
 				
 				c.controller = std::unique_ptr<KinematicCharacterController>(
-					new KinematicCharacterController(m_ghostObject, (btConvexShape*)e.getComponent<base_shape_component>().shape(), 1.05f));
+					new KinematicCharacterController(m_ghostObject, (btConvexShape*)e.getComponent<base_shape_component>().shape(), 0.5f));
 				
-				c.controller->setGravity(9.8f*2.f);
+				/*c.controller->setGravity(9.8f*0.8f);
 				c.controller->setMaxJumpHeight(1.f);
-				c.controller->setFallSpeed(20.f);
-				c.controller->setJumpSpeed(15.f);
+				c.controller->setFallSpeed(5.f);
+				c.controller->setJumpSpeed(15.f);*/
+				//c.controller->setMaxSlope(btRadians(5.0));
+				//c.controller->setUseGhostSweepTest(false);
 				
 				m_world->addCollisionObject(m_ghostObject,btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
 				m_world->addAction(c.controller.get());
@@ -245,7 +278,7 @@ void load_scene(luck::world& world, luck::resources& resources, std::string scen
 
 int main()
 {	
-	luck::screen screen(800, 600, false);
+	luck::screen screen(1600, 1000, false);
 	luck::input::initialize();
 	glClearColor(0.3f,0.65f,0.95f,1.f);
 
@@ -265,12 +298,14 @@ int main()
 	luck::character_system character_system{bullet_system.world()};
 	luck::tps_controller_system tps_controller_system{};
 
+	renderable_system.render_aabbs = false;
+
 	luck::world w{};
 	w.addSystem(renderable_system);
+	w.addSystem(bullet_system);
 	w.addSystem(spatial_system);
 	w.addSystem(camera_system);
 	w.addSystem(fps_controller_system);
-	w.addSystem(bullet_system);
 	w.addSystem(character_system);
 	w.addSystem(tps_controller_system);
 
@@ -287,9 +322,23 @@ int main()
 
 	load_scene(w, resources, "assets/scene_test2/scene.lsc", &program1);
 
+	//player resources
+
+	resources.load<luck::mesh_data_resource>(luck::tools::mesh::convert("assets/meshs/player.obj","",true)[0]);
+	luck::mesh player_mesh{ resources.get<luck::mesh_data_resource>("assets/meshs/player.l3d") };
+
+	resources.load<luck::image_resource>(luck::tools::image::convert("assets/images/T_Indoor.png", "", true));
+	luck::texture player_texture{ resources.get<luck::image_resource>("assets/images/T_Indoor.lif") };
+
+	luck::material player_material = luck::material(luck::render_pass(&program1));
+	player_material.passes[0].textures["albedo"] = &player_texture;
+	player_material.passes[0].vec2["divide"] = glm::vec2(1.0f, 1.0f);
+	player_material.passes[0].vec2["move_direction"] = glm::vec2(0, 0);
+
 	luck::entity character = w.createEntity();
-	character.addComponent<luck::spatial_component>(glm::vec3(0,3.f,4.5f));
-	character.addComponent<luck::capsule_shape_component>(0.2f,0.8f);
+	character.addComponent<luck::spatial_component>(glm::vec3(1.f, 3.f, -4.5f), glm::quat(glm::vec3(0.f, glm::radians(90.f), 0.f)));
+	character.addComponent<luck::mesh_component>(&player_mesh, player_material);
+	character.addComponent<luck::capsule_shape_component>(0.2f,1.6f,glm::vec3(0.f,-0.4f,0.f));
 	character.addComponent<luck::character_component>();
 	character.activate();
 	
@@ -305,7 +354,7 @@ int main()
 	camera.addComponent<luck::tps_controller_component>();
 	camera.getComponent<luck::tps_controller_component>().to_follow = character;
 	camera.getComponent<luck::tps_controller_component>().height = 8.f;
-	camera.getComponent<luck::tps_controller_component>().distance = 8.f;
+	camera.getComponent<luck::tps_controller_component>().distance = 2.f;
 	camera.activate();
 
 	double last_time = glfwGetTime();
@@ -451,17 +500,17 @@ void load_scene(luck::world& world, luck::resources& resources, std::string scen
 							entity.getComponent<luck::rigid_body_component>().type = luck::rigid_body_component::STATIC;
 							entity.getComponent<luck::rigid_body_component>().mass = 0.f;
 						}
-						else if (s == "mesh" || s == "bounding")
+						else if (s == "mesh"/* || s == "bounding"*/)
 						{
 							entity.addComponent<luck::static_triangle_mesh_shape_component>(resources.get<luck::mesh_data_resource>(path+"/"+luck::tools::get_file_name(name)+".l3d"));
 						}
-						/*else if(s == "bounding")
+						else if(s == "bounding")
 						{
 							resources.get<luck::mesh_data_resource>(path+"/"+luck::tools::get_file_name(name)+".l3d").get().calculate_aabb();
 							auto h = resources.get<luck::mesh_data_resource>(path+"/"+luck::tools::get_file_name(name)+".l3d").get().aabb;
 							h.rotate(glm::quat(rotation));
-							entity.addComponent<luck::box_shape_component>(h.getDiagonal()/2.f);
-						}*/
+							entity.addComponent<luck::box_shape_component>(h.getDiagonal()+position);
+						}
 					}
 				}
 				else if(property[0] == "materials")

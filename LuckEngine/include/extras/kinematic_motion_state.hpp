@@ -33,6 +33,14 @@ namespace luck
 			world_trans = btTransform(btQuaternion(rot.x, rot.y, rot.z, rot.w), btVector3(pos.x, pos.y, pos.z));
 		}
 		virtual void setWorldTransform(const btTransform& worldTrans) override {}
+		void* operator new(size_t size) throw()
+		{
+			return _aligned_malloc(size, 16);
+		}
+			void operator delete(void *ptr) throw()
+		{
+			_aligned_free(ptr);
+		}
 	};
 }
 

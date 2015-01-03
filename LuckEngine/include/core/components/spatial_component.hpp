@@ -11,6 +11,7 @@ namespace luck
 
 	struct spatial_component : public luck::component<spatial_component>
 	{
+		public:
 			glm::vec3 position {};
 			glm::quat rotation {}; ///@todo rename rotation to orientation
 			glm::vec3 scale{1, 1, 1};
@@ -35,9 +36,11 @@ namespace luck
 			inline void m_difference(glm::vec3& position, glm::quat& rotation, glm::vec3& scale, glm::aabb& aabb)
 			{
 				position = this->position - m_position;
-				rotation = this->rotation;
+				rotation = glm::quat{0,0,0,1};//this->rotation;
 				scale = this->scale - m_scale;
 				aabb = this->aabb;
+
+				this->aabb.translate(position);
 
 				m_position = this->position;
 				m_rotation = this->rotation;

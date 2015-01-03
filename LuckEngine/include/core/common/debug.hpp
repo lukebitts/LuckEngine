@@ -1,10 +1,6 @@
 #ifndef DEBUG_HPP
 #define DEBUG_HPP
 
-#ifndef DEBUG
-#define DEBUG
-#endif
-
 #ifdef DEBUG
 
 #include <cassert>
@@ -14,6 +10,7 @@
 #include "glm.hpp"
 #include "aabb.hpp"
 #include "../../tools/tools.hpp"
+#include <bullet/btBulletDynamicsCommon.h>
 
 #endif
 
@@ -24,7 +21,7 @@ namespace luck
 	{
 		private:
 			template <class First, class ... Rest>
-			static void m_log(First f, Rest ... r)
+			static void m_log(const First& f, const Rest& ... r)
 			{
 				m_tlog<First>(f);
 				m_log(r...);
@@ -34,38 +31,44 @@ namespace luck
 				std::cout << std::endl;
 			}
 			template <class T>
-			static void m_tlog(T t)
+			static void m_tlog(const T& t)
 			{
 				std::cout << t;
 			}
 		public:
 			template <class ... T>
-			static void log(T ... t)
+			static void log(const T& ... t)
 			{
 				m_log(t...);
 			}
 	};
 
 	template <>
-	inline void debug::m_tlog(glm::vec3 v)
+	inline void debug::m_tlog(const glm::vec3& v)
 	{
 		std::cout << "vec3 (" << v.x << "," << v.y << "," << v.z << ")";
 	}
 
 	template <>
-	inline void debug::m_tlog(glm::vec4 v)
+	inline void debug::m_tlog(const btVector3& v)
+	{
+		m_tlog(glm::vec3(v.x(), v.y(), v.z()));
+	}
+
+	template <>
+	inline void debug::m_tlog(const glm::vec4& v)
 	{
 		std::cout << "vec4 (" << v.x << "," << v.y << "," << v.z << v.w << ")";
 	}
 
 	template <>
-	inline void debug::m_tlog(glm::quat v)
+	inline void debug::m_tlog(const glm::quat& v)
 	{
 		std::cout << "quat (" << v.x << "," << v.y << "," << v.z << "," << v.w << ")";
 	}
 
 	template <>
-	inline void debug::m_tlog(glm::mat4 v)
+	inline void debug::m_tlog(const glm::mat4& v)
 	{
 		std::cout << "mat4 (";
 		m_tlog(v[0]);
@@ -76,7 +79,7 @@ namespace luck
 	}
 
 	template <>
-	inline void debug::m_tlog(glm::aabb v)
+	inline void debug::m_tlog(const glm::aabb& v)
 	{
 		std::cout << "aabb (";
 		m_tlog(v.min);
@@ -86,7 +89,7 @@ namespace luck
 	}
 
 	template <>
-	inline void debug::m_tlog(std::vector<std::string> v)
+	inline void debug::m_tlog(const std::vector<std::string>& v)
 	{
 		m_tlog("vector (");
 		for(size_t i = 0; i < v.size(); ++i)

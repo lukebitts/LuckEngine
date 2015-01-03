@@ -82,11 +82,15 @@ namespace luck
 	{
 		public:
 			static boost::signals2::signal<void(int, int)> on_mouse_down;
+			static boost::signals2::signal<void(float, float)> on_mouse_wheel;
 			static void initialize()
 			{
 				ASSERT(screen::m_window,"No window is open");
 				glfwSetMouseButtonCallback(screen::m_window,[](GLFWwindow*, int button, int action, int x){
 					input::on_mouse_down(button, action);
+				});
+				glfwSetScrollCallback(screen::m_window, [](GLFWwindow*, double x, double y){
+					input::on_mouse_wheel((float)x, (float)y);
 				});
 			}
 			static int key(int k)
