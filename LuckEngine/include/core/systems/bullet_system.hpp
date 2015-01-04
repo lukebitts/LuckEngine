@@ -9,6 +9,7 @@
 #include "../../extras/motion_state.hpp"
 #include "../components/shape_component.hpp"
 #include "../components/rigid_body_component.hpp"
+#include "../ray.hpp"
 
 namespace luck
 {
@@ -31,6 +32,49 @@ namespace luck
 			s->m_on_collision(world, time);
 		}
 	public:
+		bool raycast(glm::vec3 origin, glm::vec3 direction, luck::raycast_hit& hit_info, float distance = std::numeric_limits<float>::max())
+		{
+			//direction = glm::min(direction*distance,glm::vec3(INFINITY));
+
+			direction *= 1000.f;
+
+			btCollisionWorld::ClosestRayResultCallback RayCallback(
+				btVector3(origin.x, origin.y, origin.z),
+				btVector3(direction.x, direction.y, direction.z)
+				);
+			world()->rayTest(
+				btVector3(origin.x, origin.y, origin.z),
+				btVector3(direction.x, direction.y, direction.z),
+				RayCallback
+				);
+
+			if (RayCallback.hasHit()) {
+				luck::entity* e = static_cast<luck::entity*>(RayCallback.m_collisionObject->getUserPointer());
+				if (e == nullptr) {
+					return false;
+				}
+
+				hit_info.hit_entity = luck::entity(*e);
+				return true;
+			}
+			else{
+				return false;
+			}
+		}
+		bool raycast(glm::vec3 origin, glm::vec3 direction, float distance = std::numeric_limits<float>::max())
+		{
+			luck::raycast_hit hit_info;
+			return raycast(origin, direction, hit_info, distance);
+		}
+		bool raycast(luck::ray ray, float distance = std::numeric_limits<float>::max())
+		{
+			return raycast(ray.origin, ray.direction, distance);
+		}
+		bool raycast(luck::ray ray, luck::raycast_hit& hit_info, float distance = std::numeric_limits<float>::max())
+		{
+			return raycast(ray.origin, ray.direction, hit_info, distance);
+		}
+
 		btDiscreteDynamicsWorld* world() { return &m_world; }
 		boost::signals2::signal<void(btDynamicsWorld*, float)> on_collision;
 		bullet_system() : Base(luck::component_filter().requires<spatial_component, base_shape_component, rigid_body_component>()),
@@ -42,6 +86,18 @@ namespace luck
 			m_world.setGravity(btVector3(0, -10, 0));
 
 			m_world.setInternalTickCallback(m_tick_callback, static_cast<void*>(this));
+
+			input::on_mouse_down.connect([this](int button, int action){
+				auto down = (action != 0);
+				luck::raycast_hit hit_info;
+				if (raycast(camera_system::screen_pos_to_ray(camera_component::main, input::mouse_pos()), hit_info))
+				{
+					if (down)
+						hit_info.hit_entity.getComponent<rigid_body_component>().on_mouse_down(button);
+					else
+						hit_info.hit_entity.getComponent<rigid_body_component>().on_mouse_up(button);
+				}
+			});
 		}
 		virtual void onEntityAdded(luck::entity& e) override
 			///@todo implementation file
@@ -92,12 +148,19 @@ namespace luck
 				e_rigidbody.rigid_body->setActivationState(DISABLE_DEACTIVATION);
 			}
 
+			e_rigidbody.rigid_body->setUserPointer(new luck::entity(e));
+
 			m_world.addRigidBody(e_rigidbody.rigid_body.get());
 		}
-		virtual void onEntityRemoved(luck::entity&) override
+		virtual void onEntityRemoved(luck::entity& e) override
 		{
-			///@todo remove from the world and destroy the rigidbody here?
-			/// reinitialize the RigidBodyComponent to clear it from references?
+			rigid_body_component& e_rigidbody = e.getComponent<rigid_body_component>();
+
+			delete e_rigidbody.rigid_body->getUserPointer();
+			e_rigidbody.motion_state.reset(nullptr);
+
+			m_world.removeRigidBody(e_rigidbody.rigid_body.get());
+			e_rigidbody.rigid_body.reset(nullptr);
 		}
 		float m_accum = 0;
 		void update()

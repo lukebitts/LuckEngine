@@ -26,6 +26,11 @@ namespace luck
 		e.getComponent<spatial_component>().aabb = e.getComponent<mesh_component>().mesh->aabb;
 	}
 
+	void renderable_system::onEntityRemoved(luck::entity& e)
+	{
+
+	}
+
 	std::function<bool(const detail::uniform&, const detail::uniform&)>  sort_renderables2(glm::vec3 camera_position, bool transparent)
 	{
 		return [camera_position, transparent](const detail::uniform & ua, const detail::uniform & ub) -> bool
@@ -54,7 +59,7 @@ namespace luck
 		entities.erase(std::remove_if(entities.begin(), entities.end(),
 			[](const luck::entity& e)
 		{
-			return !e.hasComponent<mesh_component>();
+			return !e.isValid() || !e.isActivated() || !e.hasComponent<mesh_component>();
 		}), entities.end());
 
 		for (auto& e : entities) 

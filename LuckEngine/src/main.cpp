@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <cstdio>
+#include <cmath>
 
 #include <boost/algorithm/string.hpp>
 
@@ -89,14 +90,14 @@ namespace luck
 					/*pos += last_mouse_pos;
 					pos /= 2.f;*/
 
-					if (left_down) {
+					/*if (left_down) {
 						e.getComponent<luck::tps_controller_component>().height += 0.2f;
 					}
 					if (right_down) {
 						e.getComponent<luck::tps_controller_component>().height -= 0.2f;
 					}
 
-					e.getComponent<luck::tps_controller_component>().distance += scroll_amount;
+					e.getComponent<luck::tps_controller_component>().distance += scroll_amount;*/
 
 					e_spatial.look_at(glm::vec3{ pos.x, t_spatial.position.y, pos.y }); ///@todo copy unity's cool camera :3
 				}
@@ -267,11 +268,121 @@ namespace luck
 				c.controller->setJumpSpeed(15.f);*/
 				//c.controller->setMaxSlope(btRadians(5.0));
 				//c.controller->setUseGhostSweepTest(false);
+
+				m_ghostObject->setUserPointer(new luck::entity(e)); //@todo delete this
 				
 				m_world->addCollisionObject(m_ghostObject,btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
 				m_world->addAction(c.controller.get());
 			}
 	};
+
+	class test_system : public luck::system<test_system>
+	{
+		public:
+			test_system() :
+				Base(luck::component_filter().requires<rigid_body_component>())
+			{
+
+			}
+			void onEntityAdded(luck::entity& e) override
+			{
+				auto conn = e.getComponent<rigid_body_component>().on_mouse_down.connect([e](int button){
+					LOG(e.getId());
+				});
+
+				e.getComponent<rigid_body_component>().on_mouse_down.disconnect(conn); //@todo find out why this doesn't work
+			}
+	};
+
+	/*luck::bullet_system* physics;
+
+	bool raycast(glm::vec3 origin, glm::vec3 direction, luck::raycast_hit& hit_info, float distance = std::numeric_limits<float>::max()) 
+	{
+		//direction = glm::min(direction*distance,glm::vec3(INFINITY));
+
+		direction *= 1000.f;
+
+		btCollisionWorld::ClosestRayResultCallback RayCallback(
+			btVector3(origin.x, origin.y, origin.z),
+			btVector3(direction.x, direction.y, direction.z)
+			);
+		physics->world()->rayTest(
+			btVector3(origin.x, origin.y, origin.z),
+			btVector3(direction.x, direction.y, direction.z),
+			RayCallback
+			);
+
+		if (RayCallback.hasHit()) {
+			luck::entity* e = static_cast<luck::entity*>(RayCallback.m_collisionObject->getUserPointer());
+			if (e == nullptr) {
+				return false;
+			}
+
+			hit_info.hit_entity = luck::entity(*e);
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+	bool raycast(glm::vec3 origin, glm::vec3 direction, float distance = std::numeric_limits<float>::max())
+	{
+		luck::raycast_hit hit_info;
+		return raycast(origin, direction, hit_info, distance);
+	}
+	bool raycast(luck::ray ray, float distance = std::numeric_limits<float>::max())
+	{
+		return raycast(ray.origin, ray.direction, distance);
+	}
+	bool raycast(luck::ray ray, luck::raycast_hit& hit_info, float distance = std::numeric_limits<float>::max())
+	{
+		return raycast(ray.origin, ray.direction, hit_info, distance);
+	}*/
+
+	/*ray screen_pos_to_ray(const luck::entity& camera, glm::vec2 position)
+	{
+		//from: http://www.opengl-tutorial.org/miscellaneous/clicking-on-objects/picking-with-a-physics-library/
+
+		float mouseY = (float)screen::size().y - position.y;
+
+		glm::vec4 lRayStart_NDC(
+			((float)position.x / (float)screen::size().x - 0.5f) * 2.0f, // [0,1024] -> [-1,1]
+			((float)mouseY / (float)screen::size().y - 0.5f) * 2.0f, // [0, 768] -> [-1,1]
+			-1.0, // The near plane maps to Z=-1 in Normalized Device Coordinates
+			1.0f
+		);
+
+		glm::vec4 lRayEnd_NDC(
+			((float)position.x / (float)screen::size().x - 0.5f) * 2.0f,
+			((float)mouseY / (float)screen::size().y - 0.5f) * 2.0f,
+			0.0,
+			1.0f
+		);
+
+		glm::mat4 ProjectionMatrix = luck::camera_system::calculate_projection(camera);
+		glm::mat4 ViewMatrix = luck::camera_system::calculate_view(camera);
+
+		// The Projection matrix goes from Camera Space to NDC.
+		// So inverse(ProjectionMatrix) goes from NDC to Camera Space.
+		glm::mat4 InverseProjectionMatrix = glm::inverse(ProjectionMatrix);
+
+		// The View Matrix goes from World Space to Camera Space.
+		// So inverse(ViewMatrix) goes from Camera Space to World Space.
+		glm::mat4 InverseViewMatrix = glm::inverse(ViewMatrix);
+
+		// Faster way (just one inverse)
+		glm::mat4 M = glm::inverse(ProjectionMatrix * ViewMatrix);
+		glm::vec4 lRayStart_world = M * lRayStart_NDC; 
+		lRayStart_world /= lRayStart_world.w;
+		glm::vec4 lRayEnd_world   = M * lRayEnd_NDC; 
+		lRayEnd_world /= lRayEnd_world.w;
+
+
+		glm::vec3 lRayDir_world(lRayEnd_world - lRayStart_world);
+		lRayDir_world = glm::normalize(lRayDir_world);
+
+		return luck::ray{glm::vec3(lRayStart_world), glm::normalize(lRayDir_world)};
+	}*/
 }
 
 void load_scene(luck::world& world, luck::resources& resources, std::string scene_file, luck::program* program);
@@ -297,8 +408,9 @@ int main()
 	luck::bullet_system bullet_system{};
 	luck::character_system character_system{bullet_system.world()};
 	luck::tps_controller_system tps_controller_system{};
+	luck::test_system test_system{};
 
-	renderable_system.render_aabbs = false;
+	//renderable_system.render_aabbs = true;
 
 	luck::world w{};
 	w.addSystem(renderable_system);
@@ -308,6 +420,7 @@ int main()
 	w.addSystem(fps_controller_system);
 	w.addSystem(character_system);
 	w.addSystem(tps_controller_system);
+	w.addSystem(test_system);
 
 	size_t resource_count = 8;
 	size_t resources_loaded = 0;
@@ -395,6 +508,7 @@ int main()
 		spatial_system.update();
 		camera_system.render();
 		bullet_system.debug_draw();
+
 		screen.swap_buffers();
 
 		if (luck::input::key(GLFW_KEY_ESCAPE)) break;
@@ -509,7 +623,7 @@ void load_scene(luck::world& world, luck::resources& resources, std::string scen
 							resources.get<luck::mesh_data_resource>(path+"/"+luck::tools::get_file_name(name)+".l3d").get().calculate_aabb();
 							auto h = resources.get<luck::mesh_data_resource>(path+"/"+luck::tools::get_file_name(name)+".l3d").get().aabb;
 							h.rotate(glm::quat(rotation));
-							entity.addComponent<luck::box_shape_component>(h.getDiagonal()+position);
+							entity.addComponent<luck::box_shape_component>(h.getDiagonal());
 						}
 					}
 				}

@@ -25,14 +25,15 @@ namespace luck
 		e_spatial.m_proxy = proxy;
 	}
 
-	void spatial_system::onEntityRemoved(luck::entity& /*e*/)
+	void spatial_system::onEntityRemoved(luck::entity& e)
 	{
-
+		spatial_component& c = e.getComponent<spatial_component>();
+		m_tree.destroy_proxy(c.m_proxy);
 	}
 
 	void spatial_system::onSpatialDestroy(spatial_component& c)
 	{
-		m_tree.destroy_proxy(c.m_proxy);
+		//m_tree.destroy_proxy(c.m_proxy);
 	}
 
 	void spatial_system::update()

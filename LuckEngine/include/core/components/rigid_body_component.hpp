@@ -10,6 +10,9 @@ namespace luck
 		enum body_type { STATIC, DYNAMIC, KINEMATIC };
 		body_type type = STATIC;
 
+		boost::signals2::signal<void(int)> on_mouse_down;
+		boost::signals2::signal<void(int)> on_mouse_up;
+
 		std::unique_ptr<btMotionState> motion_state = nullptr;
 		std::unique_ptr<btRigidBody> rigid_body = nullptr;
 		btDiscreteDynamicsWorld* world = nullptr;
@@ -35,7 +38,8 @@ namespace luck
 		}
 		~rigid_body_component()
 		{
-			world->removeRigidBody(rigid_body.get());
+			if (rigid_body.get() != nullptr)
+				world->removeRigidBody(rigid_body.get());
 		}
 	};
 }

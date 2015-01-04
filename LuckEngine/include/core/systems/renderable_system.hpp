@@ -63,6 +63,7 @@ namespace luck
 			void simple_render(luck::entity current_camera);
 			void render(luck::entity current_camera);
 			void onEntityAdded(luck::entity& e) override;
+			void onEntityRemoved(luck::entity& e) override;
 			static bool sort_renderables(const luck::entity& a, const luck::entity& b);
 			static std::vector<detail::program> sort_solids(const std::vector<detail::renderable_state_reference>& solid_renderables);
 	};
