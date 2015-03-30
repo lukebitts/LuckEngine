@@ -3,6 +3,8 @@
 
 ///@todo: find actual includes?
 
+#include "mouse_triggerable.hpp"
+
 namespace luck
 {
 	struct rigid_body_component : luck::component<rigid_body_component>
@@ -10,8 +12,9 @@ namespace luck
 		enum body_type { STATIC, DYNAMIC, KINEMATIC };
 		body_type type = STATIC;
 
-		boost::signals2::signal<void(int)> on_mouse_down;
-		boost::signals2::signal<void(int)> on_mouse_up;
+		//boost::signals2::signal<void(int)> on_mouse_down;
+		//boost::signals2::signal<void(int)> on_mouse_up;
+		boost::signals2::signal<void(luck::entity&)> on_collision;
 
 		std::unique_ptr<btMotionState> motion_state = nullptr;
 		std::unique_ptr<btRigidBody> rigid_body = nullptr;

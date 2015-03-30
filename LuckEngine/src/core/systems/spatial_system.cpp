@@ -13,11 +13,17 @@ namespace luck
 		spatial_component& e_spatial = e.getComponent<spatial_component>();
 		e_spatial.m_system = this;
 
+		e_spatial.m_position = e_spatial.position;
+		e_spatial.m_rotation = e_spatial.rotation;
+		e_spatial.m_scale = e_spatial.scale;
+		e_spatial.m_aabb = e_spatial.aabb;
+
+
 		glm::aabb aabb = e_spatial.aabb;
 
 		aabb.rotate(e_spatial.rotation);
 		aabb.translate(e_spatial.position);
-		//aabb.scale(e_spatial.scale, e_spatial.position);
+		aabb.scale(e_spatial.scale, e_spatial.position);
 
 		e_spatial.aabb = aabb;
 

@@ -16,7 +16,7 @@ namespace luck
 		if(cameras.size())
 			camera_component::main = cameras[0];
 
-	for(anax::Entity e : cameras)
+		for(anax::Entity e : cameras)
 		{
 			m_renderable_system.render(e);
 		}
@@ -40,6 +40,6 @@ namespace luck
 		if(c_camera.type == camera_component::Type::PERSPECTIVE)
 			return glm::perspective(c_camera.fov, (float)screen_size.x / (float)screen_size.y, c_camera.near, c_camera.far);
 
-		return glm::ortho(0.f, (float)screen_size.x, (float)screen_size.y, 0.f, -1.f, 1.f);
+		return glm::ortho(0.f, (float)screen_size.x, 0.f, (float)screen_size.y, 0.1f, 100.f);
 	}
 }

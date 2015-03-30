@@ -276,120 +276,46 @@ namespace luck
 			}
 	};
 
+	struct test_component : public luck::component<test_component>
+	{
+		MEMBERFY(test_component, int, test_number);
+		MEMBERFY(test_component, int, test_number2);
+		public:
+			boost::signals2::connection conn;
+	};
+
 	class test_system : public luck::system<test_system>
 	{
 		public:
 			test_system() :
-				Base(luck::component_filter().requires<rigid_body_component>())
+				Base(luck::component_filter().requires<mouse_triggerable, test_component>())
 			{
 
 			}
 			void onEntityAdded(luck::entity& e) override
 			{
-				auto conn = e.getComponent<rigid_body_component>().on_mouse_down.connect([e](int button){
+				auto l = [e](int button) mutable {
 					LOG(e.getId());
-				});
+					e.getComponent<test_component>().conn.disconnect();
+					//delete conn;
+					//e.kill();
+				};
+				e.getComponent<test_component>().conn = e.getComponent<mouse_triggerable>().on_mouse_down.connect(l);
+				/*e.getComponent<rigid_body_component>().on_collision.connect([e](luck::entity& other) mutable {
+					//LOG(e.getId(), " ", other.getId());
+				});*/
 
-				e.getComponent<rigid_body_component>().on_mouse_down.disconnect(conn); //@todo find out why this doesn't work
+				//e.getComponent<rigid_body_component>().on_mouse_down.disconnect(conn);
 			}
 	};
-
-	/*luck::bullet_system* physics;
-
-	bool raycast(glm::vec3 origin, glm::vec3 direction, luck::raycast_hit& hit_info, float distance = std::numeric_limits<float>::max()) 
-	{
-		//direction = glm::min(direction*distance,glm::vec3(INFINITY));
-
-		direction *= 1000.f;
-
-		btCollisionWorld::ClosestRayResultCallback RayCallback(
-			btVector3(origin.x, origin.y, origin.z),
-			btVector3(direction.x, direction.y, direction.z)
-			);
-		physics->world()->rayTest(
-			btVector3(origin.x, origin.y, origin.z),
-			btVector3(direction.x, direction.y, direction.z),
-			RayCallback
-			);
-
-		if (RayCallback.hasHit()) {
-			luck::entity* e = static_cast<luck::entity*>(RayCallback.m_collisionObject->getUserPointer());
-			if (e == nullptr) {
-				return false;
-			}
-
-			hit_info.hit_entity = luck::entity(*e);
-			return true;
-		}
-		else{
-			return false;
-		}
-	}
-	bool raycast(glm::vec3 origin, glm::vec3 direction, float distance = std::numeric_limits<float>::max())
-	{
-		luck::raycast_hit hit_info;
-		return raycast(origin, direction, hit_info, distance);
-	}
-	bool raycast(luck::ray ray, float distance = std::numeric_limits<float>::max())
-	{
-		return raycast(ray.origin, ray.direction, distance);
-	}
-	bool raycast(luck::ray ray, luck::raycast_hit& hit_info, float distance = std::numeric_limits<float>::max())
-	{
-		return raycast(ray.origin, ray.direction, hit_info, distance);
-	}*/
-
-	/*ray screen_pos_to_ray(const luck::entity& camera, glm::vec2 position)
-	{
-		//from: http://www.opengl-tutorial.org/miscellaneous/clicking-on-objects/picking-with-a-physics-library/
-
-		float mouseY = (float)screen::size().y - position.y;
-
-		glm::vec4 lRayStart_NDC(
-			((float)position.x / (float)screen::size().x - 0.5f) * 2.0f, // [0,1024] -> [-1,1]
-			((float)mouseY / (float)screen::size().y - 0.5f) * 2.0f, // [0, 768] -> [-1,1]
-			-1.0, // The near plane maps to Z=-1 in Normalized Device Coordinates
-			1.0f
-		);
-
-		glm::vec4 lRayEnd_NDC(
-			((float)position.x / (float)screen::size().x - 0.5f) * 2.0f,
-			((float)mouseY / (float)screen::size().y - 0.5f) * 2.0f,
-			0.0,
-			1.0f
-		);
-
-		glm::mat4 ProjectionMatrix = luck::camera_system::calculate_projection(camera);
-		glm::mat4 ViewMatrix = luck::camera_system::calculate_view(camera);
-
-		// The Projection matrix goes from Camera Space to NDC.
-		// So inverse(ProjectionMatrix) goes from NDC to Camera Space.
-		glm::mat4 InverseProjectionMatrix = glm::inverse(ProjectionMatrix);
-
-		// The View Matrix goes from World Space to Camera Space.
-		// So inverse(ViewMatrix) goes from Camera Space to World Space.
-		glm::mat4 InverseViewMatrix = glm::inverse(ViewMatrix);
-
-		// Faster way (just one inverse)
-		glm::mat4 M = glm::inverse(ProjectionMatrix * ViewMatrix);
-		glm::vec4 lRayStart_world = M * lRayStart_NDC; 
-		lRayStart_world /= lRayStart_world.w;
-		glm::vec4 lRayEnd_world   = M * lRayEnd_NDC; 
-		lRayEnd_world /= lRayEnd_world.w;
-
-
-		glm::vec3 lRayDir_world(lRayEnd_world - lRayStart_world);
-		lRayDir_world = glm::normalize(lRayDir_world);
-
-		return luck::ray{glm::vec3(lRayStart_world), glm::normalize(lRayDir_world)};
-	}*/
 }
 
 void load_scene(luck::world& world, luck::resources& resources, std::string scene_file, luck::program* program);
+void load_scene2(luck::world& world, luck::resources& resources, std::string scene_file, luck::program* program);
 
 int main()
 {	
-	luck::screen screen(1600, 1000, false);
+	luck::screen screen(950, 540, false);
 	luck::input::initialize();
 	glClearColor(0.3f,0.65f,0.95f,1.f);
 
@@ -422,53 +348,14 @@ int main()
 	w.addSystem(tps_controller_system);
 	w.addSystem(test_system);
 
-	size_t resource_count = 8;
-	size_t resources_loaded = 0;
 	resources.on_load.connect([&](std::string path){
-		resources_loaded++;
-		LOG(std::setfill('0'),std::setw(3),(int)(((float)resources_loaded/(float)resource_count)*100),"%\t",path);
+		LOG(path);
 	});
 	resources.on_load_error.connect([&](std::string path){
-		resources_loaded++;
-		LOG(std::setfill('0'),std::setw(3),(int)(((float)resources_loaded/(float)resource_count)*100),"%\t",path," (Error)");
+		LOG(path," (Error)");
 	});
 
-	load_scene(w, resources, "assets/scene_test2/scene.lsc", &program1);
-
-	//player resources
-
-	resources.load<luck::mesh_data_resource>(luck::tools::mesh::convert("assets/meshs/player.obj","",true)[0]);
-	luck::mesh player_mesh{ resources.get<luck::mesh_data_resource>("assets/meshs/player.l3d") };
-
-	resources.load<luck::image_resource>(luck::tools::image::convert("assets/images/T_Indoor.png", "", true));
-	luck::texture player_texture{ resources.get<luck::image_resource>("assets/images/T_Indoor.lif") };
-
-	luck::material player_material = luck::material(luck::render_pass(&program1));
-	player_material.passes[0].textures["albedo"] = &player_texture;
-	player_material.passes[0].vec2["divide"] = glm::vec2(1.0f, 1.0f);
-	player_material.passes[0].vec2["move_direction"] = glm::vec2(0, 0);
-
-	luck::entity character = w.createEntity();
-	character.addComponent<luck::spatial_component>(glm::vec3(1.f, 3.f, -4.5f), glm::quat(glm::vec3(0.f, glm::radians(90.f), 0.f)));
-	character.addComponent<luck::mesh_component>(&player_mesh, player_material);
-	character.addComponent<luck::capsule_shape_component>(0.2f,1.6f,glm::vec3(0.f,-0.4f,0.f));
-	character.addComponent<luck::character_component>();
-	character.activate();
-	
-	luck::entity camera = w.createEntity();
-	camera.addComponent<luck::spatial_component>(glm::vec3(0, 20, 70.f));
-	camera.addComponent<luck::camera_component>();
-	camera.getComponent<luck::camera_component>().fov = 45.f;
-	camera.getComponent<luck::camera_component>().near = 0.1f;
-	camera.getComponent<luck::camera_component>().far = 1000.f;
-	/*camera.addComponent<luck::fps_controller_component>();
-	camera.getComponent<luck::fps_controller_component>().sensitivity = 0.0025f;
-	camera.getComponent<luck::fps_controller_component>().move_speed = 50.f;*/
-	camera.addComponent<luck::tps_controller_component>();
-	camera.getComponent<luck::tps_controller_component>().to_follow = character;
-	camera.getComponent<luck::tps_controller_component>().height = 8.f;
-	camera.getComponent<luck::tps_controller_component>().distance = 2.f;
-	camera.activate();
+	load_scene2(w, resources, "assets/scene_test3/scene.lsc", &program1);
 
 	double last_time = glfwGetTime();
 	int nb_frames = 0;
@@ -525,6 +412,123 @@ collision_shape|position:x,y,z|rotation:x,y,z,w|scale:x,y,z|solid:static,mesh|ma
 street_light.004|position:x,y,z|rotation:x,y,z,w|scale:x,y,z|solid:static,bounding|materials:2|texture:;texture:tex3.png
 
 */
+
+void load_scene2(luck::world& world, luck::resources& resources, std::string scene_file, luck::program* program)
+{
+	resources.load<luck::text_resource>(scene_file);
+	std::string scene_data = resources.get<luck::text_resource>(scene_file).get().text;
+	std::string path = luck::tools::get_file_path(scene_file);
+
+	std::vector<std::string> objects;
+	boost::split(objects, scene_data, boost::is_any_of("\n"));
+
+	std::unordered_map<std::string, luck::entity> entities;
+	std::unordered_map<std::string, luck::texture*> loaded_textures;
+	std::unordered_map<std::string, luck::mesh*> loaded_meshs;
+
+	std::string entity_name = objects[0].substr(1);
+	luck::entity e;
+
+	for (size_t i = 1; i < objects.size(); ++i)
+	{
+		if (entities.find(entity_name) == entities.end()) {
+			e = world.createEntity();
+			entities[entity_name] = e;
+		}
+
+		if (objects[i].find("#") == 0)
+		{
+			entity_name = objects[i].substr(1);
+			continue;
+		}
+
+		std::vector<std::string> component;
+		boost::split(component, objects[i], boost::is_any_of(":"));
+
+		if (component[0] == "Spatial")
+		{
+			luck::spatial_component& c = e.addComponent<luck::spatial_component>();
+
+			std::vector<std::string> data;
+			boost::split(data, component[1], boost::is_any_of(","));
+
+			glm::vec3 position = glm::vec3(::atof(data[0].c_str()), ::atof(data[1].c_str()), ::atof(data[2].c_str()));
+			glm::quat rotation = glm::quat(glm::vec3(glm::radians(::atof(data[3].c_str())), glm::radians(::atof(data[4].c_str())), glm::radians(::atof(data[5].c_str()))));
+			glm::vec3 scale = glm::vec3(::atof(data[6].c_str()), ::atof(data[7].c_str()), ::atof(data[8].c_str()));
+
+			c.position = position;
+			c.scale = scale;
+			c.rotation = rotation;
+		}
+		else if (component[0] == "Mesh")
+		{
+			std::vector<std::string> data;
+			boost::split(data, component[1], boost::is_any_of(","));
+
+			boost::trim(data[0]);
+			luck::mesh* mesh;
+			if (loaded_meshs[path + "/" + luck::tools::get_file_name(data[0]) + ".l3d"] != nullptr)
+			{
+				mesh = loaded_meshs[path + "/" + luck::tools::get_file_name(data[0]) + ".l3d"];
+			}
+			else
+			{
+				resources.load<luck::mesh_data_resource>(luck::tools::mesh::convert(path + "/" + data[0])[0]);
+				mesh = new luck::mesh(resources.get<luck::mesh_data_resource>(path + "/" + luck::tools::get_file_name(data[0]) + ".l3d"));
+				loaded_meshs[path + "/" + luck::tools::get_file_name(data[0]) + ".l3d"] = mesh;
+			}
+
+			e.addComponent<luck::mesh_component>(mesh);
+
+			for (size_t j = 1; j < data.size(); ++j) 
+			{
+				boost::trim(data[j]);
+				luck::texture* texture;
+				if (loaded_textures[path + "/" + luck::tools::get_file_name(data[j]) + "lif"] != nullptr)
+				{
+					texture = loaded_textures[path + "/" + luck::tools::get_file_name(data[j]) + "lif"];
+				}
+				else
+				{
+					resources.load<luck::image_resource>(luck::tools::image::convert(path + "/" + data[j]));
+					texture = new luck::texture(resources.get<luck::image_resource>(path + "/" + luck::tools::get_file_name(data[j]) + ".lif"));
+					loaded_textures[path + "/" + luck::tools::get_file_name(data[j]) + "lif"] = texture;
+				}
+
+				luck::material mat = luck::material(luck::render_pass(program));
+				mat.passes[0].textures["albedo"] = texture;
+				mat.passes[0].vec2["divide"] = glm::vec2(1.0f, 1.0f);
+				mat.passes[0].vec2["move_direction"] = glm::vec2(0, 0);
+
+				e.getComponent<luck::mesh_component>().materials.push_back(mat);
+			}
+		}
+		else if (component[0] == "Camera")
+		{
+			std::vector<std::string> data;
+			boost::split(data, component[1], boost::is_any_of(","));
+
+			luck::camera_component& c = e.addComponent<luck::camera_component>();
+
+			if (data[0] == "PERSP") c.type = luck::camera_component::Type::PERSPECTIVE;
+			else if (data[0] == "ORTHO") c.type = luck::camera_component::Type::ORTHOGRAPHIC;
+
+			c.fov = (float)::atof(data[1].c_str());
+			c.near = (float)::atof(data[2].c_str());
+			c.far = (float)::atof(data[3].c_str());
+
+			if (data[0] == "PERSP")
+			{
+				e.addComponent<luck::fps_controller_component>();
+				e.getComponent<luck::fps_controller_component>().sensitivity = 0.0025f;
+				e.getComponent<luck::fps_controller_component>().move_speed = 10.f;
+			}
+		}
+	}
+
+	for (auto& entity : entities)
+		entity.second.activate();
+}
 
 void load_scene(luck::world& world, luck::resources& resources, std::string scene_file, luck::program* program)
 {
@@ -602,6 +606,8 @@ void load_scene(luck::world& world, luck::resources& resources, std::string scen
 					boost::split(solid_info,property[1],boost::is_any_of(","));
 					
 					entity.addComponent<luck::rigid_body_component>(1.f);
+					entity.addComponent<luck::test_component>();
+					entity.addComponent<luck::mouse_triggerable>();
 					
 					for(auto s : solid_info)
 					{

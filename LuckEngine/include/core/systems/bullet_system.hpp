@@ -25,6 +25,34 @@ namespace luck
 		void m_on_collision(btDynamicsWorld* world, float time)
 		{
 			//LOG("ON COLLISION: ",world->getDispatcher()->getNumManifolds());
+			int numManifolds = world->getDispatcher()->getNumManifolds();
+			for (int i = 0; i<numManifolds; i++)
+			{
+				btPersistentManifold* contactManifold = world->getDispatcher()->getManifoldByIndexInternal(i);
+				const btCollisionObject* obA = contactManifold->getBody0();
+				const btCollisionObject* obB = contactManifold->getBody1();
+
+				int numContacts = contactManifold->getNumContacts();
+				for (int j = 0; j<numContacts; j++)
+				{
+					btManifoldPoint& pt = contactManifold->getContactPoint(j);
+					if (pt.getDistance()<0.f)
+					{
+						const btVector3& ptA = pt.getPositionWorldOnA();
+						const btVector3& ptB = pt.getPositionWorldOnB();
+						const btVector3& normalOnB = pt.m_normalWorldOnB;
+
+						luck::entity* entA = (luck::entity*)obA->getUserPointer();
+						luck::entity* entB = (luck::entity*)obB->getUserPointer();
+						if (entA->hasComponent<luck::rigid_body_component>()) {
+							entA->getComponent<luck::rigid_body_component>().on_collision(*entB);
+						}
+						if (entB->hasComponent<luck::rigid_body_component>()) {
+							entB->getComponent<luck::rigid_body_component>().on_collision(*entA);
+						}
+					}
+				}
+			}
 		}
 		static void m_tick_callback(btDynamicsWorld* world, float time)
 		{
@@ -92,10 +120,14 @@ namespace luck
 				luck::raycast_hit hit_info;
 				if (raycast(camera_system::screen_pos_to_ray(camera_component::main, input::mouse_pos()), hit_info))
 				{
-					if (down)
-						hit_info.hit_entity.getComponent<rigid_body_component>().on_mouse_down(button);
-					else
-						hit_info.hit_entity.getComponent<rigid_body_component>().on_mouse_up(button);
+					if (hit_info.hit_entity.hasComponent<mouse_triggerable>()) {
+						if (down) {
+							hit_info.hit_entity.getComponent<mouse_triggerable>().on_mouse_down(button);
+						}
+						else {
+							hit_info.hit_entity.getComponent<mouse_triggerable>().on_mouse_up(button);
+						}
+					}
 				}
 			});
 		}
@@ -148,6 +180,8 @@ namespace luck
 				e_rigidbody.rigid_body->setActivationState(DISABLE_DEACTIVATION);
 			}
 
+			//e.addComponent<mouse_triggerable>();
+
 			e_rigidbody.rigid_body->setUserPointer(new luck::entity(e));
 
 			m_world.addRigidBody(e_rigidbody.rigid_body.get());
@@ -161,6 +195,8 @@ namespace luck
 
 			m_world.removeRigidBody(e_rigidbody.rigid_body.get());
 			e_rigidbody.rigid_body.reset(nullptr);
+
+			//e.removeComponent<mouse_triggerable>();
 		}
 		float m_accum = 0;
 		void update()

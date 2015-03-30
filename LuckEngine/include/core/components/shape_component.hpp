@@ -5,7 +5,7 @@
 
 namespace luck
 {
-	struct base_shape_component : luck::component<base_shape_component>
+	struct base_shape_component : public luck::component<base_shape_component>
 	{
 		///@todo create the other shapeComponents allowed by Bullet
 	protected:
