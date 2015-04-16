@@ -22,12 +22,12 @@ namespace luck
 			r->submeshes[i] = std::move(mesh.indices[i].indices);
 		}
 
-		r->calculate_aabb();
+		//r->calculate_aabb();
 
 		return true;
 	}
 
-	void mesh_data_resource::calculate_aabb()
+	/*void mesh_data_resource::calculate_aabb()
 	{
 		ASSERT(vertices.size() > 0, "You can't calculate the aabb of an empty mesh.'");
 
@@ -41,5 +41,5 @@ namespace luck
 		}
 
 		aabb = glm::aabb {min, max};
-	}
+	}*/
 }

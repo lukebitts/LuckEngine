@@ -46,15 +46,15 @@ namespace luck
 		}
 		virtual void drawSphere(const btVector3&, btScalar, const btVector3&)
 		{
-
+			LOG(__FUNCTION__);
 		}
 		virtual void drawTriangle(const btVector3&, const btVector3&, const btVector3&, const btVector3&, btScalar)
 		{
-
+			LOG(__FUNCTION__);
 		}
 		virtual void drawContactPoint(const btVector3&, const btVector3&, btScalar, int, const btVector3&)
 		{
-
+			LOG(__FUNCTION__);
 		}
 		virtual void reportErrorWarning(const char* warning_string)
 		{
@@ -62,7 +62,7 @@ namespace luck
 		}
 		virtual void draw3dText(const btVector3&, const char*)
 		{
-
+			LOG(__FUNCTION__);
 		}
 		virtual void setDebugMode(int debugMode)
 		{

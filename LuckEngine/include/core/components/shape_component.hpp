@@ -61,6 +61,20 @@ namespace luck
 		static_plane_shape_component() : base_shape_component(new btStaticPlaneShape(btVector3(0, 1, 0), 0)) {}
 	};
 
+	struct convex_hull_shape_component : base_shape_component
+	{
+		convex_hull_shape_component(luck::resource_handle<luck::mesh_data_resource> mesh) : base_shape_component(nullptr)
+		{
+			m_shape = new btConvexHullShape();
+			for (auto i = 0U; i < mesh.get().vertices.size(); ++i)
+			{
+				auto v = mesh.get().vertices[i];
+				btVector3 btv = btVector3(v.x, v.y, v.z);
+				((btConvexHullShape*)m_shape)->addPoint(btv);
+			}
+		}
+	};
+
 	struct static_triangle_mesh_shape_component : base_shape_component
 	{
 		btTriangleMesh* m_mesh = nullptr;

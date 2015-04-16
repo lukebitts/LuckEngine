@@ -48,9 +48,9 @@ namespace luck
 			std::vector<vertex> vertices;
 			//std::vector<GLuint> indices;
 			std::vector<std::vector<GLuint>> submeshes;
-			glm::aabb aabb;
+			//glm::aabb aabb;
 			static bool load(mesh_data_resource* r, std::string path);
-			void calculate_aabb();
+			//void calculate_aabb();
 	};
 
 }

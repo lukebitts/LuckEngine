@@ -336,7 +336,7 @@ int main()
 	luck::tps_controller_system tps_controller_system{};
 	luck::test_system test_system{};
 
-	//renderable_system.render_aabbs = true;
+	renderable_system.render_aabbs = true;
 
 	luck::world w{};
 	w.addSystem(renderable_system);
@@ -384,7 +384,7 @@ int main()
 		//End FPS
 
 		screen.poll_events();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		luck::application::next_frame();
 		w.refresh();
@@ -418,6 +418,7 @@ void load_scene2(luck::world& world, luck::resources& resources, std::string sce
 	resources.load<luck::text_resource>(scene_file);
 	std::string scene_data = resources.get<luck::text_resource>(scene_file).get().text;
 	std::string path = luck::tools::get_file_path(scene_file);
+	std::string mesh_name = "";
 
 	std::vector<std::string> objects;
 	boost::split(objects, scene_data, boost::is_any_of("\n"));
@@ -459,13 +460,20 @@ void load_scene2(luck::world& world, luck::resources& resources, std::string sce
 			c.position = position;
 			c.scale = scale;
 			c.rotation = rotation;
+			c.entity = e;
+
+			if (data[9] != "-")
+			{
+				c.parent(entities[data[9]]);
+			}
 		}
 		else if (component[0] == "Mesh")
 		{
 			std::vector<std::string> data;
 			boost::split(data, component[1], boost::is_any_of(","));
 
-			boost::trim(data[0]);
+			mesh_name = data[0];
+
 			luck::mesh* mesh;
 			if (loaded_meshs[path + "/" + luck::tools::get_file_name(data[0]) + ".l3d"] != nullptr)
 			{
@@ -482,7 +490,6 @@ void load_scene2(luck::world& world, luck::resources& resources, std::string sce
 
 			for (size_t j = 1; j < data.size(); ++j) 
 			{
-				boost::trim(data[j]);
 				luck::texture* texture;
 				if (loaded_textures[path + "/" + luck::tools::get_file_name(data[j]) + "lif"] != nullptr)
 				{
@@ -516,177 +523,103 @@ void load_scene2(luck::world& world, luck::resources& resources, std::string sce
 			c.fov = (float)::atof(data[1].c_str());
 			c.near = (float)::atof(data[2].c_str());
 			c.far = (float)::atof(data[3].c_str());
+			c.sensor = glm::vec2((float)::atof(data[4].c_str()), (float)::atof(data[5].c_str()));
+			c.depth = ::atoi(data[6].c_str());
 
-			if (data[0] == "PERSP")
+			if (data[7] == "NONE") c.clearFlags = luck::camera_component::NONE;
+			else if (data[7] == "COLOR") c.clearFlags = luck::camera_component::COLOR;
+			else if (data[7] == "DEPTH") c.clearFlags = luck::camera_component::DEPTH;
+			else c.clearFlags = luck::camera_component::ALL;
+
+			c.clearColor = glm::vec3((float)::atof(data[8].c_str()), (float)::atof(data[9].c_str()), (float)::atof(data[10].c_str()));
+
+			if (data[10] == "True")
+				luck::camera_component::main = e;
+		}
+		else if (component[0] == "Shape")
+		{
+			std::vector<std::string> data;
+			boost::split(data, component[1], boost::is_any_of(","));
+
+			if (data[0] == "BOX")
 			{
-				e.addComponent<luck::fps_controller_component>();
-				e.getComponent<luck::fps_controller_component>().sensitivity = 0.0025f;
-				e.getComponent<luck::fps_controller_component>().move_speed = 10.f;
+				e.addComponent<luck::box_shape_component>(glm::vec3((float)::atof(data[1].c_str()), (float)::atof(data[2].c_str()), (float)::atof(data[3].c_str())));
 			}
+			else if (data[0] == "SPHERE") 
+			{
+				e.addComponent<luck::sphere_shape_component>((float)::atof(data[1].c_str()));
+			}
+			else if (data[0] == "MESH")
+			{
+				e.addComponent<luck::static_triangle_mesh_shape_component>(resources.get<luck::mesh_data_resource>(path + "/" + luck::tools::get_file_name(mesh_name) + ".l3d"));
+			}
+			else if (data[0] == "CONVEX_HULL")
+			{
+				e.addComponent<luck::convex_hull_shape_component>(resources.get<luck::mesh_data_resource>(path + "/" + luck::tools::get_file_name(mesh_name) + ".l3d"));
+			}
+			else if (data[0] == "CONE")
+			{
+				
+			}
+			else if (data[0] == "CYLINDER")
+			{
+
+			}
+			else if (data[0] == "CAPSULE")
+			{
+				e.addComponent<luck::capsule_shape_component>((float)::atof(data[1].c_str()), (float)::atof(data[2].c_str()));
+			}
+		}
+		else if (component[0] == "RigidBody")
+		{
+			std::vector<std::string> data;
+			boost::split(data, component[1], boost::is_any_of(","));
+
+			auto& rb = e.addComponent<luck::rigid_body_component>((float)::atof(data[1].c_str()), false);
+			if (data[0] == "STATIC")
+				rb.type = luck::rigid_body_component::body_type::STATIC;
+			else if (data[0] == "DYNAMIC")
+				rb.type = luck::rigid_body_component::body_type::DYNAMIC;
+			else if (data[0] == "KINEMATIC")
+				rb.type = luck::rigid_body_component::body_type::KINEMATIC;
+			rb.friction = (float)::atof(data[2].c_str());
+			rb.restitution = (float)::atof(data[3].c_str());
+			rb.linear_damping = (float)::atof(data[4].c_str());
+			rb.angular_damping = (float)::atof(data[5].c_str());
+
+			e.addComponent<luck::mouse_triggerable>();
+		}
+		else if (component[0] == "FpsController")
+		{
+			std::vector<std::string> data;
+			boost::split(data, component[1], boost::is_any_of(","));
+
+			auto& f = e.addComponent<luck::fps_controller_component>();
+			f.move_speed = (float)::atof(data[0].c_str());
+			f.sensitivity = (float)::atof(data[1].c_str());
+		}
+		else if (component[0] == "TpsController")
+		{
+			std::vector<std::string> data;
+			boost::split(data, component[1], boost::is_any_of(","));
+
+			auto& t = e.addComponent<luck::tps_controller_component>();
+			if (entities.find(data[0]) != entities.end())
+				t.to_follow = entities[data[0]];
+			///@todo: else, defer that to later
+
+			t.height = (float)::atof(data[1].c_str());
+			t.distance = (float)::atof(data[2].c_str());
+		}
+		else if (component[0] == "CharacterController")
+		{
+			std::vector<std::string> data;
+			boost::split(data, component[1], boost::is_any_of(","));
+
+			e.addComponent<luck::character_component>().speed = (float)::atof(data[0].c_str());
 		}
 	}
 
 	for (auto& entity : entities)
 		entity.second.activate();
-}
-
-void load_scene(luck::world& world, luck::resources& resources, std::string scene_file, luck::program* program)
-{
-	resources.load<luck::text_resource>(scene_file);
-	std::string scene_data = resources.get<luck::text_resource>(scene_file).get().text;
-
-	std::vector<std::string> objects;
-	boost::split(objects, scene_data, boost::is_any_of("\n"));
-	std::string path = luck::tools::get_file_path(scene_file);
-
-	std::unordered_map<std::string, luck::texture*> loaded_textures;
-	std::unordered_map<std::string, luck::mesh*> loaded_meshs;
-
-	for (size_t i = 0; i < objects.size(); ++i)
-	{
-		boost::trim(objects[i]);
-		if (objects[i] == "") continue;
-
-		std::vector<std::string> object_info;
-		boost::split(object_info, objects[i], boost::is_any_of("|"));
-
-		if (object_info[0] == "mesh")
-		{
-			luck::entity entity = world.createEntity();
-
-			std::string name = object_info[1];
-			LOG(name);
-
-			luck::mesh* mesh;
-
-			if (loaded_meshs[path + "/" + luck::tools::get_file_name(name) + ".l3d"] != nullptr)
-			{
-				mesh = loaded_meshs[path + "/" + luck::tools::get_file_name(name) + ".l3d"];
-			}
-			else 
-			{
-				resources.load<luck::mesh_data_resource>(luck::tools::mesh::convert(path + "/" + name)[0]);
-				mesh = new luck::mesh(resources.get<luck::mesh_data_resource>(path + "/" + luck::tools::get_file_name(name) + ".l3d"));
-				loaded_meshs[path + "/" + luck::tools::get_file_name(name) + ".l3d"] = mesh;
-			}
-			
-			entity.addComponent<luck::mesh_component>(mesh);
-			
-			glm::vec3 position;
-			glm::vec3 rotation;
-			glm::vec3 scale;
-			int materials = 0;
-			
-			for(size_t i = 2; i < object_info.size(); ++i)
-			{
-				std::vector<std::string> property;
-				boost::split(property,object_info[i],boost::is_any_of(":"));
-				
-				if(property[0] == "position")
-				{
-					std::vector<std::string> position_info;
-					boost::split(position_info,property[1],boost::is_any_of(","));
-					position = glm::vec3(::atof(position_info[0].c_str()),::atof(position_info[1].c_str()),::atof(position_info[2].c_str()));
-				}
-				else if(property[0] == "rotation")
-				{
-					std::vector<std::string> rotation_info;
-					boost::split(rotation_info,property[1],boost::is_any_of(","));
-					rotation = glm::vec3(glm::radians(::atof(rotation_info[0].c_str())), glm::radians(::atof(rotation_info[1].c_str())), glm::radians(::atof(rotation_info[2].c_str())));
-				}
-				else if(property[0] == "scale")
-				{
-					std::vector<std::string> scale_info;
-					boost::split(scale_info,property[1],boost::is_any_of(","));
-					scale = glm::vec3(::atof(scale_info[0].c_str()),::atof(scale_info[1].c_str()),::atof(scale_info[2].c_str()));
-				}
-				else if(property[0] == "solid")
-				{
-					std::vector<std::string> solid_info;
-					boost::split(solid_info,property[1],boost::is_any_of(","));
-					
-					entity.addComponent<luck::rigid_body_component>(1.f);
-					entity.addComponent<luck::test_component>();
-					entity.addComponent<luck::mouse_triggerable>();
-					
-					for(auto s : solid_info)
-					{
-						if(s == "dynamic")
-						{
-							entity.getComponent<luck::rigid_body_component>().type = luck::rigid_body_component::DYNAMIC;
-						}
-						else if(s == "static")
-						{
-							entity.getComponent<luck::rigid_body_component>().type = luck::rigid_body_component::STATIC;
-							entity.getComponent<luck::rigid_body_component>().mass = 0.f;
-						}
-						else if (s == "mesh"/* || s == "bounding"*/)
-						{
-							entity.addComponent<luck::static_triangle_mesh_shape_component>(resources.get<luck::mesh_data_resource>(path+"/"+luck::tools::get_file_name(name)+".l3d"));
-						}
-						else if(s == "bounding")
-						{
-							resources.get<luck::mesh_data_resource>(path+"/"+luck::tools::get_file_name(name)+".l3d").get().calculate_aabb();
-							auto h = resources.get<luck::mesh_data_resource>(path+"/"+luck::tools::get_file_name(name)+".l3d").get().aabb;
-							h.rotate(glm::quat(rotation));
-							entity.addComponent<luck::box_shape_component>(h.getDiagonal());
-						}
-					}
-				}
-				else if(property[0] == "materials")
-				{
-					materials = ::atoi(property[1].c_str());
-				}
-				else if(property[0] == "texture")
-				{
-					auto p = luck::tools::reform(property.begin(), property.end(), ':');
-					std::vector<std::string> textures;
-					boost::split(textures,p,boost::is_any_of(";"));
-					
-					for(auto t : textures)
-					{
-						std::vector<std::string> texture;
-						boost::split(texture,t,boost::is_any_of(":"));
-						
-						if(texture[1] != "")
-						{
-							luck::texture* tex;
-						
-							if(loaded_textures[path+"/"+texture[1]] != nullptr)
-							{
-								tex = loaded_textures[path+"/"+texture[1]];
-							}
-							else
-							{
-								std::string old_path = path+"/"+texture[1];
-								resources.load<luck::image_resource>(luck::tools::image::convert(path+"/"+texture[1]));
-								boost::replace_all(texture[1],".png",".lif");
-								loaded_textures[old_path] = new luck::texture(resources.get<luck::image_resource>(path+"/"+texture[1]));
-								tex = loaded_textures[old_path];
-							}
-						
-							resources.load<luck::image_resource>(luck::tools::image::convert(path+"/"+texture[1]));
-							boost::replace_all(texture[1],".png",".lif");
-							//auto tex = new luck::texture(resources.get<luck::image_resource>(path+"/"+texture[1]));
-							
-							luck::material mat = luck::material(luck::render_pass(program));
-							mat.passes[0].textures["albedo"] = tex;
-							mat.passes[0].vec2["divide"] = glm::vec2(1.0f,1.0f);
-							mat.passes[0].vec2["move_direction"] = glm::vec2(0,0);
-
-							entity.getComponent<luck::mesh_component>().materials.push_back(mat);
-						}
-					}
-				}
-			}
-			
-			entity.addComponent<luck::spatial_component>(position,glm::quat(rotation),scale);
-			entity.activate();
-			
-		}
-		else if(object_info[0] == "lamp")
-		{
-		
-		}
-	}
 }

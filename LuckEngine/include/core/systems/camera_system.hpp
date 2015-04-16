@@ -12,7 +12,14 @@ namespace luck
 	struct camera_component;
 	class renderable_system;
 
+	namespace detail {
+		struct frustum {
+			float x2, x1, y2, y1, camnear, camfar;
+		};
+	}
+
 ///@todo camera system just gives an easy access to cameras instead of having a render loop
+///@todo add camera depth and clear flags (like unity)
 	class camera_system : public luck::system<camera_system>
 	{
 		private:
@@ -66,6 +73,21 @@ namespace luck
 
 				return luck::ray{ glm::vec3(lRayStart_world), glm::normalize(lRayDir_world) };
 			}
+			static detail::frustum compute_default_frustum(
+				const float camnear,
+				const float camfar,
+				const float lens,
+				const float sensor_x, const float sensor_y,
+				const short sensor_fit,
+				const float design_aspect_ratio
+				);
+			static detail::frustum compute_default_ortho(
+				const float camnear,
+				const float camfar,
+				const float scale,
+				const float design_aspect_ratio,
+				const short sensor_fit
+				);
 	};
 }
 #endif // CAMERA_SYSTEM_HPP

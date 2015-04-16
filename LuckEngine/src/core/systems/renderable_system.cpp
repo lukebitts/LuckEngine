@@ -23,7 +23,7 @@ namespace luck
 
 	void renderable_system::onEntityAdded(luck::entity& e)
 	{
-		e.getComponent<spatial_component>().aabb = e.getComponent<mesh_component>().mesh->aabb;
+		e.getComponent<spatial_component>().aabb = e.getComponent<spatial_component>().m_aabb = e.getComponent<mesh_component>().mesh->aabb;
 	}
 
 	void renderable_system::onEntityRemoved(luck::entity& e)
@@ -113,6 +113,7 @@ namespace luck
 			if(render_aabbs) {
 				///@todo: remove AABB drawing
 				glUseProgram(0);
+				glColor3f(1.f, 1.f, 1.f);
 				//glDisable(GL_DEPTH_TEST);
 				glPushMatrix();
 				glLoadMatrixf(glm::value_ptr(mat_projection * mat_view));

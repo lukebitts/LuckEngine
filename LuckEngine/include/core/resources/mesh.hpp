@@ -7,21 +7,24 @@
 
 namespace luck
 {
-	///@todo Calculate the aabb here instead of doing it in the mesh_data_resource, maybe as a function instead of keeping a "aabb" member
-	/// this way the renderablesystem can overwrite the Spatial::aabb var if it was not initialized
 	///@todo write a mesh.cpp file for the implementation
-	///@todo keep vertex data here too and not just in the mesh_data_resource, and allow vertex editing/etc
+	///@todo Allow vertex editing/etc
 	struct mesh
 	{
 		public:
+			std::vector<mesh_data_resource::vertex> vertices;
+			std::vector<std::vector<GLuint>> submeshes;
+
 			enum buffer_type { VERTEX = 0, ELEMENT = 1 };
 			GLuint buffers[ELEMENT + 1];// {0, 0};
 			std::vector<GLuint> index_list;
 			std::vector<GLsizei> element_number;
-			//GLsizei element_number {0};
+			
 			glm::aabb aabb;
+
 			inline mesh() {}
-			inline mesh(unsigned vertex_number, GLfloat* vertex_list, unsigned element_number, GLuint* element_list) : element_number(element_number)
+			///@todo bring this back later:
+			/*inline mesh(unsigned vertex_number, GLfloat* vertex_list, unsigned element_number, GLuint* element_list) : element_number(element_number)
 			{
 				glGenBuffers(2, &buffers[0]);
 
@@ -30,7 +33,7 @@ namespace luck
 
 				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[(int)ELEMENT]);
 				glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint)*element_number, element_list, GL_STATIC_DRAW);
-			}
+			}*/
 			inline mesh(std::vector<mesh_data_resource::vertex> vertex_list, std::vector<std::vector<GLuint>> element_list) //: element_number((GLuint)element_list.size())
 			{
 				glGenBuffers(2, &buffers[0]);
@@ -43,17 +46,36 @@ namespace luck
 					index_list.push_back(0);
 					element_number.push_back(0);
 					
-					glGenBuffers(1, &index_list[i]);
+					glGenBuffers(1, &index_list[i]); ///@todo delete these buffers
 					element_number[i] = static_cast<GLsizei>(element_list[i].size());
 					glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_list[i]);
 					glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint)*element_list[i].size(), &element_list[i][0], GL_STATIC_DRAW);
 				}
 
+				vertices = std::move(vertex_list);
+				element_list = std::move(element_list);
+
+				calculate_aabb();
 			}
 			inline mesh(const resource_handle<mesh_data_resource>& resource)
 				: mesh(resource.get().vertices, resource.get().submeshes)
 			{
-				aabb = resource.get().aabb;
+				//aabb = resource.get().aabb;
+			}
+			void mesh::calculate_aabb()
+			{
+				ASSERT(vertices.size() > 0, "You can't calculate the aabb of an empty mesh.'");
+
+				glm::vec3 min{ vertices[0].x, vertices[0].y, vertices[0].z };
+				glm::vec3 max{ min };
+
+				for (mesh_data_resource::vertex v : vertices)
+				{
+					min = glm::min(min, glm::vec3{ v.x, v.y, v.z });
+					max = glm::max(max, glm::vec3{ v.x, v.y, v.z });
+				}
+
+				aabb = glm::aabb{ min, max };
 			}
 			inline mesh& operator=(mesh && other)
 			{

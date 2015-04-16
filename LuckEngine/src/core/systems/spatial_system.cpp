@@ -12,6 +12,7 @@ namespace luck
 	{
 		spatial_component& e_spatial = e.getComponent<spatial_component>();
 		e_spatial.m_system = this;
+		e_spatial.entity = e;
 
 		e_spatial.m_position = e_spatial.position;
 		e_spatial.m_rotation = e_spatial.rotation;
@@ -56,11 +57,6 @@ namespace luck
 			glm::aabb aabb;
 			spatial.m_difference(position, rotation, scale, aabb);
 
-			//aabb.rotate(rotation);
-			aabb.translate(position);
-
-			//aabb.translate(spatial.position);
-			//aabb.scale(spatial.scale, spatial.position);
 			bool r = m_tree.move_proxy(e.getComponent<spatial_component>().m_proxy, aabb, position);
 		}
 	}
